@@ -1,13 +1,49 @@
 import "dotenv/config";
 import express from "express";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
 import { db } from "./db";
 import { projects, creativeNotes, users } from "../shared/schema";
 import { eq, desc, sql } from "drizzle-orm";
+import { sendVerificationEmail } from "./lib/email";
 
 const app = express();
 app.use(express.json());
+
+function renderVerificationPage(success: boolean, message: string): string {
+  const color = success ? "#c3f53c" : "#ef4444";
+  const icon = success ? "✓" : "✗";
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Email Verification - WayfinderOS</title>
+      <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+      <style>
+        * { font-family: 'JetBrains Mono', monospace; }
+        body { background: #0a0a0a; color: #fff; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .container { text-align: center; max-width: 400px; padding: 40px; }
+        .icon { width: 80px; height: 80px; border-radius: 50%; background: ${color}; color: #000; font-size: 40px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+        h1 { color: ${color}; margin-bottom: 10px; }
+        p { color: #999; margin-bottom: 30px; }
+        a { display: inline-block; background: ${color}; color: #000; font-weight: bold; padding: 15px 40px; text-decoration: none; border-radius: 8px; }
+        a:hover { opacity: 0.9; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="icon">${icon}</div>
+        <h1>${success ? "Success!" : "Error"}</h1>
+        <p>${message}</p>
+        <a href="/">Go to WayfinderOS</a>
+      </div>
+    </body>
+    </html>
+  `;
+}
 
 async function main() {
   await setupAuth(app);
@@ -36,23 +72,96 @@ async function main() {
       }
 
       const passwordHash = await bcrypt.hash(password, 10);
+      const verificationToken = crypto.randomBytes(32).toString("hex");
+      const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
       const [user] = await db.insert(users).values({
         email,
         passwordHash,
         displayName,
         firstName: firstName || null,
         lastName: lastName || null,
+        emailVerified: "false",
+        verificationToken,
+        verificationTokenExpires,
       }).returning();
 
-      req.session.userId = user.id;
-      req.session.user = {
-        claims: { sub: user.id },
-      };
+      const baseUrl = `${req.protocol}://${req.get("host")}`;
+      await sendVerificationEmail(email, verificationToken, baseUrl);
 
-      res.json({ success: true, user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName } });
+      res.json({ 
+        success: true, 
+        needsVerification: true,
+        message: "Please check your email to verify your account" 
+      });
     } catch (error) {
       console.error("Registration error:", error);
       res.status(500).json({ message: "Registration failed" });
+    }
+  });
+
+  // Email verification endpoint
+  app.get("/api/auth/verify", async (req: any, res) => {
+    try {
+      const { token } = req.query;
+
+      if (!token) {
+        return res.status(400).send(renderVerificationPage(false, "Invalid verification link"));
+      }
+
+      const [user] = await db.select().from(users).where(eq(users.verificationToken, token as string));
+      
+      if (!user) {
+        return res.status(400).send(renderVerificationPage(false, "Invalid or expired verification link"));
+      }
+
+      if (user.verificationTokenExpires && new Date() > user.verificationTokenExpires) {
+        return res.status(400).send(renderVerificationPage(false, "Verification link has expired"));
+      }
+
+      await db.update(users)
+        .set({
+          emailVerified: "true",
+          verificationToken: null,
+          verificationTokenExpires: null,
+        })
+        .where(eq(users.id, user.id));
+
+      res.send(renderVerificationPage(true, "Your email has been verified!"));
+    } catch (error) {
+      console.error("Verification error:", error);
+      res.status(500).send(renderVerificationPage(false, "Verification failed"));
+    }
+  });
+
+  // Resend verification email
+  app.post("/api/auth/resend-verification", async (req: any, res) => {
+    try {
+      const { email } = req.body;
+
+      const [user] = await db.select().from(users).where(eq(users.email, email));
+      if (!user) {
+        return res.json({ success: true });
+      }
+
+      if (user.emailVerified === "true") {
+        return res.json({ success: true, message: "Email already verified" });
+      }
+
+      const verificationToken = crypto.randomBytes(32).toString("hex");
+      const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+      await db.update(users)
+        .set({ verificationToken, verificationTokenExpires })
+        .where(eq(users.id, user.id));
+
+      const baseUrl = `${req.protocol}://${req.get("host")}`;
+      await sendVerificationEmail(email, verificationToken, baseUrl);
+
+      res.json({ success: true, message: "Verification email sent" });
+    } catch (error) {
+      console.error("Resend verification error:", error);
+      res.status(500).json({ message: "Failed to resend verification email" });
     }
   });
 
@@ -73,6 +182,14 @@ async function main() {
       const isValid = await bcrypt.compare(password, user.passwordHash);
       if (!isValid) {
         return res.status(401).json({ message: "Invalid email or password" });
+      }
+
+      if (user.emailVerified !== "true") {
+        return res.status(403).json({ 
+          message: "Please verify your email before logging in",
+          needsVerification: true,
+          email: user.email
+        });
       }
 
       req.session.userId = user.id;

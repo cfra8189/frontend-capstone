@@ -1,18 +1,21 @@
 import { useState } from "react";
 
 export default function Landing() {
-  const [mode, setMode] = useState<"login" | "register">("login");
+  const [mode, setMode] = useState<"login" | "register" | "verify">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    setMessage("");
     setLoading(true);
 
     try {
@@ -30,7 +33,18 @@ export default function Landing() {
       const data = await res.json();
 
       if (!res.ok) {
+        if (data.needsVerification) {
+          setEmail(data.email || email);
+          setMode("verify");
+          return;
+        }
         setError(data.message || "Something went wrong");
+        return;
+      }
+
+      if (data.needsVerification) {
+        setMode("verify");
+        setMessage(data.message);
         return;
       }
 
@@ -40,6 +54,68 @@ export default function Landing() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleResendVerification() {
+    setResending(true);
+    setError("");
+    setMessage("");
+
+    try {
+      const res = await fetch("/api/auth/resend-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setMessage("Verification email sent! Check your inbox.");
+      } else {
+        setError(data.message || "Failed to resend email");
+      }
+    } catch (err) {
+      setError("Failed to resend verification email");
+    } finally {
+      setResending(false);
+    }
+  }
+
+  if (mode === "verify") {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-8">
+        <div className="max-w-md w-full text-center">
+          <div className="w-16 h-16 bg-accent rounded-xl flex items-center justify-center text-black font-bold text-2xl mx-auto mb-6">
+            W
+          </div>
+          <h1 className="text-2xl font-bold mb-4">Check Your Email</h1>
+          <p className="text-gray-400 mb-6">
+            We've sent a verification link to <span className="text-accent">{email}</span>
+          </p>
+          <p className="text-gray-500 text-sm mb-8">
+            Click the link in the email to verify your account. The link expires in 24 hours.
+          </p>
+
+          {message && <p className="text-green-400 text-sm mb-4">{message}</p>}
+          {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
+
+          <button
+            onClick={handleResendVerification}
+            disabled={resending}
+            className="w-full bg-gray-700 text-white font-bold py-4 rounded-lg hover:bg-gray-600 transition-colors disabled:opacity-50 mb-4"
+          >
+            {resending ? "Sending..." : "Resend Verification Email"}
+          </button>
+
+          <button
+            onClick={() => setMode("login")}
+            className="text-gray-500 hover:text-white text-sm"
+          >
+            Back to Sign In
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
