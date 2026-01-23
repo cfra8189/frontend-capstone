@@ -1,8 +1,10 @@
-# WayfinderOS - Creative Asset Management Platform
+# The Box - Creative Asset Management Platform
 
 ## Overview
 
-WayfinderOS is a SaaS platform for independent music artists and studios to manage their creative assets, track projects from concept to publication, and protect their intellectual property. The platform provides tools for:
+The Box (by luctheleo.com) is a SaaS platform for independent music artists and studios to manage their creative assets, track projects from concept to publication, and protect their intellectual property. The philosophy: "In order for creators to be seen out of the box, they have to define their own box."
+
+The platform provides tools for:
 
 - **Project Tracking** - Track work from concept through development to published
 - **Metadata Management** - Store ISRC, UPC, copyright registration numbers
@@ -28,7 +30,8 @@ The platform uses the REVERIE | RVR Creative Development framework:
 - **State Management**: TanStack Query (React Query)
 - **UI Paradigm**: Terminal/command-line aesthetic with dark theme
 - **Styling**: Tailwind CSS with PostCSS, custom accent color (#c3f53c green)
-- **Font**: JetBrains Mono for terminal aesthetic
+- **Font**: Chicago (custom TTF font), fallback to JetBrains Mono
+- **Logo**: box-logo.png (checkered perspective box), ltl-logo.png (LTL monogram), favicon.png
 - **Location**: `/wayfinder_app-v2/client/src/` directory
 
 ### Backend Architecture
@@ -130,6 +133,9 @@ The platform uses the REVERIE | RVR Creative Development framework:
 
 ## Recent Changes
 
+- **Rebranded to "The Box"** from WayfinderOS with luctheleo.com domain
+- **Added Chicago custom font** - Replaced JetBrains Mono with Chicago TTF font
+- **New logos** - box-logo.png, ltl-logo.png, favicon.png
 - **Added email verification system** using Resend integration (24-hour token expiry)
 - **Dual authentication** - OAuth via Replit Auth + email/password with verification
 - **Converted to React + TypeScript architecture** (capstone requirement)

@@ -46,7 +46,7 @@ export async function sendVerificationEmail(to: string, token: string, baseUrl: 
       to: [to],
       subject: 'Verify your account - The Box',
       html: `
-        <div style="font-family: 'Chicago', 'JetBrains Mono', monospace; background: #0a0a0a; color: #fff; padding: 40px; max-width: 600px; margin: 0 auto;">
+        <div style="font-family: 'Courier New', Courier, monospace; background: #0a0a0a; color: #fff; padding: 40px; max-width: 600px; margin: 0 auto;">
           <div style="text-align: center; margin-bottom: 30px;">
             <img src="https://luctheleo.com/box-logo.png" alt="The Box" style="width: 50px; height: 50px;" />
           </div>

@@ -21,8 +21,9 @@ function renderVerificationPage(success: boolean, message: string): string {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Email Verification - The Box</title>
+      <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
       <style>
-        * { font-family: 'Chicago', 'JetBrains Mono', monospace; }
+        * { font-family: 'JetBrains Mono', monospace; }
         body { background: #0a0a0a; color: #fff; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
         .container { text-align: center; max-width: 400px; padding: 40px; }
         .icon { width: 80px; height: 80px; border-radius: 50%; background: ${color}; color: #000; font-size: 40px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
