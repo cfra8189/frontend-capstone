@@ -132,6 +132,19 @@ Preferred communication style: Simple, everyday language.
 - **Documentation section** shows all recorded information
 - **All data stored** in project metadata.workflow JSONB field
 
+### Performance Monitoring
+- **Streaming Stats Tracker** on project details page
+- **Manual data entry** for recording stats from various platforms
+- **Fields tracked**: date, platform, streams, monthly listeners, estimated earnings, notes
+- **Stats history** shows last 5 entries with formatted numbers (K, M)
+- **Quick links** to tracking platforms: Spotify for Artists, Apple Music, SoundExchange, PROs
+- **Educational guide** explaining:
+  - Real-time analytics vs royalty payment timelines
+  - Stream counts (daily), earnings (monthly), radio plays (quarterly)
+  - Recommended tracking platforms (Soundcharts, Songstats, Chartmetric)
+  - How to audit royalties against distributor reports
+- **All stats stored** in project metadata.streaming_stats array
+
 ## External Dependencies
 
 ### Runtime Dependencies
