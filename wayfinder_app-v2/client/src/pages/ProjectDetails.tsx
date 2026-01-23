@@ -68,7 +68,7 @@ export default function ProjectDetails() {
   const workflow = project.metadata?.workflow || {};
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-theme-primary">
       <header className="border-b border-theme p-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">

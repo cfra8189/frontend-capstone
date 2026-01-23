@@ -124,8 +124,8 @@ export default function Landing() {
   }
 
   return (
-    <div className="min-h-screen flex">
-      <div className="hidden lg:flex lg:w-1/2 bg-theme-secondary p-12 flex-col justify-between">
+    <div className="min-h-screen flex bg-theme-primary">
+      <div className="hidden lg:flex lg:w-1/2 bg-theme-primary p-12 flex-col justify-between">
         <div>
           <div className="flex items-center gap-3 mb-16">
             <img src="/box-logo.png" alt="BOX" className="w-10 h-10" />

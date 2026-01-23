@@ -97,15 +97,15 @@ export default function Admin() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">Loading...</p>
+      <div className="min-h-screen bg-theme-primary flex items-center justify-center">
+        <p className="text-theme-muted">Loading...</p>
       </div>
     );
   }
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-theme-primary flex items-center justify-center">
         <div className="card p-8 rounded-xl max-w-md w-full">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center text-white font-bold text-xl">
@@ -139,8 +139,8 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-gray-800 p-4">
+    <div className="min-h-screen bg-theme-primary">
+      <header className="border-b border-theme p-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-red-500 rounded flex items-center justify-center text-white font-bold text-sm">
