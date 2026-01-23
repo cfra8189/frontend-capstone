@@ -159,7 +159,7 @@ export default function Landing() {
 
           <a
             href="/api/login"
-            className="block w-full bg-accent text-black font-bold py-4 px-8 rounded-lg hover:bg-green-400 transition-colors text-center mb-4"
+            className="block w-full bg-white text-black font-bold py-4 px-8 rounded-lg hover:bg-gray-200 transition-colors text-center mb-4"
           >
             Continue with OAuth
           </a>

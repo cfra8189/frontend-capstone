@@ -18,15 +18,16 @@ body {
 }
 
 .accent {
-  color: #c3f53c;
+  color: #ffffff;
 }
 
 .btn-primary {
-  background: #22c55e;
+  background: #ffffff;
+  color: #000000;
 }
 
 .btn-primary:hover {
-  background: #16a34a;
+  background: #e5e5e5;
 }
 
 .input-field {
@@ -35,7 +36,7 @@ body {
 }
 
 .input-field:focus {
-  border-color: #c3f53c;
+  border-color: #ffffff;
   outline: none;
 }
 

@@ -71,10 +71,8 @@ export default function ProjectDetails() {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="text-gray-500 hover:text-white">&larr;</Link>
-            <div className="w-8 h-8 bg-accent rounded flex items-center justify-center text-black font-bold text-sm">
-              W
-            </div>
-            <span className="text-accent font-bold">PROJECT DETAILS</span>
+            <img src="/box-logo.png" alt="The Box" className="w-8 h-8" />
+            <span className="text-white font-bold">PROJECT DETAILS</span>
           </div>
         </div>
       </header>

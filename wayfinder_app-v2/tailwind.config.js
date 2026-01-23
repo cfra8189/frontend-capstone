@@ -7,10 +7,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        accent: "#c3f53c",
+        accent: "#ffffff",
       },
       fontFamily: {
-        mono: ["JetBrains Mono", "monospace"],
+        mono: ["Chicago", "JetBrains Mono", "monospace"],
       },
     },
   },

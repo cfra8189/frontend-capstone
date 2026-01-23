@@ -106,10 +106,8 @@ export default function CreativeSpace() {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="text-gray-500 hover:text-white">&larr;</Link>
-            <div className="w-8 h-8 bg-accent rounded flex items-center justify-center text-black font-bold text-sm">
-              W
-            </div>
-            <span className="text-accent font-bold">CREATIVE SPACE</span>
+            <img src="/box-logo.png" alt="The Box" className="w-8 h-8" />
+            <span className="text-white font-bold">CREATIVE SPACE</span>
           </div>
           <div className="flex items-center gap-2">
             {user?.profileImageUrl && (
@@ -128,7 +126,7 @@ export default function CreativeSpace() {
           </div>
           <button
             onClick={() => { setEditingNote(null); setShowModal(true); }}
-            className="bg-accent text-black font-bold px-6 py-3 rounded hover:bg-green-400"
+            className="bg-white text-black font-bold px-6 py-3 rounded hover:bg-gray-200"
           >
             + New Note
           </button>
@@ -139,7 +137,7 @@ export default function CreativeSpace() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded text-sm whitespace-nowrap ${activeCategory === cat ? "bg-accent text-black" : "bg-gray-800 text-gray-400"}`}
+              className={`px-4 py-2 rounded text-sm whitespace-nowrap ${activeCategory === cat ? "bg-white text-black" : "bg-gray-800 text-gray-400"}`}
             >
               {cat.charAt(0).toUpperCase() + cat.slice(1)}
             </button>
@@ -247,7 +245,7 @@ export default function CreativeSpace() {
                   placeholder="Separate with commas"
                 />
               </div>
-              <button type="submit" className="w-full bg-accent text-black font-bold py-3 rounded">
+              <button type="submit" className="w-full bg-white text-black font-bold py-3 rounded">
                 {editingNote ? "Save Changes" : "Create Note"}
               </button>
             </form>

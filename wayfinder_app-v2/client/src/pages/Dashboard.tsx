@@ -102,10 +102,8 @@ export default function Dashboard() {
       <header className="border-b border-gray-800 p-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-accent rounded flex items-center justify-center text-black font-bold text-sm">
-              W
-            </div>
-            <span className="text-accent font-bold">DASHBOARD</span>
+            <img src="/box-logo.png" alt="The Box" className="w-8 h-8" />
+            <span className="text-white font-bold">THE BOX</span>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/creative" className="text-gray-500 hover:text-white text-sm">
@@ -135,7 +133,7 @@ export default function Dashboard() {
           </div>
           <button
             onClick={() => { setEditingProject(null); setShowModal(true); }}
-            className="bg-accent text-black font-bold px-6 py-3 rounded hover:bg-green-400"
+            className="bg-white text-black font-bold px-6 py-3 rounded hover:bg-gray-200"
           >
             + New Project
           </button>
@@ -165,7 +163,7 @@ export default function Dashboard() {
             <button
               key={status}
               onClick={() => setFilter(status)}
-              className={`px-4 py-2 rounded text-sm ${filter === status ? "bg-accent text-black" : "bg-gray-800 text-gray-400"}`}
+              className={`px-4 py-2 rounded text-sm ${filter === status ? "bg-white text-black" : "bg-gray-800 text-gray-400"}`}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}
             </button>
@@ -279,7 +277,7 @@ export default function Dashboard() {
                   <input name="upc" defaultValue={editingProject?.metadata?.upc || ""} className="input-field w-full p-2 rounded" />
                 </div>
               </div>
-              <button type="submit" className="w-full bg-accent text-black font-bold py-3 rounded">
+              <button type="submit" className="w-full bg-white text-black font-bold py-3 rounded">
                 {editingProject ? "Save Changes" : "Create Project"}
               </button>
             </form>

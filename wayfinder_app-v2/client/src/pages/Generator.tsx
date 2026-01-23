@@ -40,10 +40,8 @@ export default function Generator() {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="text-gray-500 hover:text-white">&larr;</Link>
-            <div className="w-8 h-8 bg-accent rounded flex items-center justify-center text-black font-bold text-sm">
-              W
-            </div>
-            <span className="text-accent font-bold">AGREEMENT GENERATOR</span>
+            <img src="/box-logo.png" alt="The Box" className="w-8 h-8" />
+            <span className="text-white font-bold">AGREEMENT GENERATOR</span>
           </div>
         </div>
       </header>
@@ -52,7 +50,7 @@ export default function Generator() {
         <div className="flex items-center gap-4 mb-8">
           {[1, 2, 3].map(s => (
             <div key={s} className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step >= s ? "bg-accent text-black" : "bg-gray-800 text-gray-500"}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step >= s ? "bg-white text-black" : "bg-gray-800 text-gray-500"}`}>
                 {s}
               </div>
               <span className={`text-sm ${step >= s ? "text-white" : "text-gray-500"}`}>
@@ -107,7 +105,7 @@ export default function Generator() {
                 <button type="button" onClick={() => setStep(1)} className="px-6 py-3 bg-gray-800 rounded">
                   Back
                 </button>
-                <button type="submit" className="flex-1 bg-accent text-black font-bold py-3 rounded">
+                <button type="submit" className="flex-1 bg-white text-black font-bold py-3 rounded">
                   Generate Agreement
                 </button>
               </div>
