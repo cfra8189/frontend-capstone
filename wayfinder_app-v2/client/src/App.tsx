@@ -1,13 +1,19 @@
 import { useAuth } from "./hooks/use-auth";
-import { Route, Switch } from "wouter";
+import { Route, Switch, useLocation } from "wouter";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 import CreativeSpace from "./pages/CreativeSpace";
 import ProjectDetails from "./pages/ProjectDetails";
 import Generator from "./pages/Generator";
+import Admin from "./pages/Admin";
 
 function App() {
   const { user, isLoading, isAuthenticated } = useAuth();
+  const [location] = useLocation();
+
+  if (location === "/admin") {
+    return <Admin />;
+  }
 
   if (isLoading) {
     return (

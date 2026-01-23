@@ -2,8 +2,8 @@ import "dotenv/config";
 import express from "express";
 import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
 import { db } from "./db";
-import { projects, creativeNotes } from "../shared/schema";
-import { eq, desc } from "drizzle-orm";
+import { projects, creativeNotes, users } from "../shared/schema";
+import { eq, desc, sql } from "drizzle-orm";
 
 const app = express();
 app.use(express.json());
@@ -181,6 +181,84 @@ async function main() {
     } catch (error) {
       console.error("Failed to toggle pin:", error);
       res.status(500).json({ message: "Failed to toggle pin" });
+    }
+  });
+
+  // Admin routes
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+  function isAdmin(req: any, res: any, next: any) {
+    if (req.session?.isAdmin) {
+      next();
+    } else {
+      res.status(401).json({ message: "Admin access required" });
+    }
+  }
+
+  app.get("/api/admin/check", (req: any, res) => {
+    if (req.session?.isAdmin) {
+      res.json({ isAdmin: true });
+    } else {
+      res.status(401).json({ isAdmin: false });
+    }
+  });
+
+  app.post("/api/admin/login", (req: any, res) => {
+    const { password } = req.body;
+    if (!ADMIN_PASSWORD) {
+      return res.status(500).json({ message: "Admin password not configured" });
+    }
+    if (password === ADMIN_PASSWORD) {
+      req.session.isAdmin = true;
+      res.json({ success: true });
+    } else {
+      res.status(401).json({ message: "Invalid password" });
+    }
+  });
+
+  app.post("/api/admin/logout", (req: any, res) => {
+    req.session.isAdmin = false;
+    res.json({ success: true });
+  });
+
+  app.get("/api/admin/users", isAdmin, async (req, res) => {
+    try {
+      const allUsers = await db.select().from(users).orderBy(desc(users.createdAt));
+      res.json(allUsers);
+    } catch (error) {
+      console.error("Failed to fetch users:", error);
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
+  app.get("/api/admin/projects", isAdmin, async (req, res) => {
+    try {
+      const allProjects = await db.select().from(projects).orderBy(desc(projects.createdAt));
+      res.json(allProjects);
+    } catch (error) {
+      console.error("Failed to fetch projects:", error);
+      res.status(500).json({ message: "Failed to fetch projects" });
+    }
+  });
+
+  app.get("/api/admin/stats", isAdmin, async (req, res) => {
+    try {
+      const allUsers = await db.select().from(users);
+      const allProjects = await db.select().from(projects);
+      
+      const projectsByStatus: Record<string, number> = {};
+      allProjects.forEach(p => {
+        projectsByStatus[p.status] = (projectsByStatus[p.status] || 0) + 1;
+      });
+
+      res.json({
+        totalUsers: allUsers.length,
+        totalProjects: allProjects.length,
+        projectsByStatus,
+      });
+    } catch (error) {
+      console.error("Failed to fetch stats:", error);
+      res.status(500).json({ message: "Failed to fetch stats" });
     }
   });
 
