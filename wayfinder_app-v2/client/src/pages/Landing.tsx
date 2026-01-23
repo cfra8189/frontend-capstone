@@ -89,9 +89,7 @@ export default function Landing() {
     return (
       <div className="min-h-screen flex items-center justify-center p-8">
         <div className="max-w-md w-full text-center">
-          <div className="w-16 h-16 bg-accent rounded-xl flex items-center justify-center text-black font-bold text-2xl mx-auto mb-6">
-            W
-          </div>
+          <img src="/box-logo.png" alt="The Box" className="w-16 h-16 mx-auto mb-6" />
           <h1 className="text-2xl font-bold mb-4">Check Your Email</h1>
           <p className="text-gray-400 mb-6">
             We've sent a verification link to <span className="text-accent">{email}</span>
@@ -127,10 +125,8 @@ export default function Landing() {
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-gray-900 via-gray-800 to-black p-12 flex-col justify-between">
         <div>
           <div className="flex items-center gap-3 mb-16">
-            <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center text-black font-bold text-xl">
-              W
-            </div>
-            <span className="text-xl font-bold">WayfinderOS</span>
+            <img src="/box-logo.png" alt="The Box" className="w-10 h-10" />
+            <span className="text-xl font-bold">The Box</span>
           </div>
           <h1 className="text-4xl lg:text-5xl font-bold mb-6 leading-tight">
             Your Creative Work,{" "}
@@ -141,17 +137,15 @@ export default function Landing() {
           </p>
         </div>
         <div className="text-gray-600 text-sm">
-          <p>&copy; 2026 WayfinderOS. REVERIE | RVR Creative Development</p>
+          <p>&copy; 2026 The Box by luctheleo.com | REVERIE | RVR Creative Development</p>
         </div>
       </div>
 
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <div className="max-w-md w-full">
           <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center text-black font-bold text-xl">
-              W
-            </div>
-            <span className="text-xl font-bold">WayfinderOS</span>
+            <img src="/box-logo.png" alt="The Box" className="w-10 h-10" />
+            <span className="text-xl font-bold">The Box</span>
           </div>
 
           <div className="text-center mb-6">
@@ -159,7 +153,7 @@ export default function Landing() {
               {mode === "login" ? "Welcome Back" : "Create Account"}
             </h2>
             <p className="text-gray-400">
-              {mode === "login" ? "Sign in to manage your creative assets" : "Join WayfinderOS today"}
+              {mode === "login" ? "Sign in to manage your creative assets" : "Join The Box today"}
             </p>
           </div>
 

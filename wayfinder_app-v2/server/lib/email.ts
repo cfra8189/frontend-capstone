@@ -42,17 +42,17 @@ export async function sendVerificationEmail(to: string, token: string, baseUrl: 
     console.log('Verification URL:', verifyUrl);
     
     const result = await client.emails.send({
-      from: fromEmail || 'WayfinderOS <onboarding@resend.dev>',
+      from: fromEmail || 'The Box <noreply@luctheleo.com>',
       to: [to],
-      subject: 'Verify your WayfinderOS account',
+      subject: 'Verify your account - The Box',
       html: `
-        <div style="font-family: 'JetBrains Mono', monospace; background: #0a0a0a; color: #fff; padding: 40px; max-width: 600px; margin: 0 auto;">
+        <div style="font-family: 'Chicago', 'JetBrains Mono', monospace; background: #0a0a0a; color: #fff; padding: 40px; max-width: 600px; margin: 0 auto;">
           <div style="text-align: center; margin-bottom: 30px;">
-            <div style="display: inline-block; width: 50px; height: 50px; background: #c3f53c; border-radius: 8px; line-height: 50px; font-weight: bold; font-size: 24px; color: #000;">W</div>
+            <img src="https://luctheleo.com/box-logo.png" alt="The Box" style="width: 50px; height: 50px;" />
           </div>
           <h1 style="color: #c3f53c; text-align: center; margin-bottom: 20px;">Verify Your Email</h1>
           <p style="text-align: center; color: #999; margin-bottom: 30px;">
-            Click the button below to verify your email address and activate your WayfinderOS account.
+            Click the button below to verify your email address and activate your account with The Box.
           </p>
           <div style="text-align: center; margin-bottom: 30px;">
             <a href="${verifyUrl}" style="display: inline-block; background: #c3f53c; color: #000; font-weight: bold; padding: 15px 40px; text-decoration: none; border-radius: 8px;">
@@ -64,7 +64,7 @@ export async function sendVerificationEmail(to: string, token: string, baseUrl: 
           </p>
           <hr style="border: none; border-top: 1px solid #333; margin: 30px 0;">
           <p style="text-align: center; color: #444; font-size: 11px;">
-            &copy; 2026 WayfinderOS. REVERIE | RVR Creative Development
+            &copy; 2026 The Box by luctheleo.com | REVERIE | RVR Creative Development
           </p>
         </div>
       `
