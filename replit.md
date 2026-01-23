@@ -116,6 +116,22 @@ Preferred communication style: Simple, everyday language.
   - Reminds users to register copyright, join PRO, get identifiers
   - Educational prompt, not a blocker
 
+### Project Documentation System
+- **Project Details Page** (`/project-details.html?id=X`) with comprehensive tracking
+- **6-Step IP Protection Workflow** stored per project in metadata:
+  1. **Fix Your Work** - Record/document in tangible form (FREE)
+  2. **Register Copyright** - File with US Copyright Office ($45-65)
+  3. **Join a PRO** - BMI (free) or ASCAP membership
+  4. **Register Composition** - Get ISWC from PRO (FREE)
+  5. **Upload to Distributor** - Get ISRC/UPC codes (varies $0-30/yr)
+  6. **Release & Monitor** - Track streams and royalties
+- **Each step includes**:
+  - Detailed educational content with links to official sites
+  - Form fields to record registration numbers, dates, fees
+  - Completion checkbox to mark step done
+- **Documentation section** shows all recorded information
+- **All data stored** in project metadata.workflow JSONB field
+
 ## External Dependencies
 
 ### Runtime Dependencies

@@ -74,7 +74,9 @@ const workflowSteps = [
         fields: [
             { id: "pro_name", label: "PRO Name", type: "select", options: ["BMI", "ASCAP", "SESAC", "Other"] },
             { id: "ipi_number", label: "IPI Number", type: "text", placeholder: "Your 9-11 digit IPI" },
-            { id: "pro_member_id", label: "Member ID", type: "text", placeholder: "Your PRO member ID" }
+            { id: "pro_member_id", label: "Member ID", type: "text", placeholder: "Your PRO member ID" },
+            { id: "pro_fee", label: "Fee Paid", type: "text", placeholder: "e.g., $0 (FREE) or $50" },
+            { id: "pro_join_date", label: "Join Date", type: "date" }
         ]
     },
     {
@@ -95,7 +97,8 @@ const workflowSteps = [
         fields: [
             { id: "iswc", label: "ISWC Code", type: "text", placeholder: "T-000.000.000-0" },
             { id: "pro_work_id", label: "PRO Work ID", type: "text", placeholder: "Work ID from your PRO" },
-            { id: "writers_splits", label: "Writer Splits", type: "text", placeholder: "e.g., Artist 50%, Co-writer 50%" }
+            { id: "writers_splits", label: "Writer Splits", type: "text", placeholder: "e.g., Artist 50%, Co-writer 50%" },
+            { id: "composition_reg_date", label: "Registration Date", type: "date" }
         ]
     },
     {
@@ -118,7 +121,8 @@ const workflowSteps = [
             { id: "distributor_name", label: "Distributor", type: "select", options: ["DistroKid", "TuneCore", "CD Baby", "AWAL", "Ditto", "Amuse", "Other"] },
             { id: "isrc", label: "ISRC Code", type: "text", placeholder: "XX-XXX-00-00000" },
             { id: "upc", label: "UPC Code", type: "text", placeholder: "12-digit code" },
-            { id: "distribution_date", label: "Distribution Date", type: "date" }
+            { id: "distribution_date", label: "Distribution Date", type: "date" },
+            { id: "distributor_fee", label: "Fee Paid", type: "text", placeholder: "e.g., $22.99/year" }
         ]
     },
     {
@@ -258,19 +262,51 @@ function renderDocumentation(workflow) {
     const docs = [];
     
     if (workflow.fixation_complete) {
-        docs.push({ label: "Fixation", value: `${workflow.fixation_format || 'Recorded'} on ${workflow.fixation_date || 'N/A'}` });
+        docs.push({ section: "Step 1: Fixation", items: [
+            { label: "Format", value: workflow.fixation_format || "Not specified" },
+            { label: "Date Fixed", value: workflow.fixation_date || "Not recorded" }
+        ]});
     }
-    if (workflow.copyright_reg_number) {
-        docs.push({ label: "Copyright Registration", value: `#${workflow.copyright_reg_number} (${workflow.copyright_type || 'N/A'})` });
+    if (workflow.copyright_complete) {
+        docs.push({ section: "Step 2: Copyright Registration", items: [
+            { label: "Registration #", value: workflow.copyright_reg_number || "Not recorded" },
+            { label: "Type", value: workflow.copyright_type || "Not specified" },
+            { label: "Date Registered", value: workflow.copyright_date || "Not recorded" },
+            { label: "Fee Paid", value: workflow.copyright_fee || "Not recorded" }
+        ]});
     }
-    if (workflow.pro_name) {
-        docs.push({ label: "PRO Membership", value: `${workflow.pro_name} - IPI: ${workflow.ipi_number || 'N/A'}` });
+    if (workflow.pro_complete) {
+        docs.push({ section: "Step 3: PRO Membership", items: [
+            { label: "PRO Name", value: workflow.pro_name || "Not specified" },
+            { label: "IPI Number", value: workflow.ipi_number || "Not recorded" },
+            { label: "Member ID", value: workflow.pro_member_id || "Not recorded" },
+            { label: "Join Date", value: workflow.pro_join_date || "Not recorded" },
+            { label: "Fee Paid", value: workflow.pro_fee || "Not recorded" }
+        ]});
     }
-    if (workflow.iswc) {
-        docs.push({ label: "ISWC", value: workflow.iswc });
+    if (workflow.register_song_complete) {
+        docs.push({ section: "Step 4: Composition Registration", items: [
+            { label: "ISWC Code", value: workflow.iswc || "Not recorded" },
+            { label: "PRO Work ID", value: workflow.pro_work_id || "Not recorded" },
+            { label: "Writer Splits", value: workflow.writers_splits || "Not recorded" },
+            { label: "Registration Date", value: workflow.composition_reg_date || "Not recorded" }
+        ]});
     }
-    if (workflow.distributor_name) {
-        docs.push({ label: "Distribution", value: `${workflow.distributor_name} - ISRC: ${workflow.isrc || 'N/A'}` });
+    if (workflow.distributor_complete) {
+        docs.push({ section: "Step 5: Distribution", items: [
+            { label: "Distributor", value: workflow.distributor_name || "Not specified" },
+            { label: "ISRC Code", value: workflow.isrc || "Not recorded" },
+            { label: "UPC Code", value: workflow.upc || "Not recorded" },
+            { label: "Distribution Date", value: workflow.distribution_date || "Not recorded" },
+            { label: "Fee Paid", value: workflow.distributor_fee || "Not recorded" }
+        ]});
+    }
+    if (workflow.release_complete) {
+        docs.push({ section: "Step 6: Release & Monitoring", items: [
+            { label: "Release Date", value: workflow.release_date || "Not recorded" },
+            { label: "Streaming Links", value: workflow.streaming_links || "Not recorded" },
+            { label: "Notes", value: workflow.notes || "None" }
+        ]});
     }
     
     if (docs.length === 0) {
@@ -279,9 +315,14 @@ function renderDocumentation(workflow) {
     }
     
     container.innerHTML = docs.map(doc => `
-        <div class="flex justify-between items-center py-2 border-b border-gray-800">
-            <span class="text-gray-400">${doc.label}</span>
-            <span class="text-white text-sm">${doc.value}</span>
+        <div class="mb-4">
+            <h4 class="text-sm font-bold text-[#c3f53c] mb-2">${doc.section}</h4>
+            ${doc.items.map(item => `
+                <div class="flex justify-between items-center py-1 pl-3 text-sm">
+                    <span class="text-gray-500">${item.label}</span>
+                    <span class="text-gray-300">${item.value}</span>
+                </div>
+            `).join("")}
         </div>
     `).join("");
 }

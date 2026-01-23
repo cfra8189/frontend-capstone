@@ -181,6 +181,7 @@ function renderProjects() {
                             ${meta.isrc ? '<span class="block">ISRC: ' + meta.isrc + '</span>' : ''}
                             ${meta.copyright ? '<span class="block">CR: ' + meta.copyright + '</span>' : ''}
                         </div>
+                        <a href="/project-details.html?id=${p.id}" onclick="event.stopPropagation()" class="text-gray-600 hover:text-[#c3f53c] text-sm">Details</a>
                         <button onclick="event.stopPropagation(); deleteProjectHandler(${p.id})" class="text-gray-600 hover:text-red-400 text-sm">Delete</button>
                     </div>
                 </div>
