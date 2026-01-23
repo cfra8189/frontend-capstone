@@ -2,8 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Chicago';
+  src: url('./assets/fonts/ChicagoFLF.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 * {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Chicago', 'JetBrains Mono', monospace;
 }
 
 body {
