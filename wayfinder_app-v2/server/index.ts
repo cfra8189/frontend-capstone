@@ -168,23 +168,29 @@ async function main() {
   // Email/Password Login
   app.post("/api/auth/login", async (req: any, res) => {
     try {
+      console.log("Login attempt for:", req.body.email);
       const { email, password } = req.body;
 
       if (!email || !password) {
+        console.log("Missing email or password");
         return res.status(400).json({ message: "Email and password are required" });
       }
 
       const [user] = await db.select().from(users).where(eq(users.email, email));
+      console.log("User found:", !!user, "emailVerified:", user?.emailVerified);
       if (!user || !user.passwordHash) {
+        console.log("User not found or no password");
         return res.status(401).json({ message: "Invalid email or password" });
       }
 
       const isValid = await bcrypt.compare(password, user.passwordHash);
       if (!isValid) {
+        console.log("Invalid password");
         return res.status(401).json({ message: "Invalid email or password" });
       }
 
       if (user.emailVerified !== true) {
+        console.log("Email not verified");
         return res.status(403).json({ 
           message: "Please verify your email before logging in",
           needsVerification: true,
@@ -197,6 +203,7 @@ async function main() {
         claims: { sub: user.id },
       };
 
+      console.log("Login successful for:", email);
       res.json({ success: true, user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName } });
     } catch (error) {
       console.error("Login error:", error);
