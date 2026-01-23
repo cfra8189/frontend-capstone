@@ -304,7 +304,12 @@ async function main() {
     try {
       const userId = req.user.claims.sub;
       const notes = await db.select().from(creativeNotes).where(eq(creativeNotes.userId, userId)).orderBy(desc(creativeNotes.createdAt));
-      res.json({ notes: notes.map(n => ({ ...n, is_pinned: n.isPinned === "true", tags: n.tags || [] })) });
+      res.json({ notes: notes.map(n => ({ 
+        ...n, 
+        is_pinned: n.isPinned === "true", 
+        tags: n.tags || [],
+        media_url: Array.isArray(n.mediaUrls) && n.mediaUrls.length > 0 ? n.mediaUrls[0] : null
+      })) });
     } catch (error) {
       console.error("Failed to fetch notes:", error);
       res.status(500).json({ message: "Failed to fetch notes" });
@@ -319,10 +324,10 @@ async function main() {
         userId,
         category: category || "ideas",
         content,
-        mediaUrl: media_url,
+        mediaUrls: media_url ? [media_url] : [],
         tags: tags || [],
       }).returning();
-      res.json({ note: { ...note, is_pinned: false, tags: note.tags || [] } });
+      res.json({ note: { ...note, is_pinned: false, tags: note.tags || [], media_url: media_url || null } });
     } catch (error) {
       console.error("Failed to create note:", error);
       res.status(500).json({ message: "Failed to create note" });
@@ -337,17 +342,19 @@ async function main() {
         return res.status(404).json({ message: "Note not found" });
       }
       const { category, content, media_url, tags } = req.body;
+      const existingUrls = Array.isArray(existing.mediaUrls) ? existing.mediaUrls : [];
       const [note] = await db.update(creativeNotes)
         .set({
           category: category || existing.category,
           content: content || existing.content,
-          mediaUrl: media_url !== undefined ? media_url : existing.mediaUrl,
+          mediaUrls: media_url !== undefined ? (media_url ? [media_url] : []) : existingUrls,
           tags: tags || existing.tags,
           updatedAt: new Date(),
         })
         .where(eq(creativeNotes.id, parseInt(req.params.id)))
         .returning();
-      res.json({ note: { ...note, is_pinned: note.isPinned === "true", tags: note.tags || [] } });
+      const returnUrl = Array.isArray(note.mediaUrls) && note.mediaUrls.length > 0 ? note.mediaUrls[0] : null;
+      res.json({ note: { ...note, is_pinned: note.isPinned === "true", tags: note.tags || [], media_url: returnUrl } });
     } catch (error) {
       console.error("Failed to update note:", error);
       res.status(500).json({ message: "Failed to update note" });
