@@ -81,7 +81,7 @@ async function main() {
         displayName,
         firstName: firstName || null,
         lastName: lastName || null,
-        emailVerified: "false",
+        emailVerified: false,
         verificationToken,
         verificationTokenExpires,
       }).returning();
@@ -121,7 +121,7 @@ async function main() {
 
       await db.update(users)
         .set({
-          emailVerified: "true",
+          emailVerified: true,
           verificationToken: null,
           verificationTokenExpires: null,
         })
@@ -144,7 +144,7 @@ async function main() {
         return res.json({ success: true });
       }
 
-      if (user.emailVerified === "true") {
+      if (user.emailVerified === true) {
         return res.json({ success: true, message: "Email already verified" });
       }
 
@@ -184,7 +184,7 @@ async function main() {
         return res.status(401).json({ message: "Invalid email or password" });
       }
 
-      if (user.emailVerified !== "true") {
+      if (user.emailVerified !== true) {
         return res.status(403).json({ 
           message: "Please verify your email before logging in",
           needsVerification: true,
