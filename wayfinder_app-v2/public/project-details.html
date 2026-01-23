@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Details | WayfinderOS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'JetBrains Mono', monospace; }
+        body { background: #0a0a0a; }
+        .accent { color: #c3f53c; }
+        .btn-primary { background: #22c55e; }
+        .btn-primary:hover { background: #16a34a; }
+        .input-field { background: #111; border: 1px solid #333; }
+        .input-field:focus { border-color: #c3f53c; outline: none; }
+        .card { background: #111; border: 1px solid #222; }
+        .step-complete { border-color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+        .step-complete .step-icon { background: #22c55e; color: #000; }
+        .step-pending .step-icon { background: #333; color: #666; }
+        .step-current { border-color: #c3f53c; }
+        .step-current .step-icon { background: #c3f53c; color: #000; }
+    </style>
+</head>
+<body class="text-white min-h-screen">
+    <div id="auth-redirect" class="hidden min-h-screen flex items-center justify-center">
+        <div class="text-center">
+            <p class="text-gray-400 mb-4">Please sign in to view project details</p>
+            <a href="/dashboard.html" class="btn-primary px-6 py-3 rounded text-black font-bold">Sign In</a>
+        </div>
+    </div>
+
+    <div id="main-content" class="hidden">
+        <header class="border-b border-gray-800 p-4">
+            <div class="max-w-6xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <a href="/dashboard.html" class="text-gray-500 hover:text-white">&larr;</a>
+                    <div class="w-8 h-8 bg-[#c3f53c] rounded flex items-center justify-center text-black font-bold text-sm">W</div>
+                    <span class="accent font-bold">PROJECT DETAILS</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="/dashboard.html" class="text-gray-500 hover:text-white text-sm">Dashboard</a>
+                    <a href="/creative.html" class="text-gray-500 hover:text-white text-sm">Creative Space</a>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-4xl mx-auto p-6">
+            <div class="mb-8">
+                <div class="flex items-center gap-4 mb-2">
+                    <span id="project-status-badge" class="px-3 py-1 rounded text-xs uppercase bg-gray-700">concept</span>
+                    <span id="project-type" class="text-gray-500 text-sm">Single</span>
+                </div>
+                <h1 id="project-title" class="text-3xl font-bold mb-2">Project Title</h1>
+                <p id="project-description" class="text-gray-400">No description</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="card p-6 rounded-xl">
+                        <h2 class="text-lg font-bold accent mb-4">IP Protection Workflow</h2>
+                        <p class="text-gray-500 text-sm mb-6">Complete these steps to fully protect your intellectual property and ensure you get paid.</p>
+                        
+                        <div id="workflow-steps" class="space-y-4">
+                        </div>
+                    </div>
+
+                    <div class="card p-6 rounded-xl">
+                        <h2 class="text-lg font-bold accent mb-4">Documentation</h2>
+                        <div id="documentation-list" class="space-y-3">
+                            <p class="text-gray-500 text-sm">No documents recorded yet. Complete the workflow steps above to add documentation.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="card p-6 rounded-xl">
+                        <h2 class="text-lg font-bold accent mb-4">Identifiers</h2>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">ISRC</span>
+                                <span id="meta-isrc-display" class="text-gray-400">Not set</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">UPC</span>
+                                <span id="meta-upc-display" class="text-gray-400">Not set</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">ISWC</span>
+                                <span id="meta-iswc-display" class="text-gray-400">Not set</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">IPI</span>
+                                <span id="meta-ipi-display" class="text-gray-400">Not set</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card p-6 rounded-xl">
+                        <h2 class="text-lg font-bold accent mb-4">Copyright</h2>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">Registration #</span>
+                                <span id="meta-copyright-display" class="text-gray-400">Not registered</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">Status</span>
+                                <span id="copyright-status" class="text-yellow-400">Pending</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card p-6 rounded-xl">
+                        <h2 class="text-lg font-bold accent mb-4">Media Links</h2>
+                        <div id="media-links-display" class="space-y-2 text-sm">
+                            <p class="text-gray-500">No media links added</p>
+                        </div>
+                    </div>
+
+                    <div class="card p-6 rounded-xl">
+                        <h2 class="text-lg font-bold accent mb-4">Timeline</h2>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">Created</span>
+                                <span id="created-date" class="text-gray-400">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">Last Updated</span>
+                                <span id="updated-date" class="text-gray-400">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">Release Date</span>
+                                <span id="release-date" class="text-gray-400">Not set</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="editProject()" class="w-full bg-gray-800 hover:bg-gray-700 py-3 rounded text-sm">
+                        Edit Project
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="step-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center p-6 z-50">
+        <div class="card p-6 rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="step-modal-title" class="text-lg font-bold accent">Step Details</h3>
+                <button onclick="closeStepModal()" class="text-gray-500 hover:text-white text-xl">&times;</button>
+            </div>
+            <div id="step-modal-content" class="space-y-4">
+            </div>
+        </div>
+    </div>
+
+    <script src="project-details.js"></script>
+</body>
+</html>
