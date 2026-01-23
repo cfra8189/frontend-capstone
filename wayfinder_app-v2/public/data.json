@@ -34,6 +34,11 @@
       "name": "Basic Buyout Agreement",
       "content": "SELLER: LUCTHELEO\nBUYER: _________________________\nASSET: _________________________\n\n### Rights Transferred\nSeller transfers all rights, title, and interest in the specified asset to Buyer.",
       "category": "IP"
+    },
+    "coaching": {
+      "name": "Creative Coaching Agreement",
+      "content": "COACH: LUCTHELEO\nCLIENT: _________________________\n\n### Services\nCoach agrees to provide systematic creative development and coaching services.\n\n### Confidentiality\nCoach agrees to maintain complete confidentiality regarding all information shared during sessions.",
+      "category": "IP"
     }
   },
   "framework": {
