@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
+import { useTheme } from "../context/ThemeContext";
 
 const agreementTypes = [
   { id: "split_sheet", name: "Split Sheet", description: "Document ownership splits" },
@@ -10,6 +11,7 @@ const agreementTypes = [
 ];
 
 export default function Generator() {
+  const { theme, toggleTheme } = useTheme();
   const [step, setStep] = useState(1);
   const [selectedType, setSelectedType] = useState("");
   const [formData, setFormData] = useState<Record<string, string>>({});
@@ -36,13 +38,20 @@ export default function Generator() {
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-gray-800 p-4">
+      <header className="border-b border-theme p-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="text-theme-secondary hover:text-theme-primary">&larr;</Link>
             <img src="/box-logo.png" alt="BOX" className="w-8 h-8" />
             <span className="text-xl brand-font tracking-wider">BOX</span>
           </div>
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg bg-theme-secondary text-theme-secondary hover:text-theme-primary transition-colors"
+            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {theme === "dark" ? "☀️" : "🌙"}
+          </button>
         </div>
       </header>
 
@@ -50,13 +59,13 @@ export default function Generator() {
         <div className="flex items-center gap-4 mb-8">
           {[1, 2, 3].map(s => (
             <div key={s} className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step >= s ? "bg-white text-black" : "bg-gray-800 text-gray-500"}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step >= s ? "btn-primary" : "bg-theme-tertiary text-theme-muted"}`}>
                 {s}
               </div>
-              <span className={`text-sm ${step >= s ? "text-white" : "text-gray-500"}`}>
+              <span className={`text-sm ${step >= s ? "text-theme-primary" : "text-theme-muted"}`}>
                 {s === 1 ? "Select Type" : s === 2 ? "Fill Details" : "Download"}
               </span>
-              {s < 3 && <div className="w-8 h-px bg-gray-700" />}
+              {s < 3 && <div className="w-8 h-px bg-theme-tertiary" />}
             </div>
           ))}
         </div>
@@ -72,7 +81,7 @@ export default function Generator() {
                   className="card p-6 rounded-xl cursor-pointer hover:border-accent transition-colors"
                 >
                   <h3 className="font-bold mb-1">{type.name}</h3>
-                  <p className="text-sm text-gray-500">{type.description}</p>
+                  <p className="text-sm text-theme-muted">{type.description}</p>
                 </div>
               ))}
             </div>
@@ -85,27 +94,27 @@ export default function Generator() {
             <form onSubmit={handleGenerate} className="card p-6 rounded-xl space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">Party A Name *</label>
+                  <label className="block text-sm text-theme-secondary mb-1">Party A Name *</label>
                   <input name="partyA" required onChange={handleFormChange} className="input-field w-full p-2 rounded" />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">Party B Name *</label>
+                  <label className="block text-sm text-theme-secondary mb-1">Party B Name *</label>
                   <input name="partyB" required onChange={handleFormChange} className="input-field w-full p-2 rounded" />
                 </div>
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Work Title *</label>
+                <label className="block text-sm text-theme-secondary mb-1">Work Title *</label>
                 <input name="workTitle" required onChange={handleFormChange} className="input-field w-full p-2 rounded" />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Date</label>
+                <label className="block text-sm text-theme-secondary mb-1">Date</label>
                 <input name="date" type="date" onChange={handleFormChange} className="input-field w-full p-2 rounded" />
               </div>
               <div className="flex gap-4">
-                <button type="button" onClick={() => setStep(1)} className="px-6 py-3 bg-gray-800 rounded">
+                <button type="button" onClick={() => setStep(1)} className="px-6 py-3 bg-theme-tertiary rounded">
                   Back
                 </button>
-                <button type="submit" className="flex-1 bg-white text-black font-bold py-3 rounded">
+                <button type="submit" className="flex-1 btn-primary font-bold py-3 rounded">
                   Generate Agreement
                 </button>
               </div>
@@ -120,10 +129,10 @@ export default function Generator() {
                 ✓
               </div>
               <h2 className="text-xl font-bold mb-2">Agreement Generated!</h2>
-              <p className="text-gray-500 mb-6">
+              <p className="text-theme-muted mb-6">
                 {agreementTypes.find(t => t.id === selectedType)?.name} for "{formData.workTitle}"
               </p>
-              <div className="text-left bg-gray-900 p-4 rounded-lg text-sm font-mono mb-6 max-h-64 overflow-y-auto">
+              <div className="text-left bg-theme-tertiary p-4 rounded-lg text-sm font-mono mb-6 max-h-64 overflow-y-auto">
                 <p className="text-accent mb-2">// AGREEMENT PREVIEW</p>
                 <p>Type: {agreementTypes.find(t => t.id === selectedType)?.name}</p>
                 <p>Party A: {formData.partyA}</p>
@@ -131,7 +140,7 @@ export default function Generator() {
                 <p>Work: {formData.workTitle}</p>
                 <p>Date: {formData.date || new Date().toLocaleDateString()}</p>
               </div>
-              <p className="text-xs text-gray-500 mb-4">
+              <p className="text-xs text-theme-muted mb-4">
                 PDF generation available in full version
               </p>
             </div>

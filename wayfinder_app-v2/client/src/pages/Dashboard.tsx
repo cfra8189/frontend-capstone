@@ -138,11 +138,11 @@ export default function Dashboard() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold">Your Projects</h1>
-            <p className="text-gray-500">Track your creative work from concept to publication</p>
+            <p className="text-theme-secondary">Track your creative work from concept to publication</p>
           </div>
           <button
             onClick={() => { setEditingProject(null); setShowModal(true); }}
-            className="bg-white text-black font-bold px-6 py-3 rounded hover:bg-gray-200"
+            className="btn-primary font-bold px-6 py-3 rounded"
           >
             + New Project
           </button>
@@ -151,19 +151,19 @@ export default function Dashboard() {
         <div className="grid grid-cols-4 gap-4 mb-8">
           <div className="card p-4 rounded-xl text-center">
             <p className="text-3xl font-bold text-accent">{stats.total}</p>
-            <p className="text-xs text-gray-500">Total</p>
+            <p className="text-xs text-theme-muted">Total</p>
           </div>
           <div className="card p-4 rounded-xl text-center">
-            <p className="text-3xl font-bold text-gray-400">{stats.concept}</p>
-            <p className="text-xs text-gray-500">Concept</p>
+            <p className="text-3xl font-bold text-theme-secondary">{stats.concept}</p>
+            <p className="text-xs text-theme-muted">Concept</p>
           </div>
           <div className="card p-4 rounded-xl text-center">
-            <p className="text-3xl font-bold text-blue-400">{stats.development}</p>
-            <p className="text-xs text-gray-500">Development</p>
+            <p className="text-3xl font-bold text-blue-500">{stats.development}</p>
+            <p className="text-xs text-theme-muted">Development</p>
           </div>
           <div className="card p-4 rounded-xl text-center">
-            <p className="text-3xl font-bold text-green-400">{stats.published}</p>
-            <p className="text-xs text-gray-500">Published</p>
+            <p className="text-3xl font-bold text-green-500">{stats.published}</p>
+            <p className="text-xs text-theme-muted">Published</p>
           </div>
         </div>
 
@@ -172,7 +172,7 @@ export default function Dashboard() {
             <button
               key={status}
               onClick={() => setFilter(status)}
-              className={`px-4 py-2 rounded text-sm ${filter === status ? "bg-white text-black" : "bg-gray-800 text-gray-400"}`}
+              className={`px-4 py-2 rounded text-sm ${filter === status ? "btn-primary" : "bg-theme-tertiary text-theme-secondary"}`}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}
             </button>
@@ -180,9 +180,9 @@ export default function Dashboard() {
         </div>
 
         {loading ? (
-          <div className="text-center py-12 text-gray-500">Loading...</div>
+          <div className="text-center py-12 text-theme-muted">Loading...</div>
         ) : filteredProjects.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12 text-theme-muted">
             No projects yet. Create your first one!
           </div>
         ) : (
@@ -190,7 +190,7 @@ export default function Dashboard() {
             {filteredProjects.map(project => (
               <div
                 key={project.id}
-                className="card p-4 rounded-xl hover:border-gray-600 cursor-pointer"
+                className="card p-4 rounded-xl hover:border-theme cursor-pointer"
                 onClick={() => { setEditingProject(project); setShowModal(true); }}
               >
                 <div className="flex items-center justify-between">
@@ -200,20 +200,20 @@ export default function Dashboard() {
                     </span>
                     <div>
                       <p className="font-bold">{project.title}</p>
-                      <p className="text-xs text-gray-500">{project.type}</p>
+                      <p className="text-xs text-theme-muted">{project.type}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <Link
                       href={`/project/${project.id}`}
                       onClick={(e) => e.stopPropagation()}
-                      className="text-gray-500 hover:text-accent text-sm"
+                      className="text-theme-muted hover:text-accent text-sm"
                     >
                       Details
                     </Link>
                     <button
                       onClick={(e) => { e.stopPropagation(); deleteProject(project.id); }}
-                      className="text-gray-500 hover:text-red-400 text-sm"
+                      className="text-theme-muted hover:text-red-400 text-sm"
                     >
                       Delete
                     </button>
@@ -232,13 +232,13 @@ export default function Dashboard() {
               <h3 className="text-lg font-bold text-accent">
                 {editingProject ? "Edit Project" : "New Project"}
               </h3>
-              <button onClick={() => setShowModal(false)} className="text-gray-500 hover:text-white text-xl">
+              <button onClick={() => setShowModal(false)} className="text-theme-muted hover:text-theme-primary text-xl">
                 &times;
               </button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Title *</label>
+                <label className="block text-sm text-theme-secondary mb-1">Title *</label>
                 <input
                   name="title"
                   defaultValue={editingProject?.title}
@@ -248,7 +248,7 @@ export default function Dashboard() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">Type</label>
+                  <label className="block text-sm text-theme-secondary mb-1">Type</label>
                   <select name="type" defaultValue={editingProject?.type || "single"} className="input-field w-full p-2 rounded">
                     <option value="single">Single</option>
                     <option value="ep">EP</option>
@@ -258,7 +258,7 @@ export default function Dashboard() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">Status</label>
+                  <label className="block text-sm text-theme-secondary mb-1">Status</label>
                   <select name="status" defaultValue={editingProject?.status || "concept"} className="input-field w-full p-2 rounded">
                     <option value="concept">Concept</option>
                     <option value="development">Development</option>
@@ -268,7 +268,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Description</label>
+                <label className="block text-sm text-theme-secondary mb-1">Description</label>
                 <textarea
                   name="description"
                   defaultValue={editingProject?.description || ""}
@@ -278,15 +278,15 @@ export default function Dashboard() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">ISRC</label>
+                  <label className="block text-sm text-theme-secondary mb-1">ISRC</label>
                   <input name="isrc" defaultValue={editingProject?.metadata?.isrc || ""} className="input-field w-full p-2 rounded" />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">UPC</label>
+                  <label className="block text-sm text-theme-secondary mb-1">UPC</label>
                   <input name="upc" defaultValue={editingProject?.metadata?.upc || ""} className="input-field w-full p-2 rounded" />
                 </div>
               </div>
-              <button type="submit" className="w-full bg-white text-black font-bold py-3 rounded">
+              <button type="submit" className="w-full btn-primary font-bold py-3 rounded">
                 {editingProject ? "Save Changes" : "Create Project"}
               </button>
             </form>

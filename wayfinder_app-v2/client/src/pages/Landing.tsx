@@ -91,12 +91,13 @@ export default function Landing() {
     return (
       <div className="min-h-screen flex items-center justify-center p-8">
         <div className="max-w-md w-full text-center">
-          <img src="/box-logo.png" alt="The Box" className="w-16 h-16 mx-auto mb-6" />
+          <img src="/box-logo.png" alt="BOX" className="w-16 h-16 mx-auto mb-6" />
+          <span className="text-2xl brand-font tracking-wider block mb-4">BOX</span>
           <h1 className="text-2xl font-bold mb-4">Check Your Email</h1>
-          <p className="text-gray-400 mb-6">
+          <p className="text-theme-secondary mb-6">
             We've sent a verification link to <span className="text-accent">{email}</span>
           </p>
-          <p className="text-gray-500 text-sm mb-8">
+          <p className="text-theme-muted text-sm mb-8">
             Click the link in the email to verify your account. The link expires in 24 hours.
           </p>
 
@@ -106,14 +107,14 @@ export default function Landing() {
           <button
             onClick={handleResendVerification}
             disabled={resending}
-            className="w-full bg-gray-700 text-white font-bold py-4 rounded-lg hover:bg-gray-600 transition-colors disabled:opacity-50 mb-4"
+            className="w-full bg-theme-tertiary text-theme-primary font-bold py-4 rounded-lg hover:opacity-80 transition-colors disabled:opacity-50 mb-4"
           >
             {resending ? "Sending..." : "Resend Verification Email"}
           </button>
 
           <button
             onClick={() => setMode("login")}
-            className="text-gray-500 hover:text-white text-sm"
+            className="text-theme-muted hover:text-theme-primary text-sm"
           >
             Back to Sign In
           </button>
@@ -134,11 +135,11 @@ export default function Landing() {
             Your Creative Work,{" "}
             <span className="text-accent">Protected.</span>
           </h1>
-          <p className="text-gray-400 text-lg max-w-md">
+          <p className="text-theme-secondary text-lg max-w-md">
             Track projects from concept to publication. Manage metadata, generate agreements, and protect your intellectual property.
           </p>
         </div>
-        <div className="text-gray-600 text-sm">
+        <div className="text-theme-muted text-sm">
           <p>&copy; 2026 BOX by luctheleo.com | REVERIE | RVR Creative Development</p>
         </div>
       </div>
@@ -162,29 +163,29 @@ export default function Landing() {
             <h2 className="text-2xl font-bold mb-2">
               {mode === "login" ? "Welcome Back" : "Create Account"}
             </h2>
-            <p className="text-gray-400">
+            <p className="text-theme-secondary">
               {mode === "login" ? "Sign in to manage your creative assets" : "Join BOX today"}
             </p>
           </div>
 
           <a
             href="/api/login"
-            className="block w-full bg-white text-black font-bold py-4 px-8 rounded-lg hover:bg-gray-200 transition-colors text-center mb-4"
+            className="block w-full btn-primary font-bold py-4 px-8 rounded-lg transition-colors text-center mb-4"
           >
             Continue with OAuth
           </a>
 
           <div className="flex items-center gap-4 my-6">
-            <div className="flex-1 h-px bg-gray-700" />
-            <span className="text-gray-500 text-sm">or use email</span>
-            <div className="flex-1 h-px bg-gray-700" />
+            <div className="flex-1 h-px bg-theme-tertiary" />
+            <span className="text-theme-muted text-sm">or use email</span>
+            <div className="flex-1 h-px bg-theme-tertiary" />
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === "register" && (
               <>
                 <div>
-                  <label className="block text-sm text-gray-400 mb-1">Artist / Business Name *</label>
+                  <label className="block text-sm text-theme-secondary mb-1">Artist / Business Name *</label>
                   <input
                     type="text"
                     value={displayName}
@@ -196,7 +197,7 @@ export default function Landing() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">First Name</label>
+                    <label className="block text-sm text-theme-secondary mb-1">First Name</label>
                     <input
                       type="text"
                       value={firstName}
@@ -206,7 +207,7 @@ export default function Landing() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">Last Name</label>
+                    <label className="block text-sm text-theme-secondary mb-1">Last Name</label>
                     <input
                       type="text"
                       value={lastName}
@@ -220,7 +221,7 @@ export default function Landing() {
             )}
 
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Email</label>
+              <label className="block text-sm text-theme-secondary mb-1">Email</label>
               <input
                 type="email"
                 value={email}
@@ -232,7 +233,7 @@ export default function Landing() {
             </div>
 
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Password</label>
+              <label className="block text-sm text-theme-secondary mb-1">Password</label>
               <input
                 type="password"
                 value={password}
@@ -251,13 +252,13 @@ export default function Landing() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gray-700 text-white font-bold py-4 rounded-lg hover:bg-gray-600 transition-colors disabled:opacity-50"
+              className="w-full bg-theme-tertiary text-theme-primary font-bold py-4 rounded-lg hover:opacity-80 transition-colors disabled:opacity-50"
             >
               {loading ? "Please wait..." : mode === "login" ? "Sign In" : "Create Account"}
             </button>
           </form>
 
-          <p className="text-center text-gray-500 text-sm mt-6">
+          <p className="text-center text-theme-muted text-sm mt-6">
             {mode === "login" ? (
               <>
                 Don't have an account?{" "}
@@ -275,24 +276,24 @@ export default function Landing() {
             )}
           </p>
 
-          <div className="mt-8 pt-6 border-t border-gray-800">
-            <h3 className="text-sm font-bold text-gray-400 mb-4 text-center">Features</h3>
+          <div className="mt-8 pt-6 border-t border-theme">
+            <h3 className="text-sm font-bold text-theme-secondary mb-4 text-center">Features</h3>
             <div className="grid grid-cols-2 gap-3 text-left">
-              <div className="p-3 bg-gray-900 rounded-lg">
+              <div className="p-3 bg-theme-secondary rounded-lg">
                 <p className="font-bold text-sm mb-1">Project Tracking</p>
-                <p className="text-xs text-gray-500">Concept to publication</p>
+                <p className="text-xs text-theme-muted">Concept to publication</p>
               </div>
-              <div className="p-3 bg-gray-900 rounded-lg">
+              <div className="p-3 bg-theme-secondary rounded-lg">
                 <p className="font-bold text-sm mb-1">IP Protection</p>
-                <p className="text-xs text-gray-500">Step-by-step guidance</p>
+                <p className="text-xs text-theme-muted">Step-by-step guidance</p>
               </div>
-              <div className="p-3 bg-gray-900 rounded-lg">
+              <div className="p-3 bg-theme-secondary rounded-lg">
                 <p className="font-bold text-sm mb-1">Agreements</p>
-                <p className="text-xs text-gray-500">Generate legal docs</p>
+                <p className="text-xs text-theme-muted">Generate legal docs</p>
               </div>
-              <div className="p-3 bg-gray-900 rounded-lg">
+              <div className="p-3 bg-theme-secondary rounded-lg">
                 <p className="font-bold text-sm mb-1">Creative Space</p>
-                <p className="text-xs text-gray-500">Private inspiration</p>
+                <p className="text-xs text-theme-muted">Private inspiration</p>
               </div>
             </div>
           </div>

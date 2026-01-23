@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "wouter";
+import { useTheme } from "../context/ThemeContext";
 
 interface Project {
   id: number;
@@ -23,6 +24,7 @@ const workflowSteps = [
 
 export default function ProjectDetails() {
   const { id } = useParams();
+  const { theme, toggleTheme } = useTheme();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -47,7 +49,7 @@ export default function ProjectDetails() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">Loading...</p>
+        <p className="text-theme-muted">Loading...</p>
       </div>
     );
   }
@@ -56,7 +58,7 @@ export default function ProjectDetails() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-500 mb-4">Project not found</p>
+          <p className="text-theme-muted mb-4">Project not found</p>
           <Link href="/" className="text-accent hover:underline">Back to Dashboard</Link>
         </div>
       </div>
@@ -67,13 +69,20 @@ export default function ProjectDetails() {
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-gray-800 p-4">
+      <header className="border-b border-theme p-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="text-theme-secondary hover:text-theme-primary">&larr;</Link>
             <img src="/box-logo.png" alt="BOX" className="w-8 h-8" />
             <span className="text-xl brand-font tracking-wider">BOX</span>
           </div>
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg bg-theme-secondary text-theme-secondary hover:text-theme-primary transition-colors"
+            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {theme === "dark" ? "☀️" : "🌙"}
+          </button>
         </div>
       </header>
 
@@ -83,17 +92,17 @@ export default function ProjectDetails() {
             <span className={`status-${project.status} px-3 py-1 rounded text-xs uppercase`}>
               {project.status}
             </span>
-            <span className="text-gray-500 text-sm">{project.type}</span>
+            <span className="text-theme-muted text-sm">{project.type}</span>
           </div>
           <h1 className="text-3xl font-bold mb-2">{project.title}</h1>
-          <p className="text-gray-400">{project.description || "No description"}</p>
+          <p className="text-theme-secondary">{project.description || "No description"}</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <div className="card p-6 rounded-xl">
               <h2 className="text-lg font-bold text-accent mb-4">IP Protection Workflow</h2>
-              <p className="text-gray-500 text-sm mb-6">Complete these steps to protect your intellectual property.</p>
+              <p className="text-theme-muted text-sm mb-6">Complete these steps to protect your intellectual property.</p>
               
               <div className="space-y-4">
                 {workflowSteps.map(step => {
@@ -109,10 +118,10 @@ export default function ProjectDetails() {
                         </div>
                         <div className="flex-1">
                           <h3 className="font-bold">{step.title}</h3>
-                          <p className="text-gray-500 text-sm">{step.description}</p>
+                          <p className="text-theme-muted text-sm">{step.description}</p>
                         </div>
                         <div className="text-right">
-                          <span className={`text-xs ${isComplete ? "text-green-400" : "text-gray-500"}`}>
+                          <span className={`text-xs ${isComplete ? "text-green-400" : "text-theme-muted"}`}>
                             {isComplete ? "Complete" : step.fee}
                           </span>
                         </div>
@@ -129,16 +138,16 @@ export default function ProjectDetails() {
               <h2 className="text-lg font-bold text-accent mb-4">Identifiers</h2>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">ISRC</span>
-                  <span className="text-gray-400">{project.metadata?.isrc || workflow.isrc || "Not set"}</span>
+                  <span className="text-theme-muted">ISRC</span>
+                  <span className="text-theme-secondary">{project.metadata?.isrc || workflow.isrc || "Not set"}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">UPC</span>
-                  <span className="text-gray-400">{project.metadata?.upc || workflow.upc || "Not set"}</span>
+                  <span className="text-theme-muted">UPC</span>
+                  <span className="text-theme-secondary">{project.metadata?.upc || workflow.upc || "Not set"}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">ISWC</span>
-                  <span className="text-gray-400">{workflow.iswc || "Not set"}</span>
+                  <span className="text-theme-muted">ISWC</span>
+                  <span className="text-theme-secondary">{workflow.iswc || "Not set"}</span>
                 </div>
               </div>
             </div>
@@ -148,15 +157,15 @@ export default function ProjectDetails() {
               <div className="space-y-2 text-sm">
                 <a href="https://artists.spotify.com" target="_blank" rel="noreferrer" className="flex justify-between text-green-400 hover:underline">
                   <span>Spotify for Artists</span>
-                  <span className="text-gray-500 text-xs">Daily</span>
+                  <span className="text-theme-muted text-xs">Daily</span>
                 </a>
                 <a href="https://artists.apple.com" target="_blank" rel="noreferrer" className="flex justify-between text-pink-400 hover:underline">
                   <span>Apple Music</span>
-                  <span className="text-gray-500 text-xs">Daily</span>
+                  <span className="text-theme-muted text-xs">Daily</span>
                 </a>
                 <a href="https://soundexchange.com" target="_blank" rel="noreferrer" className="flex justify-between text-blue-400 hover:underline">
                   <span>SoundExchange</span>
-                  <span className="text-gray-500 text-xs">Monthly</span>
+                  <span className="text-theme-muted text-xs">Monthly</span>
                 </a>
               </div>
             </div>
@@ -165,12 +174,12 @@ export default function ProjectDetails() {
               <h2 className="text-lg font-bold text-accent mb-4">Timeline</h2>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Created</span>
-                  <span className="text-gray-400">{new Date(project.created_at).toLocaleDateString()}</span>
+                  <span className="text-theme-muted">Created</span>
+                  <span className="text-theme-secondary">{new Date(project.created_at).toLocaleDateString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Updated</span>
-                  <span className="text-gray-400">{new Date(project.updated_at).toLocaleDateString()}</span>
+                  <span className="text-theme-muted">Updated</span>
+                  <span className="text-theme-secondary">{new Date(project.updated_at).toLocaleDateString()}</span>
                 </div>
               </div>
             </div>

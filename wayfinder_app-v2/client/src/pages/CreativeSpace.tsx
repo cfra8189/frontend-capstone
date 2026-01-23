@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/use-auth";
+import { useTheme } from "../context/ThemeContext";
 import { Link } from "wouter";
 
 interface Note {
@@ -14,6 +15,7 @@ interface Note {
 
 export default function CreativeSpace() {
   const { user } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("all");
@@ -102,18 +104,27 @@ export default function CreativeSpace() {
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-gray-800 p-4">
+      <header className="border-b border-theme p-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="text-theme-secondary hover:text-theme-primary">&larr;</Link>
             <img src="/box-logo.png" alt="BOX" className="w-8 h-8" />
             <span className="text-xl brand-font tracking-wider">BOX</span>
           </div>
-          <div className="flex items-center gap-2">
-            {user?.profileImageUrl && (
-              <img src={user.profileImageUrl} alt="" className="w-6 h-6 rounded-full" />
-            )}
-            <span className="text-sm text-gray-400">{user?.firstName || user?.email}</span>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg bg-theme-secondary text-theme-secondary hover:text-theme-primary transition-colors"
+              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {theme === "dark" ? "☀️" : "🌙"}
+            </button>
+            <div className="flex items-center gap-2">
+              {user?.profileImageUrl && (
+                <img src={user.profileImageUrl} alt="" className="w-6 h-6 rounded-full" />
+              )}
+              <span className="text-sm text-theme-secondary">{user?.firstName || user?.email}</span>
+            </div>
           </div>
         </div>
       </header>
@@ -122,11 +133,11 @@ export default function CreativeSpace() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold">Your Private Space</h1>
-            <p className="text-gray-500">Capture ideas, inspiration, and creative notes</p>
+            <p className="text-theme-secondary">Capture ideas, inspiration, and creative notes</p>
           </div>
           <button
             onClick={() => { setEditingNote(null); setShowModal(true); }}
-            className="bg-white text-black font-bold px-6 py-3 rounded hover:bg-gray-200"
+            className="btn-primary font-bold px-6 py-3 rounded"
           >
             + New Note
           </button>
@@ -137,7 +148,7 @@ export default function CreativeSpace() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded text-sm whitespace-nowrap ${activeCategory === cat ? "bg-white text-black" : "bg-gray-800 text-gray-400"}`}
+              className={`px-4 py-2 rounded text-sm whitespace-nowrap ${activeCategory === cat ? "btn-primary" : "bg-theme-tertiary text-theme-secondary"}`}
             >
               {cat.charAt(0).toUpperCase() + cat.slice(1)}
             </button>
@@ -145,9 +156,9 @@ export default function CreativeSpace() {
         </div>
 
         {loading ? (
-          <div className="text-center py-12 text-gray-500">Loading...</div>
+          <div className="text-center py-12 text-theme-muted">Loading...</div>
         ) : sortedNotes.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12 text-theme-muted">
             No notes yet. Start capturing your ideas!
           </div>
         ) : (
@@ -155,23 +166,23 @@ export default function CreativeSpace() {
             {sortedNotes.map(note => (
               <div key={note.id} className={`card p-4 rounded-xl ${note.is_pinned ? "border-accent" : ""}`}>
                 <div className="flex justify-between items-start mb-2">
-                  <span className="text-xs text-gray-500 uppercase">{note.category}</span>
+                  <span className="text-xs text-theme-muted uppercase">{note.category}</span>
                   <div className="flex gap-2">
                     <button
                       onClick={() => togglePin(note.id)}
-                      className={`text-sm ${note.is_pinned ? "text-accent" : "text-gray-600"}`}
+                      className={`text-sm ${note.is_pinned ? "text-accent" : "text-theme-muted"}`}
                     >
                       {note.is_pinned ? "★" : "☆"}
                     </button>
                     <button
                       onClick={() => { setEditingNote(note); setShowModal(true); }}
-                      className="text-gray-600 hover:text-white text-sm"
+                      className="text-theme-muted hover:text-theme-primary text-sm"
                     >
                       ✎
                     </button>
                     <button
                       onClick={() => deleteNote(note.id)}
-                      className="text-gray-600 hover:text-red-400 text-sm"
+                      className="text-theme-muted hover:text-red-400 text-sm"
                     >
                       ×
                     </button>
@@ -203,13 +214,13 @@ export default function CreativeSpace() {
               <h3 className="text-lg font-bold text-accent">
                 {editingNote ? "Edit Note" : "New Note"}
               </h3>
-              <button onClick={() => setShowModal(false)} className="text-gray-500 hover:text-white text-xl">
+              <button onClick={() => setShowModal(false)} className="text-theme-muted hover:text-theme-primary text-xl">
                 &times;
               </button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Category</label>
+                <label className="block text-sm text-theme-secondary mb-1">Category</label>
                 <select name="category" defaultValue={editingNote?.category || "ideas"} className="input-field w-full p-2 rounded">
                   {categories.filter(c => c !== "all").map(cat => (
                     <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
@@ -217,7 +228,7 @@ export default function CreativeSpace() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Content *</label>
+                <label className="block text-sm text-theme-secondary mb-1">Content *</label>
                 <textarea
                   name="content"
                   defaultValue={editingNote?.content}
@@ -228,7 +239,7 @@ export default function CreativeSpace() {
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Media Link</label>
+                <label className="block text-sm text-theme-secondary mb-1">Media Link</label>
                 <input
                   name="media_url"
                   defaultValue={editingNote?.media_url || ""}
@@ -237,7 +248,7 @@ export default function CreativeSpace() {
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Tags</label>
+                <label className="block text-sm text-theme-secondary mb-1">Tags</label>
                 <input
                   name="tags"
                   defaultValue={editingNote?.tags.join(", ") || ""}
@@ -245,7 +256,7 @@ export default function CreativeSpace() {
                   placeholder="Separate with commas"
                 />
               </div>
-              <button type="submit" className="w-full bg-white text-black font-bold py-3 rounded">
+              <button type="submit" className="w-full btn-primary font-bold py-3 rounded">
                 {editingNote ? "Save Changes" : "Create Note"}
               </button>
             </form>
