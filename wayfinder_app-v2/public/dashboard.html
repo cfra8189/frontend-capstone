@@ -179,10 +179,22 @@
                     <textarea id="project-description" class="input-field w-full p-3 rounded" rows="3"></textarea>
                 </div>
                 <div id="metadata-section" class="space-y-3 border-t border-gray-700 pt-4">
-                    <p class="text-sm accent">Metadata</p>
-                    <input type="text" id="meta-isrc" placeholder="ISRC Code" class="input-field w-full p-2 rounded text-sm">
-                    <input type="text" id="meta-upc" placeholder="UPC Code" class="input-field w-full p-2 rounded text-sm">
-                    <input type="text" id="meta-copyright" placeholder="Copyright Registration #" class="input-field w-full p-2 rounded text-sm">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm accent">Metadata</p>
+                        <button type="button" onclick="showIPGuide()" class="text-xs text-gray-500 hover:text-[#c3f53c]">What are these?</button>
+                    </div>
+                    <div class="relative">
+                        <input type="text" id="meta-isrc" placeholder="ISRC Code" class="input-field w-full p-2 rounded text-sm">
+                        <span class="absolute right-2 top-2 text-gray-600 text-xs cursor-help" title="12-character code for your recording. Get free from your distributor (DistroKid, CD Baby, etc.)">?</span>
+                    </div>
+                    <div class="relative">
+                        <input type="text" id="meta-upc" placeholder="UPC Code" class="input-field w-full p-2 rounded text-sm">
+                        <span class="absolute right-2 top-2 text-gray-600 text-xs cursor-help" title="12-digit code for your release. Usually provided free by your distributor.">?</span>
+                    </div>
+                    <div class="relative">
+                        <input type="text" id="meta-copyright" placeholder="Copyright Registration #" class="input-field w-full p-2 rounded text-sm">
+                        <span class="absolute right-2 top-2 text-gray-600 text-xs cursor-help" title="Register at Copyright.gov ($45-65). Required to sue for infringement.">?</span>
+                    </div>
                     <input type="text" id="meta-release-date" placeholder="Release Date (YYYY-MM-DD)" class="input-field w-full p-2 rounded text-sm">
                 </div>
                 <div id="media-section" class="space-y-3 border-t border-gray-700 pt-4">
@@ -197,6 +209,102 @@
                     <button type="button" onclick="closeModal()" class="bg-gray-700 px-6 py-3 rounded">Cancel</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <div id="ip-guide-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center p-6 z-50 overflow-y-auto">
+        <div class="card p-6 rounded-xl max-w-2xl w-full my-8">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold accent">Protecting Your Work</h3>
+                <button onclick="closeIPGuide()" class="text-gray-500 hover:text-white text-xl">&times;</button>
+            </div>
+            <div class="space-y-6 text-sm text-gray-300 max-h-[70vh] overflow-y-auto pr-2">
+                <div class="bg-yellow-900/30 border border-yellow-700 p-4 rounded-lg">
+                    <p class="text-yellow-400 font-bold mb-2">Important Disclaimer</p>
+                    <p>Identifiers (ISRC, UPC) help track and pay you, but they are NOT legal protection. You must formally register your copyright to sue for infringement.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-white mb-2">Primary Identifiers for Recordings</h4>
+                    <p class="mb-2"><span class="accent">ISRC</span> (International Standard Recording Code): A unique 12-character "digital fingerprint" for your sound recording. Mandatory for streaming. Each version (remix, live, edit) needs its own ISRC.</p>
+                    <p><span class="accent">UPC</span> (Universal Product Code): A 12-digit code identifying your release as a product (album, EP, single). Tracks sales and distribution.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-white mb-2">For Compositions & Rightsholders</h4>
+                    <p class="mb-2"><span class="accent">ISWC</span>: Identifies your musical composition (lyrics + melody), distinct from recordings.</p>
+                    <p class="mb-2"><span class="accent">IPI</span>: Your unique number as a songwriter/composer. Get this by joining a PRO (ASCAP, BMI).</p>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-white mb-2">How to Get These (Low Cost)</h4>
+                    <table class="w-full text-xs">
+                        <tr class="border-b border-gray-700"><td class="py-2 accent">ISRC</td><td>FREE from distributors (DistroKid, CD Baby, TuneCore)</td></tr>
+                        <tr class="border-b border-gray-700"><td class="py-2 accent">UPC</td><td>FREE to $30 - Usually included by distributor</td></tr>
+                        <tr class="border-b border-gray-700"><td class="py-2 accent">IPI</td><td>FREE - Join BMI (free) or ASCAP</td></tr>
+                        <tr class="border-b border-gray-700"><td class="py-2 accent">ISWC</td><td>FREE - Auto-generated when you register song with PRO</td></tr>
+                        <tr><td class="py-2 accent">Copyright</td><td>$45-65 at Copyright.gov</td></tr>
+                    </table>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-white mb-2">Recommended Workflow</h4>
+                    <ol class="list-decimal list-inside space-y-1">
+                        <li><span class="text-gray-400">Create:</span> Finish your song</li>
+                        <li><span class="text-yellow-400">Copyright:</span> Register at Copyright.gov for legal protection</li>
+                        <li><span class="text-gray-400">Affiliate:</span> Join a PRO (BMI/ASCAP) to get your IPI</li>
+                        <li><span class="text-gray-400">Register:</span> Register composition with PRO for ISWC</li>
+                        <li><span class="text-gray-400">Distribute:</span> Upload to distributor for ISRC and UPC</li>
+                    </ol>
+                </div>
+
+                <div class="bg-red-900/30 border border-red-700 p-4 rounded-lg">
+                    <p class="text-red-400 font-bold mb-2">Why Copyright Matters</p>
+                    <p class="mb-2">Identifiers are for tracking and payment. Copyright is your legal shield.</p>
+                    <ul class="list-disc list-inside text-xs space-y-1">
+                        <li>Without registration, you cannot sue in federal court</li>
+                        <li>You may miss statutory damages (up to $150,000 per infringement)</li>
+                        <li>Mailing a CD to yourself ("poor man's copyright") is legally ineffective</li>
+                    </ul>
+                </div>
+
+                <div class="text-center pt-4">
+                    <button onclick="closeIPGuide()" class="btn-primary px-8 py-3 rounded text-black font-bold">Got It</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="publish-checkpoint-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center p-6 z-50">
+        <div class="card p-6 rounded-xl max-w-md w-full">
+            <h3 class="text-lg font-bold accent mb-4">Before You Publish</h3>
+            <div class="space-y-4 text-sm">
+                <p class="text-gray-300">Moving to "Published" means your work is released. Have you protected your intellectual property?</p>
+                
+                <div class="space-y-2">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" id="check-copyright" class="mt-1 w-4 h-4">
+                        <span class="text-gray-400">I have registered my copyright at <span class="accent">Copyright.gov</span></span>
+                    </label>
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" id="check-pro" class="mt-1 w-4 h-4">
+                        <span class="text-gray-400">I have joined a PRO (ASCAP, BMI) and registered this composition</span>
+                    </label>
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" id="check-distributor" class="mt-1 w-4 h-4">
+                        <span class="text-gray-400">I have my ISRC and UPC from my distributor</span>
+                    </label>
+                </div>
+
+                <p class="text-xs text-gray-500">You can proceed without checking these, but we strongly recommend protecting your work first.</p>
+
+                <div class="flex gap-3 pt-2">
+                    <button onclick="confirmPublish()" class="btn-primary flex-1 py-3 rounded text-black font-bold">Continue to Publish</button>
+                    <button onclick="closePublishCheckpoint()" class="bg-gray-700 px-4 py-3 rounded">Cancel</button>
+                </div>
+
+                <button onclick="showIPGuide(); closePublishCheckpoint();" class="w-full text-center text-xs text-gray-500 hover:text-[#c3f53c]">Learn more about protecting your work</button>
+            </div>
         </div>
     </div>
 

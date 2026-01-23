@@ -105,6 +105,17 @@ Preferred communication style: Simple, everyday language.
 - "Help" button in nav to restart tour anytime
 - Visual highlights with tooltips for each feature
 
+### IP Education & Protection
+- **Info tooltips** on ISRC, UPC, Copyright fields explain what each identifier is
+- **"What are these?" link** opens comprehensive IP Guide explaining:
+  - Primary identifiers (ISRC, UPC, ISWC, IPI)
+  - How to get them (mostly free via distributors/PROs)
+  - Recommended workflow: Create → Copyright → PRO → Distribute
+  - Difference between identifiers (tracking) vs copyright (legal protection)
+- **Publish Checkpoint** appears when moving project to "Published" status
+  - Reminds users to register copyright, join PRO, get identifiers
+  - Educational prompt, not a blocker
+
 ## External Dependencies
 
 ### Runtime Dependencies

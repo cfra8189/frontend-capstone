@@ -190,6 +190,7 @@ function renderProjects() {
 }
 
 function openNewProject() {
+    previousStatus = null;
     document.getElementById("modal-title").textContent = "New Project";
     document.getElementById("project-id").value = "";
     document.getElementById("project-title").value = "";
@@ -212,6 +213,7 @@ function openEditProject(id) {
     if (!project) return;
     
     const meta = project.metadata || {};
+    previousStatus = project.status;
     
     document.getElementById("modal-title").textContent = "Edit Project";
     document.getElementById("project-id").value = project.id;
@@ -234,27 +236,39 @@ function closeModal() {
     document.getElementById("project-modal").classList.add("hidden");
 }
 
-document.getElementById("project-form").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    
+let pendingProjectData = null;
+let previousStatus = null;
+
+function showIPGuide() {
+    document.getElementById("ip-guide-modal").classList.remove("hidden");
+}
+
+function closeIPGuide() {
+    document.getElementById("ip-guide-modal").classList.add("hidden");
+}
+
+function showPublishCheckpoint() {
+    document.getElementById("check-copyright").checked = false;
+    document.getElementById("check-pro").checked = false;
+    document.getElementById("check-distributor").checked = false;
+    document.getElementById("publish-checkpoint-modal").classList.remove("hidden");
+}
+
+function closePublishCheckpoint() {
+    document.getElementById("publish-checkpoint-modal").classList.add("hidden");
+    pendingProjectData = null;
+}
+
+async function confirmPublish() {
+    closePublishCheckpoint();
+    if (pendingProjectData) {
+        await saveProject(pendingProjectData);
+        pendingProjectData = null;
+    }
+}
+
+async function saveProject(projectData) {
     const id = document.getElementById("project-id").value;
-    const projectData = {
-        title: document.getElementById("project-title").value,
-        type: document.getElementById("project-type").value,
-        status: document.getElementById("project-status").value,
-        description: document.getElementById("project-description").value,
-        metadata: {
-            isrc: document.getElementById("meta-isrc").value || null,
-            upc: document.getElementById("meta-upc").value || null,
-            copyright: document.getElementById("meta-copyright").value || null,
-            release_date: document.getElementById("meta-release-date").value || null,
-            audio_url: document.getElementById("media-audio").value || null,
-            video_url: document.getElementById("media-video").value || null,
-            artwork_url: document.getElementById("media-artwork").value || null,
-            files_url: document.getElementById("media-files").value || null
-        }
-    };
-    
     try {
         const url = id ? `/api/projects/${id}` : "/api/projects";
         const method = id ? "PUT" : "POST";
@@ -274,6 +288,37 @@ document.getElementById("project-form").addEventListener("submit", async (e) => 
     } catch {
         alert("Connection error");
     }
+}
+
+document.getElementById("project-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    
+    const id = document.getElementById("project-id").value;
+    const newStatus = document.getElementById("project-status").value;
+    const projectData = {
+        title: document.getElementById("project-title").value,
+        type: document.getElementById("project-type").value,
+        status: newStatus,
+        description: document.getElementById("project-description").value,
+        metadata: {
+            isrc: document.getElementById("meta-isrc").value || null,
+            upc: document.getElementById("meta-upc").value || null,
+            copyright: document.getElementById("meta-copyright").value || null,
+            release_date: document.getElementById("meta-release-date").value || null,
+            audio_url: document.getElementById("media-audio").value || null,
+            video_url: document.getElementById("media-video").value || null,
+            artwork_url: document.getElementById("media-artwork").value || null,
+            files_url: document.getElementById("media-files").value || null
+        }
+    };
+    
+    if (newStatus === "published" && previousStatus !== "published") {
+        pendingProjectData = projectData;
+        showPublishCheckpoint();
+        return;
+    }
+    
+    await saveProject(projectData);
 });
 
 async function deleteProjectHandler(id) {
