@@ -1,4 +1,4 @@
-import { pgTable, serial, varchar, text, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, serial, varchar, text, timestamp, jsonb, integer } from "drizzle-orm/pg-core";
 import { users } from "./auth";
 
 export const projects = pgTable("projects", {
@@ -22,6 +22,7 @@ export const creativeNotes = pgTable("creative_notes", {
   mediaUrls: jsonb("media_urls").default([]),
   tags: jsonb("tags").default([]),
   isPinned: varchar("is_pinned").default("false"),
+  sortOrder: integer("sort_order").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

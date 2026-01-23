@@ -347,11 +347,14 @@ async function main() {
   app.get("/api/creative/notes", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const notes = await db.select().from(creativeNotes).where(eq(creativeNotes.userId, userId)).orderBy(desc(creativeNotes.createdAt));
+      const notes = await db.select().from(creativeNotes)
+        .where(eq(creativeNotes.userId, userId))
+        .orderBy(creativeNotes.sortOrder, creativeNotes.createdAt);
       res.json({ notes: notes.map(n => ({ 
         ...n, 
         is_pinned: n.isPinned === "true", 
         tags: n.tags || [],
+        sort_order: n.sortOrder ?? 0,
         media_url: Array.isArray(n.mediaUrls) && n.mediaUrls.length > 0 ? n.mediaUrls[0] : null
       })) });
     } catch (error) {
@@ -364,14 +367,22 @@ async function main() {
     try {
       const userId = req.user.claims.sub;
       const { category, content, media_url, tags } = req.body;
+      
+      // Get max sortOrder for this user's notes and add 1
+      const maxResult = await db.select({ max: sql<number>`COALESCE(MAX(${creativeNotes.sortOrder}), -1)` })
+        .from(creativeNotes)
+        .where(eq(creativeNotes.userId, userId));
+      const nextSortOrder = (maxResult[0]?.max ?? -1) + 1;
+      
       const [note] = await db.insert(creativeNotes).values({
         userId,
         category: category || "ideas",
         content,
         mediaUrls: media_url ? [media_url] : [],
         tags: tags || [],
+        sortOrder: nextSortOrder,
       }).returning();
-      res.json({ note: { ...note, is_pinned: false, tags: note.tags || [], media_url: media_url || null } });
+      res.json({ note: { ...note, is_pinned: false, tags: note.tags || [], media_url: media_url || null, sort_order: note.sortOrder } });
     } catch (error) {
       console.error("Failed to create note:", error);
       res.status(500).json({ message: "Failed to create note" });
@@ -435,6 +446,41 @@ async function main() {
     } catch (error) {
       console.error("Failed to toggle pin:", error);
       res.status(500).json({ message: "Failed to toggle pin" });
+    }
+  });
+
+  // Reorder notes (drag and drop)
+  app.post("/api/creative/notes/reorder", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { noteIds } = req.body;
+
+      if (!Array.isArray(noteIds)) {
+        return res.status(400).json({ message: "noteIds must be an array" });
+      }
+
+      // Verify all notes belong to the authenticated user
+      const userNotes = await db.select({ id: creativeNotes.id }).from(creativeNotes).where(eq(creativeNotes.userId, userId));
+      const userNoteIds = new Set(userNotes.map(n => n.id));
+      
+      for (const id of noteIds) {
+        if (!userNoteIds.has(id)) {
+          return res.status(403).json({ message: "Unauthorized: Note does not belong to user" });
+        }
+      }
+
+      // Update sort order for each note owned by the user
+      const updates = noteIds.map((id: number, index: number) =>
+        db.update(creativeNotes)
+          .set({ sortOrder: index })
+          .where(sql`${creativeNotes.id} = ${id} AND ${creativeNotes.userId} = ${userId}`)
+      );
+      await Promise.all(updates);
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to reorder notes:", error);
+      res.status(500).json({ message: "Failed to reorder notes" });
     }
   });
 

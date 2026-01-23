@@ -11,6 +11,7 @@ interface Note {
   media_url: string | null;
   tags: string[];
   is_pinned: boolean;
+  sort_order: number;
   created_at: string;
 }
 
@@ -23,6 +24,8 @@ export default function CreativeSpace() {
   const [showModal, setShowModal] = useState(false);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [uploadedMediaUrl, setUploadedMediaUrl] = useState<string>("");
+  const [draggedNote, setDraggedNote] = useState<Note | null>(null);
+  const [dragOverId, setDragOverId] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const { uploadFile, isUploading, progress } = useUpload({
@@ -99,11 +102,63 @@ export default function CreativeSpace() {
 
   async function togglePin(id: number) {
     try {
-      await fetch(`/api/creative/notes/${id}/pin`, { method: "POST" });
-      loadNotes();
+      const res = await fetch(`/api/creative/notes/${id}/pin`, { method: "POST" });
+      if (res.ok) {
+        loadNotes();
+      }
     } catch (error) {
       console.error("Failed to toggle pin:", error);
     }
+  }
+
+  function handleDragStart(e: React.DragEvent, note: Note) {
+    setDraggedNote(note);
+    e.dataTransfer.effectAllowed = "move";
+  }
+
+  function handleDragOver(e: React.DragEvent, noteId: number) {
+    e.preventDefault();
+    setDragOverId(noteId);
+  }
+
+  function handleDragLeave() {
+    setDragOverId(null);
+  }
+
+  async function handleDrop(e: React.DragEvent, targetNote: Note) {
+    e.preventDefault();
+    setDragOverId(null);
+    
+    if (!draggedNote || draggedNote.id === targetNote.id) {
+      setDraggedNote(null);
+      return;
+    }
+
+    const currentNotes = [...notes];
+    const draggedIndex = currentNotes.findIndex(n => n.id === draggedNote.id);
+    const targetIndex = currentNotes.findIndex(n => n.id === targetNote.id);
+
+    currentNotes.splice(draggedIndex, 1);
+    currentNotes.splice(targetIndex, 0, draggedNote);
+
+    setNotes(currentNotes);
+    setDraggedNote(null);
+
+    try {
+      await fetch("/api/creative/notes/reorder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ noteIds: currentNotes.map(n => n.id) }),
+      });
+    } catch (error) {
+      console.error("Failed to reorder notes:", error);
+      loadNotes();
+    }
+  }
+
+  function handleDragEnd() {
+    setDraggedNote(null);
+    setDragOverId(null);
   }
 
   const filteredNotes = activeCategory === "all"
@@ -113,7 +168,7 @@ export default function CreativeSpace() {
   const sortedNotes = [...filteredNotes].sort((a, b) => {
     if (a.is_pinned && !b.is_pinned) return -1;
     if (!a.is_pinned && b.is_pinned) return 1;
-    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    return (a.sort_order || 0) - (b.sort_order || 0);
   });
 
   function getMediaEmbed(url: string) {
@@ -259,13 +314,23 @@ export default function CreativeSpace() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {sortedNotes.map(note => (
-              <div key={note.id} className={`card p-4 rounded-xl ${note.is_pinned ? "border-accent" : ""}`}>
+              <div
+                key={note.id}
+                draggable={activeCategory === "all"}
+                onDragStart={(e) => activeCategory === "all" && handleDragStart(e, note)}
+                onDragOver={(e) => activeCategory === "all" && handleDragOver(e, note.id)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => activeCategory === "all" && handleDrop(e, note)}
+                onDragEnd={handleDragEnd}
+                className={`card p-4 rounded-xl transition-all ${activeCategory === "all" ? "cursor-grab active:cursor-grabbing" : ""} ${note.is_pinned ? "border-accent" : ""} ${draggedNote?.id === note.id ? "opacity-50" : ""} ${dragOverId === note.id ? "ring-2 ring-accent" : ""}`}
+              >
                 <div className="flex justify-between items-start mb-2">
                   <span className="text-xs text-theme-muted uppercase">{note.category}</span>
                   <div className="flex gap-2">
                     <button
                       onClick={() => togglePin(note.id)}
-                      className={`text-sm ${note.is_pinned ? "text-accent" : "text-theme-muted"}`}
+                      className={`text-sm ${note.is_pinned ? "text-accent" : "text-theme-muted"} hover:scale-110 transition-transform`}
+                      title={note.is_pinned ? "Unpin" : "Pin to top"}
                     >
                       {note.is_pinned ? "★" : "☆"}
                     </button>
