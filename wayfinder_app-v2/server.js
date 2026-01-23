@@ -18,7 +18,12 @@ import {
   addProjectDocument,
   getProjectDocuments,
   addStudioClient,
-  getStudioClients
+  getStudioClients,
+  createNote,
+  getNotesByUser,
+  getNoteById,
+  updateNote,
+  deleteNote
 } from "./db.js";
 
 dotenv.config();
@@ -242,6 +247,73 @@ app.post("/api/studio/clients", requireAuth, requireStudio, async (req, res) => 
     res.json({ client });
   } catch (err) {
     res.status(500).json({ error: "Failed to add client" });
+  }
+});
+
+app.get("/api/notes", requireAuth, async (req, res) => {
+  try {
+    const category = req.query.category || null;
+    const notes = await getNotesByUser(req.session.userId, category);
+    res.json({ notes });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to get notes" });
+  }
+});
+
+app.post("/api/notes", requireAuth, async (req, res) => {
+  try {
+    const { category, title, content, media_urls, tags } = req.body;
+    const note = await createNote(
+      req.session.userId, 
+      category || "idea", 
+      title || "", 
+      content || "",
+      media_urls || [],
+      tags || []
+    );
+    res.json({ note });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to create note" });
+  }
+});
+
+app.get("/api/notes/:id", requireAuth, async (req, res) => {
+  try {
+    const note = await getNoteById(req.params.id, req.session.userId);
+    if (!note) {
+      return res.status(404).json({ error: "Note not found" });
+    }
+    res.json({ note });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to get note" });
+  }
+});
+
+app.put("/api/notes/:id", requireAuth, async (req, res) => {
+  try {
+    const note = await getNoteById(req.params.id, req.session.userId);
+    if (!note) {
+      return res.status(404).json({ error: "Note not found" });
+    }
+    
+    const updated = await updateNote(req.params.id, req.session.userId, req.body);
+    res.json({ note: updated });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update note" });
+  }
+});
+
+app.delete("/api/notes/:id", requireAuth, async (req, res) => {
+  try {
+    const note = await getNoteById(req.params.id, req.session.userId);
+    if (!note) {
+      return res.status(404).json({ error: "Note not found" });
+    }
+    
+    await deleteNote(req.params.id, req.session.userId);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to delete note" });
   }
 });
 
