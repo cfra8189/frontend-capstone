@@ -1,10 +1,18 @@
-// Admin Dashboard JavaScript
-const ADMIN_PASSWORD = "reverie2024";
+// Admin Dashboard JavaScript - Server-side authentication
 
-let isLoggedIn = sessionStorage.getItem("adminLoggedIn") === "true";
 let clients = JSON.parse(localStorage.getItem("wayfinder_clients") || "[]");
 let sessions = JSON.parse(localStorage.getItem("wayfinder_sessions") || "[]");
 let agreementCount = parseInt(localStorage.getItem("wayfinder_agreement_count") || "0");
+
+async function checkAuth() {
+    try {
+        const res = await fetch("/api/admin/check");
+        const data = await res.json();
+        return data.isAdmin === true;
+    } catch {
+        return false;
+    }
+}
 
 function showDashboard() {
     document.getElementById("login-screen").classList.add("hidden");
@@ -84,21 +92,29 @@ function deleteClient(index) {
     }
 }
 
-document.getElementById("login-form").addEventListener("submit", (e) => {
+document.getElementById("login-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const password = document.getElementById("admin-password").value;
-    if (password === ADMIN_PASSWORD) {
-        sessionStorage.setItem("adminLoggedIn", "true");
-        isLoggedIn = true;
-        showDashboard();
-    } else {
+    
+    try {
+        const res = await fetch("/api/admin/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ password })
+        });
+        
+        if (res.ok) {
+            showDashboard();
+        } else {
+            document.getElementById("login-error").classList.remove("hidden");
+        }
+    } catch {
         document.getElementById("login-error").classList.remove("hidden");
     }
 });
 
-document.getElementById("logout-btn").addEventListener("click", () => {
-    sessionStorage.removeItem("adminLoggedIn");
-    isLoggedIn = false;
+document.getElementById("logout-btn").addEventListener("click", async () => {
+    await fetch("/api/admin/logout", { method: "POST" });
     showLogin();
 });
 
@@ -134,8 +150,12 @@ document.getElementById("add-client-form").addEventListener("submit", (e) => {
     loadDashboard();
 });
 
-if (isLoggedIn) {
-    showDashboard();
-} else {
-    showLogin();
-}
+// Check authentication on page load
+(async () => {
+    const isAuthenticated = await checkAuth();
+    if (isAuthenticated) {
+        showDashboard();
+    } else {
+        showLogin();
+    }
+})();
