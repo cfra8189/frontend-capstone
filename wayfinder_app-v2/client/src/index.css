@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+body {
+  background: #0a0a0a;
+}
+
+.accent {
+  color: #c3f53c;
+}
+
+.btn-primary {
+  background: #22c55e;
+}
+
+.btn-primary:hover {
+  background: #16a34a;
+}
+
+.input-field {
+  background: #111;
+  border: 1px solid #333;
+}
+
+.input-field:focus {
+  border-color: #c3f53c;
+  outline: none;
+}
+
+.card {
+  background: #111;
+  border: 1px solid #222;
+}
+
+.status-concept { background: #374151; }
+.status-development { background: #1d4ed8; }
+.status-review { background: #ca8a04; }
+.status-published { background: #16a34a; }
+
+.step-complete {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.step-complete .step-icon {
+  background: #22c55e;
+  color: #000;
+}
+
+.step-pending .step-icon {
+  background: #333;
+  color: #666;
+}
