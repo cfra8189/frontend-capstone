@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../hooks/use-auth";
 import { useTheme } from "../context/ThemeContext";
 import { Link } from "wouter";
+import { useUpload } from "../hooks/use-upload";
 
 interface Note {
   id: number;
@@ -21,6 +22,17 @@ export default function CreativeSpace() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [showModal, setShowModal] = useState(false);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
+  const [uploadedMediaUrl, setUploadedMediaUrl] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const { uploadFile, isUploading, progress } = useUpload({
+    onSuccess: (response) => {
+      setUploadedMediaUrl(response.objectPath);
+    },
+    onError: (error) => {
+      console.error("Upload failed:", error);
+    },
+  });
 
   const categories = ["all", "ideas", "lyrics", "inspiration", "audio", "visual", "journal"];
 
@@ -47,10 +59,11 @@ export default function CreativeSpace() {
     const form = e.currentTarget;
     const formData = new FormData(form);
 
+    const mediaLink = formData.get("media_url") as string;
     const noteData = {
       category: formData.get("category") as string,
       content: formData.get("content") as string,
-      media_url: formData.get("media_url") || null,
+      media_url: uploadedMediaUrl || mediaLink || null,
       tags: (formData.get("tags") as string)?.split(",").map(t => t.trim()).filter(Boolean) || [],
     };
 
@@ -66,6 +79,7 @@ export default function CreativeSpace() {
       if (res.ok) {
         setShowModal(false);
         setEditingNote(null);
+        setUploadedMediaUrl("");
         loadNotes();
       }
     } catch (error) {
@@ -217,7 +231,7 @@ export default function CreativeSpace() {
             <p className="text-theme-secondary">Capture ideas, inspiration, and creative notes</p>
           </div>
           <button
-            onClick={() => { setEditingNote(null); setShowModal(true); }}
+            onClick={() => { setEditingNote(null); setUploadedMediaUrl(""); setShowModal(true); }}
             className="btn-primary font-bold px-6 py-3 rounded"
           >
             + New Note
@@ -316,13 +330,40 @@ export default function CreativeSpace() {
                 />
               </div>
               <div>
-                <label className="block text-sm text-theme-secondary mb-1">Media Link</label>
-                <input
-                  name="media_url"
-                  defaultValue={editingNote?.media_url || ""}
-                  className="input-field w-full p-2 rounded"
-                  placeholder="YouTube, SoundCloud, Pinterest URL..."
-                />
+                <label className="block text-sm text-theme-secondary mb-1">Media</label>
+                <div className="space-y-2">
+                  <input
+                    name="media_url"
+                    defaultValue={editingNote?.media_url || ""}
+                    className="input-field w-full p-2 rounded"
+                    placeholder="YouTube, SoundCloud, URL..."
+                    disabled={!!uploadedMediaUrl}
+                  />
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-theme-muted">or</span>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*,audio/*,video/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) uploadFile(file);
+                      }}
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                      className="px-3 py-1 text-xs bg-theme-tertiary rounded hover:bg-theme-secondary"
+                    >
+                      {isUploading ? `Uploading ${progress}%...` : "Upload File"}
+                    </button>
+                    {uploadedMediaUrl && (
+                      <span className="text-xs text-green-500">✓ Uploaded</span>
+                    )}
+                  </div>
+                </div>
               </div>
               <div>
                 <label className="block text-sm text-theme-secondary mb-1">Tags</label>

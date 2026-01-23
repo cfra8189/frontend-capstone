@@ -3,6 +3,7 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
+import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { db } from "./db";
 import { projects, creativeNotes, users } from "../shared/schema";
 import { eq, desc, sql } from "drizzle-orm";
@@ -48,6 +49,49 @@ function renderVerificationPage(success: boolean, message: string): string {
 async function main() {
   await setupAuth(app);
   registerAuthRoutes(app);
+  registerObjectStorageRoutes(app);
+
+  // Password Change Endpoint
+  app.post("/api/auth/change-password", isAuthenticated, async (req: any, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      const userId = req.user.claims.sub;
+
+      if (!userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ message: "Current and new password are required" });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: "New password must be at least 6 characters" });
+      }
+
+      const [user] = await db.select().from(users).where(eq(users.id, userId));
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      if (!user.passwordHash) {
+        return res.status(400).json({ message: "Account uses OAuth login - password cannot be changed" });
+      }
+
+      const isValid = await bcrypt.compare(currentPassword, user.passwordHash);
+      if (!isValid) {
+        return res.status(400).json({ message: "Current password is incorrect" });
+      }
+
+      const newPasswordHash = await bcrypt.hash(newPassword, 10);
+      await db.update(users).set({ passwordHash: newPasswordHash }).where(eq(users.id, userId));
+
+      res.json({ success: true, message: "Password changed successfully" });
+    } catch (error) {
+      console.error("Password change error:", error);
+      res.status(500).json({ message: "Failed to change password" });
+    }
+  });
 
   // Email/Password Registration
   app.post("/api/auth/register", async (req: any, res) => {
