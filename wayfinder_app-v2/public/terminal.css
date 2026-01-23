@@ -148,3 +148,40 @@ html, body {
 }
 
 .dot { opacity: .4; }
+
+.auth-buttons {
+  margin-left: auto;
+  display: flex;
+  gap: 12px;
+}
+
+.auth-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.login-btn {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.login-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.register-btn {
+  background: var(--accent);
+  color: #0b0d0f;
+  border: 1px solid var(--accent);
+}
+
+.register-btn:hover {
+  background: #9fd427;
+  border-color: #9fd427;
+}

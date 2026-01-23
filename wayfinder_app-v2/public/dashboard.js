@@ -24,6 +24,10 @@ function showDashboard() {
 function showAuthScreen() {
     document.getElementById("auth-screen").classList.remove("hidden");
     document.getElementById("dashboard").classList.add("hidden");
+    
+    if (window.location.hash === "#register") {
+        showRegister();
+    }
 }
 
 function showLogin() {

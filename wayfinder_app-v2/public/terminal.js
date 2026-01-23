@@ -74,6 +74,30 @@ async function sendCommand(cmd) {
     return;
   }
 
+  if (input === "login") {
+    printLine("Redirecting to login...", ["cmd"]);
+    setTimeout(() => {
+      window.location.href = "/dashboard.html";
+    }, 500);
+    return;
+  }
+
+  if (input === "register" || input === "signup") {
+    printLine("Redirecting to registration...", ["cmd"]);
+    setTimeout(() => {
+      window.location.href = "/dashboard.html#register";
+    }, 500);
+    return;
+  }
+
+  if (input === "dashboard") {
+    printLine("Opening dashboard...", ["cmd"]);
+    setTimeout(() => {
+      window.location.href = "/dashboard.html";
+    }, 500);
+    return;
+  }
+
   // Call backend
   const res = await fetch("/api/command", {
     method: "POST",
