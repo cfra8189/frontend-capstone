@@ -26,28 +26,28 @@
 
 :root {
   --bg-primary: #0a0a0a;
-  --bg-secondary: #0f1724;
-  --bg-tertiary: #1a2332;
-  --text-primary: #e5e7eb;
-  --text-secondary: #9ca3af;
-  --text-muted: #6b7280;
-  --border-color: #374151;
-  --accent: #e5e7eb;
+  --bg-secondary: #141414;
+  --bg-tertiary: #1f1f1f;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --text-muted: #666666;
+  --border-color: #333333;
+  --accent: #ffffff;
   --card-shadow: 4px 4px 0 rgba(0,0,0,0.9);
   --card-shadow-hover: 6px 6px 0 rgba(0,0,0,0.95);
 }
 
 :root.light {
-  --bg-primary: #d4d4d4;
-  --bg-secondary: #e5e5e5;
-  --bg-tertiary: #f0f0f0;
-  --text-primary: #0f1724;
-  --text-secondary: #374151;
-  --text-muted: #6b7280;
-  --border-color: #0f1724;
-  --accent: #0f1724;
-  --card-shadow: 4px 4px 0 rgba(15,23,36,0.9);
-  --card-shadow-hover: 6px 6px 0 rgba(15,23,36,0.95);
+  --bg-primary: #c0c0c0;
+  --bg-secondary: #d0d0d0;
+  --bg-tertiary: #e0e0e0;
+  --text-primary: #000000;
+  --text-secondary: #333333;
+  --text-muted: #666666;
+  --border-color: #000000;
+  --accent: #000000;
+  --card-shadow: 4px 4px 0 rgba(0,0,0,0.9);
+  --card-shadow-hover: 6px 6px 0 rgba(0,0,0,0.95);
 }
 
 body {
