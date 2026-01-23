@@ -1,5 +1,6 @@
 import "dotenv/config";
 import express from "express";
+import bcrypt from "bcryptjs";
 import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
 import { db } from "./db";
 import { projects, creativeNotes, users } from "../shared/schema";
@@ -11,6 +12,75 @@ app.use(express.json());
 async function main() {
   await setupAuth(app);
   registerAuthRoutes(app);
+
+  // Email/Password Registration
+  app.post("/api/auth/register", async (req: any, res) => {
+    try {
+      const { email, password, firstName, lastName } = req.body;
+
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
+      }
+
+      if (password.length < 6) {
+        return res.status(400).json({ message: "Password must be at least 6 characters" });
+      }
+
+      const [existingUser] = await db.select().from(users).where(eq(users.email, email));
+      if (existingUser) {
+        return res.status(400).json({ message: "Email already registered" });
+      }
+
+      const passwordHash = await bcrypt.hash(password, 10);
+      const [user] = await db.insert(users).values({
+        email,
+        passwordHash,
+        firstName: firstName || null,
+        lastName: lastName || null,
+      }).returning();
+
+      req.session.userId = user.id;
+      req.session.user = {
+        claims: { sub: user.id },
+      };
+
+      res.json({ success: true, user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName } });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({ message: "Registration failed" });
+    }
+  });
+
+  // Email/Password Login
+  app.post("/api/auth/login", async (req: any, res) => {
+    try {
+      const { email, password } = req.body;
+
+      if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required" });
+      }
+
+      const [user] = await db.select().from(users).where(eq(users.email, email));
+      if (!user || !user.passwordHash) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+
+      const isValid = await bcrypt.compare(password, user.passwordHash);
+      if (!isValid) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+
+      req.session.userId = user.id;
+      req.session.user = {
+        claims: { sub: user.id },
+      };
+
+      res.json({ success: true, user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName } });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Login failed" });
+    }
+  });
 
   app.get("/api/projects", isAuthenticated, async (req: any, res) => {
     try {
