@@ -19,6 +19,21 @@
       "name": "Content Release Authorization",
       "content": "REVERIE | RVR Content Release Authorization\n\n### Release Authorization\nI authorize the release of the described content according to the terms specified in this form.\n\n### Credit and Attribution\nProducer Credit: LUCTHELEO",
       "category": "IP"
+    },
+    "non_exclusive_license": {
+      "name": "Non-Exclusive Beat License",
+      "content": "LICENSOR: LUCTHELEO\nLICENSEE: _________________________\nBEAT TITLE: _________________________\n\n### License Terms\n- Non-exclusive license to use instrumental composition\n- Credit required: 'Produced by LUCTHELEO'",
+      "category": "IP"
+    },
+    "exclusive_license": {
+      "name": "Exclusive Beat License",
+      "content": "LICENSOR: LUCTHELEO\nLICENSEE: _________________________\nBEAT TITLE: _________________________\n\n### Exclusive Rights\nLicensee receives exclusive rights to instrumental composition including unlimited commercial use.",
+      "category": "IP"
+    },
+    "buyout": {
+      "name": "Basic Buyout Agreement",
+      "content": "SELLER: LUCTHELEO\nBUYER: _________________________\nASSET: _________________________\n\n### Rights Transferred\nSeller transfers all rights, title, and interest in the specified asset to Buyer.",
+      "category": "IP"
     }
   },
   "framework": {
