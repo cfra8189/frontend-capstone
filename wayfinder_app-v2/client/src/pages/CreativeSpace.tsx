@@ -336,34 +336,36 @@ export default function CreativeSpace() {
               <div
                 key={note.id}
                 draggable={activeCategory === "all"}
-                onDragStart={(e) => activeCategory === "all" && handleDragStart(e, note)}
-                onDragOver={(e) => activeCategory === "all" && handleDragOver(e, note.id)}
+                onDragStart={(e) => { if (activeCategory === "all") handleDragStart(e, note); }}
+                onDragOver={(e) => { e.preventDefault(); if (activeCategory === "all") handleDragOver(e, note.id); }}
                 onDragLeave={handleDragLeave}
-                onDrop={(e) => activeCategory === "all" && handleDrop(e, note)}
+                onDrop={(e) => { if (activeCategory === "all") handleDrop(e, note); }}
                 onDragEnd={handleDragEnd}
-                className={`card p-4 rounded-xl transition-all ${activeCategory === "all" ? "cursor-grab active:cursor-grabbing" : ""} ${note.is_pinned ? "border-accent" : ""} ${draggedNote?.id === note.id ? "opacity-50" : ""} ${dragOverId === note.id ? "ring-2 ring-accent" : ""}`}
+                className={`card p-4 rounded-xl transition-all ${activeCategory === "all" ? "cursor-move" : ""} ${note.is_pinned ? "border-accent" : ""} ${draggedNote?.id === note.id ? "opacity-50 scale-95" : ""} ${dragOverId === note.id ? "ring-2 ring-accent scale-105" : ""}`}
               >
                 <div className="flex justify-between items-start mb-2">
-                  <span className="text-xs text-theme-muted uppercase">{note.category}</span>
-                  <div className="flex gap-2" onMouseDown={(e) => e.stopPropagation()} draggable={false}>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-theme-muted uppercase">{note.category}</span>
+                    {note.is_pinned && <span className="text-xs text-accent">[pinned]</span>}
+                  </div>
+                  <div className="flex gap-3">
                     <button
-                      onClick={(e) => { e.stopPropagation(); togglePin(note.id); }}
-                      onMouseDown={(e) => e.stopPropagation()}
-                      className={`text-sm ${note.is_pinned ? "text-accent" : "text-theme-muted"} hover:scale-110 transition-transform`}
-                      title={note.is_pinned ? "Unpin" : "Pin to top"}
+                      type="button"
+                      onClick={() => togglePin(note.id)}
+                      className={`text-xs px-2 py-0.5 rounded ${note.is_pinned ? "bg-accent text-black" : "bg-theme-tertiary text-theme-secondary hover:bg-theme-secondary"}`}
                     >
-                      {note.is_pinned ? "★" : "☆"}
+                      {note.is_pinned ? "unpin" : "pin"}
                     </button>
                     <button
-                      onClick={(e) => { e.stopPropagation(); setEditingNote(note); setShowModal(true); }}
-                      onMouseDown={(e) => e.stopPropagation()}
+                      type="button"
+                      onClick={() => { setEditingNote(note); setShowModal(true); }}
                       className="text-theme-muted hover:text-theme-primary text-sm"
                     >
                       ✎
                     </button>
                     <button
-                      onClick={(e) => { e.stopPropagation(); deleteNote(note.id); }}
-                      onMouseDown={(e) => e.stopPropagation()}
+                      type="button"
+                      onClick={() => deleteNote(note.id)}
                       className="text-theme-muted hover:text-red-400 text-sm"
                     >
                       ×
