@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Link } from "wouter";
-import { useTheme } from "../context/ThemeContext";
+import Header from "../components/Header";
 
 const agreementTypes = [
   { id: "split_sheet", name: "Split Sheet", description: "Document ownership splits" },
@@ -11,7 +10,6 @@ const agreementTypes = [
 ];
 
 export default function Generator() {
-  const { theme, toggleTheme } = useTheme();
   const [step, setStep] = useState(1);
   const [selectedType, setSelectedType] = useState("");
   const [formData, setFormData] = useState<Record<string, string>>({});
@@ -38,21 +36,7 @@ export default function Generator() {
 
   return (
     <div className="min-h-screen bg-theme-primary">
-      <header className="border-b border-theme p-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="text-theme-secondary hover:text-theme-primary">&larr;</Link>
-            <img src="/box-logo.png" alt="BOX" className="w-8 h-8" />
-            <span className="text-xl brand-font tracking-wider">BOX</span>
-          </div>
-          <button
-            onClick={toggleTheme}
-            className="text-theme-muted hover:text-theme-primary text-xs font-mono transition-colors"
-          >
-            [{theme}]
-          </button>
-        </div>
-      </header>
+      <Header />
 
       <main className="max-w-4xl mx-auto p-6">
         <div className="flex items-center gap-4 mb-8">

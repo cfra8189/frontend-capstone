@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "wouter";
-import { useTheme } from "../context/ThemeContext";
+import Header from "../components/Header";
 
 interface Project {
   id: number;
@@ -24,7 +24,6 @@ const workflowSteps = [
 
 export default function ProjectDetails() {
   const { id } = useParams();
-  const { theme, toggleTheme } = useTheme();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -69,21 +68,7 @@ export default function ProjectDetails() {
 
   return (
     <div className="min-h-screen bg-theme-primary">
-      <header className="border-b border-theme p-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="text-theme-secondary hover:text-theme-primary">&larr;</Link>
-            <img src="/box-logo.png" alt="BOX" className="w-8 h-8" />
-            <span className="text-xl brand-font tracking-wider">BOX</span>
-          </div>
-          <button
-            onClick={toggleTheme}
-            className="text-theme-muted hover:text-theme-primary text-xs font-mono transition-colors"
-          >
-            [{theme}]
-          </button>
-        </div>
-      </header>
+      <Header />
 
       <main className="max-w-4xl mx-auto p-6">
         <div className="mb-8">
@@ -100,8 +85,34 @@ export default function ProjectDetails() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <div className="card p-6 rounded-xl">
-              <h2 className="text-lg font-bold text-accent mb-4">IP Protection Workflow</h2>
-              <p className="text-theme-muted text-sm mb-6">Complete these steps to protect your intellectual property.</p>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                <div>
+                  <h2 className="text-lg font-bold text-accent">IP Protection Workflow</h2>
+                  <p className="text-theme-muted text-sm">Complete these steps to protect your intellectual property.</p>
+                </div>
+                <Link href="/docs" className="text-xs text-accent hover:underline whitespace-nowrap">
+                  View full guide →
+                </Link>
+              </div>
+
+              {(() => {
+                const completedCount = workflowSteps.filter(s => workflow[`${s.id}_complete`]).length;
+                const progressPercent = Math.round((completedCount / workflowSteps.length) * 100);
+                return (
+                  <div className="mb-6">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm text-theme-secondary">{completedCount} of {workflowSteps.length} steps complete</span>
+                      <span className="text-sm font-bold text-accent">{progressPercent}%</span>
+                    </div>
+                    <div className="h-3 bg-theme-tertiary rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-accent transition-all duration-500" 
+                        style={{ width: `${progressPercent}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })()}
               
               <div className="space-y-4">
                 {workflowSteps.map(step => {

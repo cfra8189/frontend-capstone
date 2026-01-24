@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../hooks/use-auth";
-import { useTheme } from "../context/ThemeContext";
 import { Link } from "wouter";
 import { useUpload } from "../hooks/use-upload";
+import Header from "../components/Header";
 
 interface Note {
   id: number;
@@ -22,7 +22,6 @@ interface Submission {
 
 export default function CreativeSpace() {
   const { user } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("all");
@@ -331,29 +330,7 @@ export default function CreativeSpace() {
 
   return (
     <div className="min-h-screen bg-theme-primary">
-      <header className="border-b border-theme p-3 sm:p-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link href="/" className="text-theme-secondary hover:text-theme-primary text-sm sm:text-base">&larr;</Link>
-            <img src="/box-logo.png" alt="BOX" className="w-6 h-6 sm:w-8 sm:h-8" />
-            <span className="text-lg sm:text-xl brand-font tracking-wider">BOX</span>
-          </div>
-          <div className="flex items-center gap-2 sm:gap-4">
-            <button
-              onClick={toggleTheme}
-              className="text-theme-muted hover:text-theme-primary text-xs font-mono transition-colors"
-            >
-              [{theme}]
-            </button>
-            <div className="flex items-center gap-2">
-              {user?.profileImageUrl && (
-                <img src={user.profileImageUrl} alt="" className="w-5 h-5 sm:w-6 sm:h-6 rounded-full" />
-              )}
-              <span className="text-xs sm:text-sm text-theme-secondary hidden sm:inline">{user?.firstName || user?.email}</span>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="max-w-6xl mx-auto p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">

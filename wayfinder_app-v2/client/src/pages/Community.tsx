@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/use-auth";
-import { useTheme } from "../context/ThemeContext";
 import { Link } from "wouter";
+import Header from "../components/Header";
 
 interface SharedContent {
   id: number;
@@ -24,8 +24,7 @@ interface Comment {
 }
 
 export default function Community() {
-  const { user, isAuthenticated } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { isAuthenticated } = useAuth();
   const [content, setContent] = useState<SharedContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<SharedContent | null>(null);
@@ -171,38 +170,7 @@ export default function Community() {
 
   return (
     <div className="min-h-screen bg-theme-primary">
-      <header className="border-b border-theme p-4">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <Link href="/">
-            <div className="flex items-center gap-3 cursor-pointer">
-              <img src="/box-logo.png" alt="BOX" className="w-8 h-8" />
-              <span className="brand-font text-xl text-theme-primary">BOX</span>
-            </div>
-          </Link>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={toggleTheme}
-              className="text-sm text-theme-muted hover:text-theme-primary"
-            >
-              [{theme}]
-            </button>
-            {isAuthenticated ? (
-              <>
-                <Link href="/">
-                  <span className="text-sm text-theme-muted hover:text-theme-primary cursor-pointer">[dashboard]</span>
-                </Link>
-                <a href="/api/logout" className="text-sm text-theme-muted hover:text-theme-primary">
-                  [logout]
-                </a>
-              </>
-            ) : (
-              <Link href="/">
-                <span className="text-sm text-theme-muted hover:text-theme-primary cursor-pointer">[sign in]</span>
-              </Link>
-            )}
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="max-w-6xl mx-auto p-6">
         <div className="mb-8">

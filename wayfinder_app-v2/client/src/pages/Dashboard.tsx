@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/use-auth";
-import { useTheme } from "../context/ThemeContext";
 import { Link } from "wouter";
+import Header from "../components/Header";
 
 interface Project {
   id: number;
@@ -15,8 +15,7 @@ interface Project {
 }
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { user } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -101,61 +100,10 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-theme-primary">
-      <header className="border-b border-theme p-3 sm:p-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <img src="/box-logo.png" alt="BOX" className="w-6 h-6 sm:w-8 sm:h-8" />
-            <span className="text-lg sm:text-xl brand-font tracking-wider">BOX</span>
-          </div>
-          <div className="flex items-center gap-2 sm:gap-4">
-            <Link href="/creative" className="text-theme-secondary hover:text-theme-primary text-xs sm:text-sm hidden sm:inline">
-              Creative Space
-            </Link>
-            <Link href="/community" className="text-theme-secondary hover:text-theme-primary text-xs sm:text-sm hidden sm:inline">
-              Community
-            </Link>
-            <Link href="/generator" className="text-theme-secondary hover:text-theme-primary text-xs sm:text-sm hidden sm:inline">
-              Agreements
-            </Link>
-            <Link href="/settings" className="text-theme-secondary hover:text-theme-primary text-xs sm:text-sm hidden sm:inline">
-              Settings
-            </Link>
-            <button
-              onClick={toggleTheme}
-              className="text-theme-muted hover:text-theme-primary text-xs font-mono transition-colors"
-            >
-              [{theme}]
-            </button>
-            <div className="flex items-center gap-2">
-              {user?.profileImageUrl && (
-                <img src={user.profileImageUrl} alt="" className="w-5 h-5 sm:w-6 sm:h-6 rounded-full" />
-              )}
-              <span className="text-xs sm:text-sm text-theme-secondary hidden sm:inline">{user?.firstName || user?.email}</span>
-            </div>
-            <a href="/api/logout" className="text-theme-secondary hover:text-red-400 text-xs sm:text-sm">
-              Logout
-            </a>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="max-w-6xl mx-auto p-4 sm:p-6">
-        {/* Mobile nav links */}
-        <div className="flex gap-4 mb-4 sm:hidden overflow-x-auto pb-2">
-          <Link href="/creative" className="text-theme-secondary hover:text-theme-primary text-xs whitespace-nowrap">
-            Creative Space
-          </Link>
-          <Link href="/community" className="text-theme-secondary hover:text-theme-primary text-xs whitespace-nowrap">
-            Community
-          </Link>
-          <Link href="/generator" className="text-theme-secondary hover:text-theme-primary text-xs whitespace-nowrap">
-            Agreements
-          </Link>
-          <Link href="/settings" className="text-theme-secondary hover:text-theme-primary text-xs whitespace-nowrap">
-            Settings
-          </Link>
-        </div>
-
+        
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold">Your Projects</h1>

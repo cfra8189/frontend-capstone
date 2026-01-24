@@ -8,6 +8,7 @@ import Generator from "./pages/Generator";
 import Admin from "./pages/Admin";
 import Settings from "./pages/Settings";
 import Community from "./pages/Community";
+import Docs from "./pages/Docs";
 
 function App() {
   const { user, isLoading, isAuthenticated } = useAuth();
@@ -19,6 +20,10 @@ function App() {
 
   if (location === "/community") {
     return <Community />;
+  }
+
+  if (location === "/docs") {
+    return <Docs />;
   }
 
   if (isLoading) {
