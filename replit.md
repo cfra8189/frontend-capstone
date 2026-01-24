@@ -163,7 +163,7 @@ The platform uses the REVERIE | RVR Creative Development framework:
 - **Improved drag-and-drop** - Notes can be reordered with immediate visual feedback
 - **Improved pin functionality** - Text-based pin/unpin button for better reliability
 - **Fixed light mode text colors** - Tailwind config now uses CSS variables for theme-aware colors
-- **Rebranded to "The Box"** from WayfinderOS with luctheleo.com domain
+- **Rebranded to "BOX"** from WayfinderOS with luctheleo.com domain
 - **Added Chicago custom font** - Replaced JetBrains Mono with Chicago TTF font
 - **New logos** - box-logo.png, ltl-logo.png, favicon.png
 - **Added email verification system** using Resend integration (24-hour token expiry)
