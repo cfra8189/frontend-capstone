@@ -102,12 +102,21 @@ export default function CreativeSpace() {
 
   async function togglePin(id: number) {
     try {
+      // Optimistic update
+      setNotes(prev => prev.map(n => 
+        n.id === id ? { ...n, is_pinned: !n.is_pinned } : n
+      ));
+      
       const res = await fetch(`/api/creative/notes/${id}/pin`, { method: "POST" });
-      if (res.ok) {
-        loadNotes();
+      if (!res.ok) {
+        // Revert on failure
+        setNotes(prev => prev.map(n => 
+          n.id === id ? { ...n, is_pinned: !n.is_pinned } : n
+        ));
       }
     } catch (error) {
       console.error("Failed to toggle pin:", error);
+      loadNotes();
     }
   }
 
@@ -141,15 +150,20 @@ export default function CreativeSpace() {
     currentNotes.splice(draggedIndex, 1);
     currentNotes.splice(targetIndex, 0, draggedNote);
 
-    setNotes(currentNotes);
+    // Update sort_order locally for immediate feedback
+    const reorderedNotes = currentNotes.map((n, idx) => ({ ...n, sort_order: idx }));
+    setNotes(reorderedNotes);
     setDraggedNote(null);
 
     try {
-      await fetch("/api/creative/notes/reorder", {
+      const res = await fetch("/api/creative/notes/reorder", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ noteIds: currentNotes.map(n => n.id) }),
+        body: JSON.stringify({ noteIds: reorderedNotes.map(n => n.id) }),
       });
+      if (!res.ok) {
+        loadNotes();
+      }
     } catch (error) {
       console.error("Failed to reorder notes:", error);
       loadNotes();
@@ -352,7 +366,8 @@ export default function CreativeSpace() {
                     <button
                       type="button"
                       onClick={() => togglePin(note.id)}
-                      className={`text-xs px-2 py-0.5 rounded ${note.is_pinned ? "bg-accent text-black" : "bg-theme-tertiary text-theme-secondary hover:bg-theme-secondary"}`}
+                      className={`text-xs px-2 py-0.5 rounded ${note.is_pinned ? "bg-accent text-theme-primary" : "bg-theme-tertiary text-theme-secondary hover:bg-theme-secondary"}`}
+                      style={note.is_pinned ? { color: 'var(--bg-primary)' } : {}}
                     >
                       {note.is_pinned ? "unpin" : "pin"}
                     </button>
