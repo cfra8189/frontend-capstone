@@ -27,6 +27,7 @@ export const users = pgTable("users", {
   role: varchar("role", { length: 20 }).default("artist"),
   businessName: varchar("business_name"),
   businessBio: text("business_bio"),
+  boxCode: varchar("box_code", { length: 12 }).unique(),
   emailVerified: boolean("email_verified").default(false),
   verificationToken: varchar("verification_token"),
   verificationTokenExpires: timestamp("verification_token_expires"),

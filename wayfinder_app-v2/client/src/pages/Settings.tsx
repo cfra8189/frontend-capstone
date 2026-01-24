@@ -85,9 +85,38 @@ export default function Settings() {
         <h1 className="text-2xl font-bold mb-6 text-theme-primary">Settings</h1>
 
         <section className="card p-6 rounded-xl mb-6">
+          <h2 className="text-lg font-bold mb-4 text-theme-primary">Your BOX Code</h2>
+          <div className="bg-theme-secondary p-4 rounded-lg mb-4">
+            <p className="text-xs text-theme-muted mb-2">Share this code for collaborations and connections</p>
+            <div className="flex items-center gap-3">
+              <code className="text-2xl font-mono font-bold text-accent tracking-wider">
+                {user?.boxCode || "Generating..."}
+              </code>
+              <button
+                onClick={() => {
+                  if (user?.boxCode) {
+                    navigator.clipboard.writeText(user.boxCode);
+                    alert("BOX code copied to clipboard!");
+                  }
+                }}
+                className="text-xs bg-theme-tertiary px-3 py-1 rounded hover:opacity-80"
+              >
+                Copy
+              </button>
+            </div>
+            <p className="text-xs text-theme-muted mt-3">
+              {user?.role === "studio" 
+                ? "Artists can use this code to join your network when they sign up."
+                : "Share this code with studios or other artists to connect and collaborate."}
+            </p>
+          </div>
+        </section>
+
+        <section className="card p-6 rounded-xl mb-6">
           <h2 className="text-lg font-bold mb-4 text-theme-primary">Account Information</h2>
           <div className="space-y-2 text-theme-secondary mb-4">
             <p><span className="text-theme-muted">Email:</span> {user?.email || "N/A"}</p>
+            <p><span className="text-theme-muted">Role:</span> {user?.role === "studio" ? "Studio / Business" : "Artist"}</p>
             <p><span className="text-theme-muted">Account Type:</span> {user?.authType === "email" ? "Email/Password" : "OAuth"}</p>
           </div>
 

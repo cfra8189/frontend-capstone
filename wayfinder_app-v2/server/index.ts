@@ -118,10 +118,28 @@ async function main() {
     }
   });
 
+  // Helper function to generate unique BOX code
+  async function generateUniqueBoxCode(): Promise<string> {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let attempts = 0;
+    while (attempts < 10) {
+      let code = "BOX-";
+      for (let i = 0; i < 6; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      const [existing] = await db.select().from(users).where(eq(users.boxCode, code));
+      if (!existing) {
+        return code;
+      }
+      attempts++;
+    }
+    return "BOX-" + crypto.randomBytes(4).toString("hex").toUpperCase().slice(0, 6);
+  }
+
   // Email/Password Registration
   app.post("/api/auth/register", async (req: any, res) => {
     try {
-      const { email, password, displayName, firstName, lastName, role, businessName } = req.body;
+      const { email, password, displayName, firstName, lastName, role, businessName, studioCode } = req.body;
 
       if (!email || !password) {
         return res.status(400).json({ message: "Email and password are required" });
@@ -144,9 +162,19 @@ async function main() {
         return res.status(400).json({ message: "Email already registered" });
       }
 
+      let studioToJoin: any = null;
+      if (studioCode && role === "artist") {
+        const [studio] = await db.select().from(users).where(eq(users.boxCode, studioCode.toUpperCase()));
+        if (!studio || studio.role !== "studio") {
+          return res.status(400).json({ message: "Invalid studio code" });
+        }
+        studioToJoin = studio;
+      }
+
       const passwordHash = await bcrypt.hash(password, 10);
       const verificationToken = crypto.randomBytes(32).toString("hex");
       const verificationTokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      const boxCode = await generateUniqueBoxCode();
 
       const [user] = await db.insert(users).values({
         email,
@@ -156,10 +184,21 @@ async function main() {
         lastName: lastName || null,
         role: role || "artist",
         businessName: role === "studio" ? businessName : null,
+        boxCode,
         emailVerified: false,
         verificationToken,
         verificationTokenExpires,
       }).returning();
+
+      if (studioToJoin && user) {
+        await db.insert(studioArtists).values({
+          studioId: studioToJoin.id,
+          artistId: user.id,
+          inviteEmail: email,
+          status: "accepted",
+          acceptedAt: new Date(),
+        });
+      }
 
       const baseUrl = `${req.protocol}://${req.get("host")}`;
       await sendVerificationEmail(email, verificationToken, baseUrl);
@@ -167,7 +206,9 @@ async function main() {
       res.json({ 
         success: true, 
         needsVerification: true,
-        message: "Please check your email to verify your account" 
+        message: studioToJoin 
+          ? `Account created and joined ${studioToJoin.businessName || studioToJoin.displayName}'s network. Please check your email to verify.` 
+          : "Please check your email to verify your account" 
       });
     } catch (error) {
       console.error("Registration error:", error);

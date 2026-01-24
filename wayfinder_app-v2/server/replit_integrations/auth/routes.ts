@@ -19,6 +19,7 @@ export function registerAuthRoutes(app: Express): void {
           profileImageUrl: user.profileImageUrl,
           role: user.role || "artist",
           businessName: user.businessName || null,
+          boxCode: user.boxCode || null,
           authType: user.passwordHash ? "email" : "oauth",
         });
       } else {

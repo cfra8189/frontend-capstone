@@ -8,6 +8,7 @@ interface User {
   role: "artist" | "studio" | null;
   businessName: string | null;
   displayName: string | null;
+  boxCode: string | null;
   authType: "oauth" | "email" | null;
 }
 

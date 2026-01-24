@@ -13,6 +13,7 @@ export default function Landing() {
   const [lastName, setLastName] = useState("");
   const [role, setRole] = useState<"artist" | "studio">("artist");
   const [businessName, setBusinessName] = useState("");
+  const [studioCode, setStudioCode] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,7 +28,7 @@ export default function Landing() {
     try {
       const endpoint = mode === "register" ? "/api/auth/register" : "/api/auth/login";
       const body = mode === "register" 
-        ? { email, password, displayName, firstName, lastName, role, businessName: role === "studio" ? businessName : null }
+        ? { email, password, displayName, firstName, lastName, role, businessName: role === "studio" ? businessName : null, studioCode: role === "artist" && studioCode ? studioCode : null }
         : { email, password };
 
       const res = await fetch(endpoint, {
@@ -226,6 +227,21 @@ export default function Landing() {
                       placeholder="Your studio or label name"
                       required
                     />
+                  </div>
+                )}
+
+                {role === "artist" && (
+                  <div>
+                    <label className="block text-sm text-theme-secondary mb-1">Studio Code (Optional)</label>
+                    <input
+                      type="text"
+                      value={studioCode}
+                      onChange={(e) => setStudioCode(e.target.value.toUpperCase())}
+                      className="input-field w-full p-3 rounded font-mono"
+                      placeholder="BOX-XXXXXX"
+                      maxLength={12}
+                    />
+                    <p className="text-xs text-theme-muted mt-1">Have a studio code? Enter it to join their network.</p>
                   </div>
                 )}
 

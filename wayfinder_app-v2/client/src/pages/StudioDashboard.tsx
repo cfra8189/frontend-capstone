@@ -147,6 +147,28 @@ export default function StudioDashboard() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">{user.businessName || "Studio Dashboard"}</h1>
           <p className="text-theme-secondary">Manage your artist roster and curate your portfolio</p>
+          
+          <div className="mt-4 p-4 bg-theme-secondary rounded-lg inline-block">
+            <p className="text-xs text-theme-muted mb-1">Your Studio Code</p>
+            <div className="flex items-center gap-3">
+              <code className="text-xl font-mono font-bold text-accent tracking-wider">
+                {user.boxCode || "Loading..."}
+              </code>
+              <button
+                onClick={() => {
+                  if (user.boxCode) {
+                    navigator.clipboard.writeText(user.boxCode);
+                    setSuccess("Code copied!");
+                    setTimeout(() => setSuccess(""), 2000);
+                  }
+                }}
+                className="text-xs bg-theme-tertiary px-3 py-1 rounded hover:opacity-80"
+              >
+                Copy
+              </button>
+            </div>
+            <p className="text-xs text-theme-muted mt-2">Share this code with artists to join your network during signup</p>
+          </div>
         </div>
 
         <div className="flex gap-2 mb-6 border-b border-theme pb-2">
