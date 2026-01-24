@@ -57,6 +57,7 @@ The platform uses the REVERIE | RVR Creative Development framework:
 - **community_favorites** - User favorites on shared content
 - **community_comments** - User comments on shared content
 - **blog_posts** - Admin blog posts created from shared content
+- **press_kits** - Electronic Press Kits with bios, photos, videos, achievements, contacts, technical rider
 
 ### API Structure
 
@@ -99,6 +100,11 @@ The platform uses the REVERIE | RVR Creative Development framework:
 - `POST /api/admin/blog` - Create blog post from shared content
 - `GET /api/blog` - Get published blog posts
 
+**Electronic Press Kit (EPK):**
+- `GET /api/epk` - Get current user's EPK
+- `POST /api/epk` - Create or update user's EPK
+- `GET /api/epk/:boxCode` - Get public EPK by BOX code
+
 **Studio (role: studio):**
 - `GET /api/studio/artists` - Get studio's artist roster
 - `POST /api/studio/invite` - Invite artist by email
@@ -126,6 +132,8 @@ The platform uses the REVERIE | RVR Creative Development framework:
 - `/studio` - Studio Dashboard for managing artist roster and curating portfolio
 - `/portfolio/:id` - Public studio portfolio page showing roster and featured work
 - `/docs` - Documentation for copyrights, global identifiers, PROs, and IP workflow
+- `/epk` - EPK Editor for creating professional press kits
+- `/epk/:boxCode` - Public EPK view accessible via BOX code
 
 ### IP Protection Workflow (6 Steps)
 1. **Fix Your Work** - Record/document in tangible form (FREE)
@@ -171,6 +179,8 @@ The platform uses the REVERIE | RVR Creative Development framework:
 
 ## Recent Changes
 
+- **Added Electronic Press Kit (EPK) system** - Full EPK editor with biography (3 lengths), photos, videos, featured tracks, achievements, press quotes, contact info, technical rider, and stage plot
+- **EPK public view** - Professional shareable page accessible via /epk/:boxCode
 - **Added Submission File Generator** - Export project data in CSV formats for The MLC, ASCAP/BMI, Music Reports, and SoundExchange
 - **Added BOX Code system** - Unique identifiers (BOX-XXXXXX) for users and studios to share and connect
 - **Studio code joining** - Artists can enter a studio's BOX code during registration to auto-join their network
