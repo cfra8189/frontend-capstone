@@ -236,12 +236,31 @@ export default function CreativeSpace() {
       );
     }
 
-    // Pinterest
-    if (url.includes("pinterest.com/pin/")) {
+    // Pinterest embed iframe (user pastes the embed code)
+    const pinterestEmbedMatch = url.match(/assets\.pinterest\.com\/ext\/embed\.html\?id=(\d+)/);
+    if (pinterestEmbedMatch) {
       return (
-        <a href={url} target="_blank" rel="noreferrer" className="block media-embed mb-3 p-4 text-center">
-          <span className="text-theme-muted text-sm">View on Pinterest →</span>
-        </a>
+        <div className="media-embed mb-3">
+          <iframe
+            src={`https://assets.pinterest.com/ext/embed.html?id=${pinterestEmbedMatch[1]}`}
+            scrolling="no"
+            style={{ border: 'none' }}
+          />
+        </div>
+      );
+    }
+
+    // Pinterest URL
+    const pinterestPinMatch = url.match(/pinterest\.com\/pin\/(\d+)/);
+    if (pinterestPinMatch) {
+      return (
+        <div className="media-embed mb-3">
+          <iframe
+            src={`https://assets.pinterest.com/ext/embed.html?id=${pinterestPinMatch[1]}`}
+            scrolling="no"
+            style={{ border: 'none' }}
+          />
+        </div>
       );
     }
 
@@ -326,22 +345,25 @@ export default function CreativeSpace() {
               >
                 <div className="flex justify-between items-start mb-2">
                   <span className="text-xs text-theme-muted uppercase">{note.category}</span>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2" onMouseDown={(e) => e.stopPropagation()} draggable={false}>
                     <button
-                      onClick={() => togglePin(note.id)}
+                      onClick={(e) => { e.stopPropagation(); togglePin(note.id); }}
+                      onMouseDown={(e) => e.stopPropagation()}
                       className={`text-sm ${note.is_pinned ? "text-accent" : "text-theme-muted"} hover:scale-110 transition-transform`}
                       title={note.is_pinned ? "Unpin" : "Pin to top"}
                     >
                       {note.is_pinned ? "★" : "☆"}
                     </button>
                     <button
-                      onClick={() => { setEditingNote(note); setShowModal(true); }}
+                      onClick={(e) => { e.stopPropagation(); setEditingNote(note); setShowModal(true); }}
+                      onMouseDown={(e) => e.stopPropagation()}
                       className="text-theme-muted hover:text-theme-primary text-sm"
                     >
                       ✎
                     </button>
                     <button
-                      onClick={() => deleteNote(note.id)}
+                      onClick={(e) => { e.stopPropagation(); deleteNote(note.id); }}
+                      onMouseDown={(e) => e.stopPropagation()}
                       className="text-theme-muted hover:text-red-400 text-sm"
                     >
                       ×
