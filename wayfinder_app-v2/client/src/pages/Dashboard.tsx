@@ -101,17 +101,17 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-theme-primary">
-      <header className="border-b border-theme p-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/box-logo.png" alt="BOX" className="w-8 h-8" />
-            <span className="text-xl brand-font tracking-wider">BOX</span>
+      <header className="border-b border-theme p-3 sm:p-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <img src="/box-logo.png" alt="BOX" className="w-6 h-6 sm:w-8 sm:h-8" />
+            <span className="text-lg sm:text-xl brand-font tracking-wider">BOX</span>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/creative" className="text-theme-secondary hover:text-theme-primary text-sm">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Link href="/creative" className="text-theme-secondary hover:text-theme-primary text-xs sm:text-sm hidden sm:inline">
               Creative Space
             </Link>
-            <Link href="/generator" className="text-theme-secondary hover:text-theme-primary text-sm">
+            <Link href="/generator" className="text-theme-secondary hover:text-theme-primary text-xs sm:text-sm hidden sm:inline">
               Agreements
             </Link>
             <button
@@ -122,56 +122,66 @@ export default function Dashboard() {
             </button>
             <div className="flex items-center gap-2">
               {user?.profileImageUrl && (
-                <img src={user.profileImageUrl} alt="" className="w-6 h-6 rounded-full" />
+                <img src={user.profileImageUrl} alt="" className="w-5 h-5 sm:w-6 sm:h-6 rounded-full" />
               )}
-              <span className="text-sm text-theme-secondary">{user?.firstName || user?.email}</span>
+              <span className="text-xs sm:text-sm text-theme-secondary hidden sm:inline">{user?.firstName || user?.email}</span>
             </div>
-            <a href="/api/logout" className="text-theme-secondary hover:text-red-400 text-sm">
+            <a href="/api/logout" className="text-theme-secondary hover:text-red-400 text-xs sm:text-sm">
               Logout
             </a>
           </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto p-6">
-        <div className="flex items-center justify-between mb-8">
+      <main className="max-w-6xl mx-auto p-4 sm:p-6">
+        {/* Mobile nav links */}
+        <div className="flex gap-4 mb-4 sm:hidden overflow-x-auto pb-2">
+          <Link href="/creative" className="text-theme-secondary hover:text-theme-primary text-xs whitespace-nowrap">
+            Creative Space
+          </Link>
+          <Link href="/generator" className="text-theme-secondary hover:text-theme-primary text-xs whitespace-nowrap">
+            Agreements
+          </Link>
+        </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-2xl font-bold">Your Projects</h1>
-            <p className="text-theme-secondary">Track your creative work from concept to publication</p>
+            <h1 className="text-xl sm:text-2xl font-bold">Your Projects</h1>
+            <p className="text-sm sm:text-base text-theme-secondary">Track your creative work from concept to publication</p>
           </div>
           <button
             onClick={() => { setEditingProject(null); setShowModal(true); }}
-            className="btn-primary font-bold px-6 py-3 rounded"
+            className="btn-primary font-bold px-4 sm:px-6 py-2 sm:py-3 rounded text-sm sm:text-base w-full sm:w-auto"
           >
             + New Project
           </button>
         </div>
 
-        <div className="grid grid-cols-4 gap-4 mb-8">
-          <div className="card p-4 rounded-xl text-center">
-            <p className="text-3xl font-bold text-accent">{stats.total}</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-6 sm:mb-8">
+          <div className="card p-3 sm:p-4 rounded-xl text-center">
+            <p className="text-2xl sm:text-3xl font-bold text-accent">{stats.total}</p>
             <p className="text-xs text-theme-muted">Total</p>
           </div>
-          <div className="card p-4 rounded-xl text-center">
-            <p className="text-3xl font-bold text-theme-secondary">{stats.concept}</p>
+          <div className="card p-3 sm:p-4 rounded-xl text-center">
+            <p className="text-2xl sm:text-3xl font-bold text-theme-secondary">{stats.concept}</p>
             <p className="text-xs text-theme-muted">Concept</p>
           </div>
-          <div className="card p-4 rounded-xl text-center">
-            <p className="text-3xl font-bold text-blue-500">{stats.development}</p>
+          <div className="card p-3 sm:p-4 rounded-xl text-center">
+            <p className="text-2xl sm:text-3xl font-bold text-blue-500">{stats.development}</p>
             <p className="text-xs text-theme-muted">Development</p>
           </div>
-          <div className="card p-4 rounded-xl text-center">
-            <p className="text-3xl font-bold text-green-500">{stats.published}</p>
+          <div className="card p-3 sm:p-4 rounded-xl text-center">
+            <p className="text-2xl sm:text-3xl font-bold text-green-500">{stats.published}</p>
             <p className="text-xs text-theme-muted">Published</p>
           </div>
         </div>
 
-        <div className="flex gap-2 mb-6">
+        <div className="flex gap-2 mb-4 sm:mb-6 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
           {["all", "concept", "development", "review", "published"].map(status => (
             <button
               key={status}
               onClick={() => setFilter(status)}
-              className={`px-4 py-2 rounded text-sm ${filter === status ? "btn-primary" : "bg-theme-tertiary text-theme-secondary"}`}
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded text-xs sm:text-sm whitespace-nowrap ${filter === status ? "btn-primary" : "bg-theme-tertiary text-theme-secondary"}`}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}
             </button>
@@ -185,34 +195,34 @@ export default function Dashboard() {
             No projects yet. Create your first one!
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {filteredProjects.map(project => (
               <div
                 key={project.id}
-                className="card p-4 rounded-xl hover:border-theme cursor-pointer"
+                className="card p-3 sm:p-4 rounded-xl hover:border-theme cursor-pointer"
                 onClick={() => { setEditingProject(project); setShowModal(true); }}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
+                  <div className="flex items-center gap-2 sm:gap-4">
                     <span className={`status-${project.status} px-2 py-1 rounded text-xs uppercase`}>
                       {project.status}
                     </span>
                     <div>
-                      <p className="font-bold">{project.title}</p>
+                      <p className="font-bold text-sm sm:text-base">{project.title}</p>
                       <p className="text-xs text-theme-muted">{project.type}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 ml-auto">
                     <Link
                       href={`/project/${project.id}`}
                       onClick={(e) => e.stopPropagation()}
-                      className="text-theme-muted hover:text-accent text-sm"
+                      className="text-theme-muted hover:text-accent text-xs sm:text-sm"
                     >
                       Details
                     </Link>
                     <button
                       onClick={(e) => { e.stopPropagation(); deleteProject(project.id); }}
-                      className="text-theme-muted hover:text-red-400 text-sm"
+                      className="text-theme-muted hover:text-red-400 text-xs sm:text-sm"
                     >
                       Delete
                     </button>
@@ -225,8 +235,8 @@ export default function Dashboard() {
       </main>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-6 z-50">
-          <div className="card p-6 rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/90 flex items-end sm:items-center justify-center p-0 sm:p-6 z-50">
+          <div className="card p-4 sm:p-6 rounded-t-xl sm:rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-accent">
                 {editingProject ? "Edit Project" : "New Project"}

@@ -255,14 +255,14 @@ export default function CreativeSpace() {
 
   return (
     <div className="min-h-screen bg-theme-primary">
-      <header className="border-b border-theme p-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="text-theme-secondary hover:text-theme-primary">&larr;</Link>
-            <img src="/box-logo.png" alt="BOX" className="w-8 h-8" />
-            <span className="text-xl brand-font tracking-wider">BOX</span>
+      <header className="border-b border-theme p-3 sm:p-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link href="/" className="text-theme-secondary hover:text-theme-primary text-sm sm:text-base">&larr;</Link>
+            <img src="/box-logo.png" alt="BOX" className="w-6 h-6 sm:w-8 sm:h-8" />
+            <span className="text-lg sm:text-xl brand-font tracking-wider">BOX</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <button
               onClick={toggleTheme}
               className="text-theme-muted hover:text-theme-primary text-xs font-mono transition-colors"
@@ -271,34 +271,34 @@ export default function CreativeSpace() {
             </button>
             <div className="flex items-center gap-2">
               {user?.profileImageUrl && (
-                <img src={user.profileImageUrl} alt="" className="w-6 h-6 rounded-full" />
+                <img src={user.profileImageUrl} alt="" className="w-5 h-5 sm:w-6 sm:h-6 rounded-full" />
               )}
-              <span className="text-sm text-theme-secondary">{user?.firstName || user?.email}</span>
+              <span className="text-xs sm:text-sm text-theme-secondary hidden sm:inline">{user?.firstName || user?.email}</span>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto p-6">
-        <div className="flex items-center justify-between mb-8">
+      <main className="max-w-6xl mx-auto p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
           <div>
-            <h1 className="text-2xl font-bold">Your Private Space</h1>
-            <p className="text-theme-secondary">Capture ideas, inspiration, and creative notes</p>
+            <h1 className="text-xl sm:text-2xl font-bold">Your Private Space</h1>
+            <p className="text-sm sm:text-base text-theme-secondary">Capture ideas, inspiration, and creative notes</p>
           </div>
           <button
             onClick={() => { setEditingNote(null); setUploadedMediaUrl(""); setShowModal(true); }}
-            className="btn-primary font-bold px-6 py-3 rounded"
+            className="btn-primary font-bold px-4 sm:px-6 py-2 sm:py-3 rounded text-sm sm:text-base w-full sm:w-auto"
           >
             + New Note
           </button>
         </div>
 
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+        <div className="flex gap-2 mb-4 sm:mb-6 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
           {categories.map(cat => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded text-sm whitespace-nowrap ${activeCategory === cat ? "btn-primary" : "bg-theme-tertiary text-theme-secondary"}`}
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded text-xs sm:text-sm whitespace-nowrap ${activeCategory === cat ? "btn-primary" : "bg-theme-tertiary text-theme-secondary"}`}
             >
               {cat.charAt(0).toUpperCase() + cat.slice(1)}
             </button>
@@ -364,17 +364,17 @@ export default function CreativeSpace() {
       </main>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-6 z-50">
-          <div className="card p-6 rounded-xl max-w-lg w-full">
+        <div className="fixed inset-0 bg-black/90 flex items-end sm:items-center justify-center p-0 sm:p-6 z-50">
+          <div className="card p-4 sm:p-6 rounded-t-xl sm:rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-accent">
+              <h3 className="text-base sm:text-lg font-bold text-accent">
                 {editingNote ? "Edit Note" : "New Note"}
               </h3>
-              <button onClick={() => setShowModal(false)} className="text-theme-muted hover:text-theme-primary text-xl">
+              <button onClick={() => setShowModal(false)} className="text-theme-muted hover:text-theme-primary text-xl p-1">
                 &times;
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
               <div>
                 <label className="block text-sm text-theme-secondary mb-1">Category</label>
                 <select name="category" defaultValue={editingNote?.category || "ideas"} className="input-field w-full p-2 rounded">

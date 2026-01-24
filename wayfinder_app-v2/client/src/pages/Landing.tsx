@@ -89,32 +89,32 @@ export default function Landing() {
 
   if (mode === "verify") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-8">
+      <div className="min-h-screen flex items-center justify-center p-4 sm:p-8">
         <div className="max-w-md w-full text-center">
-          <img src="/box-logo.png" alt="BOX" className="w-16 h-16 mx-auto mb-6" />
-          <span className="text-2xl brand-font tracking-wider block mb-4">BOX</span>
-          <h1 className="text-2xl font-bold mb-4">Check Your Email</h1>
-          <p className="text-theme-secondary mb-6">
-            We've sent a verification link to <span className="text-accent">{email}</span>
+          <img src="/box-logo.png" alt="BOX" className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 sm:mb-6" />
+          <span className="text-xl sm:text-2xl brand-font tracking-wider block mb-3 sm:mb-4">BOX</span>
+          <h1 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">Check Your Email</h1>
+          <p className="text-sm sm:text-base text-theme-secondary mb-4 sm:mb-6">
+            We've sent a verification link to <span className="text-accent break-all">{email}</span>
           </p>
-          <p className="text-theme-muted text-sm mb-8">
+          <p className="text-theme-muted text-xs sm:text-sm mb-6 sm:mb-8">
             Click the link in the email to verify your account. The link expires in 24 hours.
           </p>
 
-          {message && <p className="text-green-400 text-sm mb-4">{message}</p>}
-          {error && <p className="text-red-400 text-sm mb-4">{error}</p>}
+          {message && <p className="text-green-400 text-xs sm:text-sm mb-4">{message}</p>}
+          {error && <p className="text-red-400 text-xs sm:text-sm mb-4">{error}</p>}
 
           <button
             onClick={handleResendVerification}
             disabled={resending}
-            className="w-full bg-theme-tertiary text-theme-primary font-bold py-4 rounded-lg hover:opacity-80 transition-colors disabled:opacity-50 mb-4"
+            className="w-full bg-theme-tertiary text-theme-primary font-bold py-3 sm:py-4 rounded-lg hover:opacity-80 transition-colors disabled:opacity-50 mb-4 text-sm sm:text-base"
           >
             {resending ? "Sending..." : "Resend Verification Email"}
           </button>
 
           <button
             onClick={() => setMode("login")}
-            className="text-theme-muted hover:text-theme-primary text-sm"
+            className="text-theme-muted hover:text-theme-primary text-xs sm:text-sm"
           >
             Back to Sign In
           </button>
@@ -144,25 +144,25 @@ export default function Landing() {
         </div>
       </div>
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8">
         <div className="max-w-md w-full">
-          <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
-            <img src="/box-logo.png" alt="BOX" className="w-10 h-10" />
-            <span className="text-2xl brand-font tracking-wider">BOX</span>
+          <div className="lg:hidden flex items-center justify-center gap-2 sm:gap-3 mb-6 sm:mb-8">
+            <img src="/box-logo.png" alt="BOX" className="w-8 h-8 sm:w-10 sm:h-10" />
+            <span className="text-xl sm:text-2xl brand-font tracking-wider">BOX</span>
           </div>
           
           <button
             onClick={toggleTheme}
-            className="absolute top-4 right-4 text-theme-muted hover:text-theme-primary text-xs font-mono transition-colors"
+            className="absolute top-3 sm:top-4 right-3 sm:right-4 text-theme-muted hover:text-theme-primary text-xs font-mono transition-colors"
           >
             [{theme}]
           </button>
 
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold mb-2">
+          <div className="text-center mb-4 sm:mb-6">
+            <h2 className="text-xl sm:text-2xl font-bold mb-2">
               {mode === "login" ? "Welcome Back" : "Create Account"}
             </h2>
-            <p className="text-theme-secondary">
+            <p className="text-sm sm:text-base text-theme-secondary">
               {mode === "login" ? "Sign in to manage your creative assets" : "Join BOX today"}
             </p>
           </div>
