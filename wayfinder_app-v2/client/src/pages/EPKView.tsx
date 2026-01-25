@@ -142,7 +142,7 @@ export default function EPKView() {
               key={section}
               onClick={() => setActiveSection(section)}
               className={`px-4 py-2 rounded-lg text-sm transition-colors ${
-                activeSection === section ? "bg-accent text-black font-bold" : "text-theme-muted hover:text-theme-primary"
+                activeSection === section ? "bg-accent text-accent-contrast font-bold" : "text-theme-muted hover:text-theme-primary"
               }`}
             >
               {section === "bio" ? "About" :

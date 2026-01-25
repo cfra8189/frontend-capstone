@@ -346,7 +346,7 @@ export default function SubmissionGenerator() {
           <button
             onClick={() => setStep("select-platform")}
             className={`px-4 py-2 rounded-lg text-sm ${
-              step === "select-platform" ? "bg-accent text-black font-bold" : "bg-theme-secondary text-theme-muted"
+              step === "select-platform" ? "bg-accent text-accent-contrast font-bold" : "bg-theme-secondary text-theme-muted"
             }`}
           >
             1. Select Platform
@@ -355,7 +355,7 @@ export default function SubmissionGenerator() {
             onClick={() => selectedPlatform && setStep("select-projects")}
             disabled={!selectedPlatform}
             className={`px-4 py-2 rounded-lg text-sm ${
-              step === "select-projects" ? "bg-accent text-black font-bold" : "bg-theme-secondary text-theme-muted"
+              step === "select-projects" ? "bg-accent text-accent-contrast font-bold" : "bg-theme-secondary text-theme-muted"
             } disabled:opacity-50`}
           >
             2. Select Projects
@@ -364,7 +364,7 @@ export default function SubmissionGenerator() {
             onClick={() => selectedProjects.length > 0 && setStep("preview")}
             disabled={selectedProjects.length === 0}
             className={`px-4 py-2 rounded-lg text-sm ${
-              step === "preview" ? "bg-accent text-black font-bold" : "bg-theme-secondary text-theme-muted"
+              step === "preview" ? "bg-accent text-accent-contrast font-bold" : "bg-theme-secondary text-theme-muted"
             } disabled:opacity-50`}
           >
             3. Preview & Download

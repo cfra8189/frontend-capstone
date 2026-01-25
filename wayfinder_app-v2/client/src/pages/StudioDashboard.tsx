@@ -316,7 +316,7 @@ export default function StudioDashboard() {
                             onClick={() => handleToggleFeatured(project.id, project.isFeatured)}
                             className={`px-3 py-1.5 rounded text-sm transition-colors ${
                               project.isFeatured
-                                ? "bg-accent text-black font-bold"
+                                ? "bg-accent text-accent-contrast font-bold"
                                 : "bg-theme-tertiary text-theme-muted hover:text-theme-primary"
                             }`}
                           >
