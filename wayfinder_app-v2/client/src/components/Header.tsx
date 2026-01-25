@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "../hooks/use-auth";
 import { useTheme } from "../context/ThemeContext";
@@ -7,11 +7,119 @@ interface HeaderProps {
   showNav?: boolean;
 }
 
+interface SearchResult {
+  type: "project" | "note" | "page";
+  id?: number;
+  title: string;
+  subtitle?: string;
+  href: string;
+}
+
 export default function Header({ showNav = true }: HeaderProps) {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [searching, setSearching] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  const pages: SearchResult[] = [
+    { type: "page", title: "Dashboard", subtitle: "Home", href: "/" },
+    { type: "page", title: "Creative Space", subtitle: "Notes & inspiration", href: "/creative" },
+    { type: "page", title: "Agreements", subtitle: "Generate contracts", href: "/generator" },
+    { type: "page", title: "Submissions", subtitle: "Export for platforms", href: "/submissions" },
+    { type: "page", title: "EPK", subtitle: "Electronic Press Kit", href: "/epk" },
+    { type: "page", title: "Settings", subtitle: "Account settings", href: "/settings" },
+    { type: "page", title: "Documentation", subtitle: "IP & copyright guide", href: "/docs" },
+    { type: "page", title: "Community", subtitle: "Shared content", href: "/community" },
+  ];
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const query = searchQuery.toLowerCase();
+    const pageResults = pages.filter(
+      p => p.title.toLowerCase().includes(query) || p.subtitle?.toLowerCase().includes(query)
+    );
+
+    async function searchData() {
+      setSearching(true);
+      const results: SearchResult[] = [...pageResults];
+
+      try {
+        const [projectsRes, notesRes] = await Promise.all([
+          fetch("/api/projects"),
+          fetch("/api/creative/notes")
+        ]);
+
+        if (projectsRes.ok) {
+          const data = await projectsRes.json();
+          const projects = (data.projects || []).filter((p: any) =>
+            p.title.toLowerCase().includes(query) ||
+            p.type?.toLowerCase().includes(query)
+          ).slice(0, 5);
+          
+          projects.forEach((p: any) => {
+            results.push({
+              type: "project",
+              id: p.id,
+              title: p.title,
+              subtitle: `${p.type} - ${p.status}`,
+              href: `/project/${p.id}`
+            });
+          });
+        }
+
+        if (notesRes.ok) {
+          const data = await notesRes.json();
+          const notes = (data.notes || []).filter((n: any) =>
+            n.content?.toLowerCase().includes(query) ||
+            n.category?.toLowerCase().includes(query)
+          ).slice(0, 5);
+
+          notes.forEach((n: any) => {
+            results.push({
+              type: "note",
+              id: n.id,
+              title: n.content?.substring(0, 50) + (n.content?.length > 50 ? "..." : ""),
+              subtitle: n.category,
+              href: "/creative"
+            });
+          });
+        }
+      } catch (err) {
+        console.error("Search error:", err);
+      }
+
+      setSearchResults(results.slice(0, 10));
+      setSearching(false);
+    }
+
+    const debounce = setTimeout(searchData, 300);
+    return () => clearTimeout(debounce);
+  }, [searchQuery]);
+
+  function handleResultClick(result: SearchResult) {
+    setSearchOpen(false);
+    setSearchQuery("");
+    setLocation(result.href);
+  }
 
   const isStudio = user?.role === "studio";
   
@@ -27,6 +135,7 @@ export default function Header({ showNav = true }: HeaderProps) {
     { href: "/generator", label: "Agreements" },
     { href: "/submissions", label: "Submissions" },
     { href: "/epk", label: "EPK" },
+    { href: "/docs", label: "Docs" },
     { href: "/settings", label: "Settings" },
   ];
 
@@ -47,6 +156,54 @@ export default function Header({ showNav = true }: HeaderProps) {
 
         {showNav && (
           <>
+            <div ref={searchRef} className="relative hidden sm:block flex-1 max-w-xs mx-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setSearchOpen(true)}
+                  className="w-full input-field px-3 py-1.5 rounded text-sm pl-8"
+                />
+                <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+
+              {searchOpen && (searchQuery || searchResults.length > 0) && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-theme-secondary border border-theme rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
+                  {searching && (
+                    <div className="p-3 text-center text-theme-muted text-sm">Searching...</div>
+                  )}
+                  {!searching && searchResults.length === 0 && searchQuery && (
+                    <div className="p-3 text-center text-theme-muted text-sm">No results found</div>
+                  )}
+                  {!searching && searchResults.map((result, i) => (
+                    <button
+                      key={`${result.type}-${result.id || i}`}
+                      onClick={() => handleResultClick(result)}
+                      className="w-full text-left px-3 py-2 hover:bg-theme-tertiary transition-colors flex items-center gap-3"
+                    >
+                      <span className={`text-xs px-1.5 py-0.5 rounded ${
+                        result.type === "project" ? "bg-accent text-accent-contrast" :
+                        result.type === "note" ? "bg-theme-tertiary text-theme-muted" :
+                        "bg-theme-primary text-theme-secondary"
+                      }`}>
+                        {result.type === "project" ? "PRJ" : result.type === "note" ? "NOTE" : "PAGE"}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm text-theme-primary truncate">{result.title}</div>
+                        {result.subtitle && (
+                          <div className="text-xs text-theme-muted truncate">{result.subtitle}</div>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <nav className="hidden md:flex items-center gap-4">
               {navLinks.map(link => (
                 <Link key={link.href} href={link.href}>
