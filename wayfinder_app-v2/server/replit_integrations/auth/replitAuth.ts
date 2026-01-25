@@ -120,14 +120,10 @@ export async function setupAuth(app: Express) {
 
   app.get("/api/logout", (req, res) => {
     req.logout(() => {
-      const host = req.get('x-forwarded-host') || req.get('host') || req.hostname;
-      const protocol = req.get('x-forwarded-proto') || req.protocol;
-      res.redirect(
-        client.buildEndSessionUrl(config, {
-          client_id: process.env.REPL_ID!,
-          post_logout_redirect_uri: `${protocol}://${host}`,
-        }).href
-      );
+      req.session.destroy((err) => {
+        res.clearCookie('connect.sid');
+        res.redirect('/');
+      });
     });
   });
 }
