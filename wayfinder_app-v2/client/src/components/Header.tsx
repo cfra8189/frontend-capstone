@@ -127,15 +127,12 @@ export default function Header({ showNav = true }: HeaderProps) {
     { href: "/", label: "Dashboard" },
     { href: "/studio", label: "Studio" },
     { href: "/submissions", label: "Submissions" },
-    { href: "/docs", label: "Docs" },
     { href: "/settings", label: "Settings" },
   ] : [
     { href: "/", label: "Dashboard" },
     { href: "/creative", label: "Creative" },
-    { href: "/generator", label: "Agreements" },
     { href: "/submissions", label: "Submissions" },
     { href: "/epk", label: "EPK" },
-    { href: "/docs", label: "Docs" },
     { href: "/settings", label: "Settings" },
   ];
 
@@ -204,32 +201,26 @@ export default function Header({ showNav = true }: HeaderProps) {
               )}
             </div>
 
-            <nav className="hidden md:flex items-center gap-4">
+            <nav className="hidden md:flex items-center gap-6">
               {navLinks.map(link => (
                 <Link key={link.href} href={link.href}>
-                  <span className={`text-sm cursor-pointer transition-colors ${isActive(link.href) ? "text-theme-primary font-bold" : "text-theme-secondary hover:text-theme-primary"}`}>
+                  <span className={`text-sm cursor-pointer transition-colors ${isActive(link.href) ? "text-theme-primary font-bold" : "text-theme-muted hover:text-theme-primary"}`}>
                     {link.label}
                   </span>
                 </Link>
               ))}
             </nav>
 
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-3">
               <button
                 onClick={toggleTheme}
                 className="text-theme-muted hover:text-theme-primary text-xs font-mono transition-colors"
+                title="Toggle theme"
               >
                 [{theme}]
               </button>
 
-              <div className="hidden sm:flex items-center gap-2">
-                {user?.profileImageUrl && (
-                  <img src={user.profileImageUrl} alt="" className="w-5 h-5 sm:w-6 sm:h-6 rounded-full" />
-                )}
-                <span className="text-xs sm:text-sm text-theme-secondary">{user?.firstName || user?.displayName || user?.email}</span>
-              </div>
-
-              <a href="/api/logout" className="hidden sm:inline text-theme-secondary hover:text-red-400 text-xs sm:text-sm">
+              <a href="/api/logout" className="hidden sm:inline text-theme-muted hover:text-theme-primary text-xs">
                 Logout
               </a>
 
