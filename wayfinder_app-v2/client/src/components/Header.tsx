@@ -157,7 +157,7 @@ export default function Header({ showNav = true }: HeaderProps) {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search..."
+                  placeholder="Search projects, notes, docs..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => setSearchOpen(true)}
@@ -168,7 +168,27 @@ export default function Header({ showNav = true }: HeaderProps) {
                 </svg>
               </div>
 
-              {searchOpen && (searchQuery || searchResults.length > 0) && (
+              {searchOpen && !searchQuery && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-theme-secondary border border-theme rounded-lg shadow-lg z-50 p-3">
+                  <p className="text-xs text-theme-muted mb-2">Try searching for:</p>
+                  <div className="space-y-1 text-xs">
+                    <button onClick={() => setSearchQuery("docs")} className="block w-full text-left px-2 py-1 rounded hover:bg-theme-tertiary text-theme-secondary">
+                      "docs" - Documentation & guides
+                    </button>
+                    <button onClick={() => setSearchQuery("agreements")} className="block w-full text-left px-2 py-1 rounded hover:bg-theme-tertiary text-theme-secondary">
+                      "agreements" - Generate contracts
+                    </button>
+                    <button onClick={() => setSearchQuery("community")} className="block w-full text-left px-2 py-1 rounded hover:bg-theme-tertiary text-theme-secondary">
+                      "community" - Shared content
+                    </button>
+                  </div>
+                  <p className="text-xs text-theme-muted mt-3 pt-2 border-t border-theme">
+                    Also searches your projects and notes
+                  </p>
+                </div>
+              )}
+
+              {searchOpen && searchQuery && (
                 <div className="absolute top-full left-0 right-0 mt-1 bg-theme-secondary border border-theme rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
                   {searching && (
                     <div className="p-3 text-center text-theme-muted text-sm">Searching...</div>
