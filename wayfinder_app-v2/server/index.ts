@@ -2,6 +2,8 @@ import "dotenv/config";
 import express from "express";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
+import path from "path";
+import { fileURLToPath } from "url";
 import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { connectMongoDB } from "./mongodb";
@@ -15,6 +17,9 @@ import { BlogPost } from "../shared/models/mongoose/BlogPost";
 import { StudioArtist } from "../shared/models/mongoose/StudioArtist";
 import { PressKit } from "../shared/models/mongoose/PressKit";
 import { sendVerificationEmail } from "./lib/email";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(express.json());
@@ -1255,7 +1260,16 @@ async function main() {
     }
   });
 
-  const PORT = 3000;
+  const publicDir = path.resolve(__dirname, "..", "dist", "public");
+  const fs = await import("fs");
+  if (fs.existsSync(publicDir)) {
+    app.use(express.static(publicDir, { maxAge: "1d" }));
+    app.get("*", (_req, res) => {
+      res.sendFile(path.join(publicDir, "index.html"));
+    });
+  }
+
+  const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on port ${PORT}`);
   });
