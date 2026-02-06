@@ -16,7 +16,6 @@ import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integra
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { connectMongoDB } from "./mongodb";
 import { setupGoogleAuth } from "./auth/google";
-import { setupGitHubAuth } from "./auth/github";
 import { User } from "../shared/models/mongoose/User";
 import { Project } from "../shared/models/mongoose/Project";
 import { CreativeNote } from "../shared/models/mongoose/CreativeNote";
@@ -98,7 +97,6 @@ async function main() {
   await setupAuth(app);
   registerAuthRoutes(app);
   setupGoogleAuth(app);
-  setupGitHubAuth(app);
   registerObjectStorageRoutes(app);
 
   app.post("/api/auth/change-password", isAuthenticated, async (req: any, res) => {
