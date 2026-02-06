@@ -1260,13 +1260,22 @@ async function main() {
     }
   });
 
-  const publicDir = path.resolve(__dirname, "..", "dist", "public");
+  const possiblePaths = [
+    path.resolve(__dirname, "..", "public"),
+    path.resolve(__dirname, "..", "dist", "public"),
+    path.resolve(process.cwd(), "dist", "public"),
+    path.resolve(process.cwd(), "wayfinder_app-v2", "dist", "public"),
+  ];
   const fs = await import("fs");
-  if (fs.existsSync(publicDir)) {
+  const publicDir = possiblePaths.find(p => fs.existsSync(path.join(p, "index.html")));
+  if (publicDir) {
+    console.log(`Serving static files from: ${publicDir}`);
     app.use(express.static(publicDir, { maxAge: "1d" }));
     app.get("*", (_req, res) => {
       res.sendFile(path.join(publicDir, "index.html"));
     });
+  } else {
+    console.log("No static files found, checked:", possiblePaths);
   }
 
   const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
