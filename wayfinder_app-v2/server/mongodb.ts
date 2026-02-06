@@ -8,6 +8,23 @@ export async function connectMongoDB() {
   
   await mongoose.connect(uri);
   console.log("Connected to MongoDB");
+
+  try {
+    const db = mongoose.connection.db;
+    if (db) {
+      const usersCollection = db.collection("users");
+      const indexes = await usersCollection.indexes();
+      const staleIndex = indexes.find((idx: any) => idx.key?.username !== undefined);
+      if (staleIndex && staleIndex.name) {
+        await usersCollection.dropIndex(staleIndex.name);
+        console.log("Dropped stale 'username' index from users collection");
+      }
+    }
+  } catch (err: any) {
+    if (err.code !== 27) {
+      console.log("Index cleanup note:", err.message);
+    }
+  }
 }
 
 export { mongoose };
