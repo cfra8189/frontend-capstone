@@ -49,8 +49,8 @@ channel = "stable-25_05"
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["bash", "-c", "cd wayfinder_app-v2 && PORT=5000 npm start"]
-build = ["bash", "-c", "cd wayfinder_app-v2 && npm install --include=dev && npm run build"]
+run = ["npm", "run", "start"]
+build = ["npm", "run", "build"]
 
 [userenv]
 
