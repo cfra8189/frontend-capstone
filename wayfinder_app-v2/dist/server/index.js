@@ -112,7 +112,8 @@ function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production" || !!process.env.REPL_ID,
+      secure: !!process.env.REPL_ID,
+      sameSite: process.env.REPL_ID ? "none" : "lax",
       maxAge: sessionTtl
     }
   });
@@ -137,7 +138,9 @@ async function setupAuth(app2) {
   app2.use(getSession());
   app2.use(passport.initialize());
   app2.use(passport.session());
+  console.log("Setting up OIDC with REPL_ID:", process.env.REPL_ID ? "present" : "missing");
   const config = await getOidcConfig();
+  console.log("OIDC config loaded successfully");
   const verify = async (tokens, verified) => {
     const user = {};
     updateUserSession(user, tokens);
@@ -173,24 +176,51 @@ async function setupAuth(app2) {
   app2.get("/api/callback", (req, res, next) => {
     const hostname = req.hostname;
     console.log(`OAuth callback received for hostname: ${hostname}`);
-    ensureStrategy(hostname);
-    passport.authenticate(`replitauth:${hostname}`, (err, user, info) => {
+    console.log(`Query params: ${JSON.stringify(req.query)}`);
+    console.log(`Session ID: ${req.sessionID}`);
+    console.log(`Has session: ${!!req.session}`);
+    try {
+      ensureStrategy(hostname);
+    } catch (strategyErr) {
+      console.error("Strategy setup error:", strategyErr?.message);
+      return res.redirect("/?error=strategy_setup_failed");
+    }
+    const authMiddleware = passport.authenticate(`replitauth:${hostname}`, (err, user, info) => {
       if (err) {
-        console.error("OAuth callback error:", err);
+        console.error("OAuth callback error:", err?.message || err);
+        console.error("OAuth callback error stack:", err?.stack);
         return res.redirect("/?error=auth_failed");
       }
       if (!user) {
-        console.error("OAuth callback: no user returned, info:", info);
+        console.error("OAuth callback: no user returned, info:", JSON.stringify(info));
         return res.redirect("/api/login");
       }
       req.logIn(user, (loginErr) => {
         if (loginErr) {
-          console.error("OAuth login error:", loginErr);
+          console.error("OAuth login error:", loginErr?.message || loginErr);
           return res.redirect("/?error=login_failed");
         }
+        console.log("OAuth login successful for user:", user?.claims?.sub);
         return res.redirect("/");
       });
-    })(req, res, next);
+    });
+    try {
+      authMiddleware(req, res, (middlewareErr) => {
+        if (middlewareErr) {
+          console.error("OAuth middleware next error:", middlewareErr?.message || middlewareErr);
+          console.error("OAuth middleware next stack:", middlewareErr?.stack);
+          if (!res.headersSent) {
+            return res.redirect("/?error=auth_middleware_error");
+          }
+        }
+      });
+    } catch (error) {
+      console.error("OAuth callback uncaught error:", error?.message || error);
+      console.error("OAuth callback uncaught stack:", error?.stack);
+      if (!res.headersSent) {
+        return res.redirect("/?error=auth_exception");
+      }
+    }
   });
   app2.get("/api/logout", (req, res) => {
     req.logout(() => {
@@ -275,17 +305,6 @@ function isPermissionAllowed(requested, granted) {
 }
 function createObjectAccessGroup(group) {
   switch (group.type) {
-    // Implement the case for each type of access group to instantiate.
-    //
-    // For example:
-    // case "USER_LIST":
-    //   return new UserListAccessGroup(group.id);
-    // case "EMAIL_DOMAIN":
-    //   return new EmailDomainAccessGroup(group.id);
-    // case "GROUP_MEMBER":
-    //   return new GroupMemberAccessGroup(group.id);
-    // case "SUBSCRIBER":
-    //   return new SubscriberAccessGroup(group.id);
     default:
       throw new Error(`Unknown access group type: ${group.type}`);
   }
@@ -779,12 +798,19 @@ async function sendVerificationEmail(to, token, baseUrl) {
 }
 
 // server/index.ts
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
+});
+process.on("uncaughtException", (error) => {
+  console.error("Uncaught Exception:", error);
+});
 var __filename = fileURLToPath(import.meta.url);
 var __dirname = path.dirname(__filename);
 var app = express();
 app.use(express.json());
 function toId(doc) {
-  if (!doc) return doc;
+  if (!doc)
+    return doc;
   const obj = doc.toObject ? doc.toObject() : { ...doc };
   if (obj._id) {
     obj.id = obj._id.toString();
@@ -826,6 +852,20 @@ function renderVerificationPage(success, message) {
 }
 async function main() {
   await connectMongoDB();
+  app.get("/api/debug/info", (req, res) => {
+    res.json({
+      hostname: req.hostname,
+      host: req.headers.host,
+      xForwardedHost: req.headers["x-forwarded-host"],
+      xForwardedProto: req.headers["x-forwarded-proto"],
+      protocol: req.protocol,
+      originalUrl: req.originalUrl,
+      nodeEnv: process.env.NODE_ENV,
+      hasReplId: !!process.env.REPL_ID,
+      hasSessionSecret: !!process.env.SESSION_SECRET,
+      hasMongoUri: !!process.env.MONGODB_URI
+    });
+  });
   await setupAuth(app);
   registerAuthRoutes(app);
   registerObjectStorageRoutes(app);
@@ -1686,7 +1726,8 @@ async function main() {
         status: "accepted"
       });
       const roster = await Promise.all(relations.map(async (rel) => {
-        if (!rel.artistId) return null;
+        if (!rel.artistId)
+          return null;
         const artist = await User.findById(rel.artistId);
         const artistProjects = await Project.find({ userId: rel.artistId });
         return {
@@ -1697,7 +1738,8 @@ async function main() {
       }));
       const allFeaturedProjects = [];
       for (const rel of relations) {
-        if (!rel.artistId) continue;
+        if (!rel.artistId)
+          continue;
         const artistFeatured = await Project.find({
           userId: rel.artistId,
           isFeatured: true
@@ -1901,6 +1943,13 @@ async function main() {
   } else {
     console.log("No static files found, checked:", possiblePaths);
   }
+  app.use((err, _req, res, _next) => {
+    console.error("Unhandled error:", err?.message || err);
+    console.error("Stack:", err?.stack);
+    if (!res.headersSent) {
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  });
   const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3e3;
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on port ${PORT}`);

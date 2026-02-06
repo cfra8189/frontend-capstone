@@ -32,7 +32,8 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production" || !!process.env.REPL_ID,
+      secure: !!process.env.REPL_ID,
+      sameSite: process.env.REPL_ID ? "none" as const : "lax" as const,
       maxAge: sessionTtl,
     },
   });
@@ -64,7 +65,9 @@ export async function setupAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  console.log("Setting up OIDC with REPL_ID:", process.env.REPL_ID ? "present" : "missing");
   const config = await getOidcConfig();
+  console.log("OIDC config loaded successfully");
 
   const verify: VerifyFunction = async (
     tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
@@ -109,24 +112,54 @@ export async function setupAuth(app: Express) {
   app.get("/api/callback", (req, res, next) => {
     const hostname = req.hostname;
     console.log(`OAuth callback received for hostname: ${hostname}`);
-    ensureStrategy(hostname);
-    passport.authenticate(`replitauth:${hostname}`, (err: any, user: any, info: any) => {
+    console.log(`Query params: ${JSON.stringify(req.query)}`);
+    console.log(`Session ID: ${req.sessionID}`);
+    console.log(`Has session: ${!!req.session}`);
+    
+    try {
+      ensureStrategy(hostname);
+    } catch (strategyErr: any) {
+      console.error("Strategy setup error:", strategyErr?.message);
+      return res.redirect("/?error=strategy_setup_failed");
+    }
+    
+    const authMiddleware = passport.authenticate(`replitauth:${hostname}`, (err: any, user: any, info: any) => {
       if (err) {
-        console.error("OAuth callback error:", err);
+        console.error("OAuth callback error:", err?.message || err);
+        console.error("OAuth callback error stack:", err?.stack);
         return res.redirect("/?error=auth_failed");
       }
       if (!user) {
-        console.error("OAuth callback: no user returned, info:", info);
+        console.error("OAuth callback: no user returned, info:", JSON.stringify(info));
         return res.redirect("/api/login");
       }
       req.logIn(user, (loginErr) => {
         if (loginErr) {
-          console.error("OAuth login error:", loginErr);
+          console.error("OAuth login error:", loginErr?.message || loginErr);
           return res.redirect("/?error=login_failed");
         }
+        console.log("OAuth login successful for user:", user?.claims?.sub);
         return res.redirect("/");
       });
-    })(req, res, next);
+    });
+
+    try {
+      authMiddleware(req, res, (middlewareErr: any) => {
+        if (middlewareErr) {
+          console.error("OAuth middleware next error:", middlewareErr?.message || middlewareErr);
+          console.error("OAuth middleware next stack:", middlewareErr?.stack);
+          if (!res.headersSent) {
+            return res.redirect("/?error=auth_middleware_error");
+          }
+        }
+      });
+    } catch (error: any) {
+      console.error("OAuth callback uncaught error:", error?.message || error);
+      console.error("OAuth callback uncaught stack:", error?.stack);
+      if (!res.headersSent) {
+        return res.redirect("/?error=auth_exception");
+      }
+    }
   });
 
   app.get("/api/logout", (req, res) => {

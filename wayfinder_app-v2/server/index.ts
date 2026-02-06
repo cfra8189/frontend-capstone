@@ -4,6 +4,14 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import path from "path";
 import { fileURLToPath } from "url";
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
+});
+
+process.on("uncaughtException", (error) => {
+  console.error("Uncaught Exception:", error);
+});
 import { setupAuth, registerAuthRoutes, isAuthenticated } from "./replit_integrations/auth";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { connectMongoDB } from "./mongodb";
@@ -69,6 +77,22 @@ function renderVerificationPage(success: boolean, message: string): string {
 
 async function main() {
   await connectMongoDB();
+  
+  app.get("/api/debug/info", (req, res) => {
+    res.json({
+      hostname: req.hostname,
+      host: req.headers.host,
+      xForwardedHost: req.headers["x-forwarded-host"],
+      xForwardedProto: req.headers["x-forwarded-proto"],
+      protocol: req.protocol,
+      originalUrl: req.originalUrl,
+      nodeEnv: process.env.NODE_ENV,
+      hasReplId: !!process.env.REPL_ID,
+      hasSessionSecret: !!process.env.SESSION_SECRET,
+      hasMongoUri: !!process.env.MONGODB_URI,
+    });
+  });
+
   await setupAuth(app);
   registerAuthRoutes(app);
   registerObjectStorageRoutes(app);
@@ -1277,6 +1301,14 @@ async function main() {
   } else {
     console.log("No static files found, checked:", possiblePaths);
   }
+
+  app.use((err: any, _req: any, res: any, _next: any) => {
+    console.error("Unhandled error:", err?.message || err);
+    console.error("Stack:", err?.stack);
+    if (!res.headersSent) {
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  });
 
   const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
   app.listen(PORT, "0.0.0.0", () => {
