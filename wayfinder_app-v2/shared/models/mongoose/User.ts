@@ -15,6 +15,7 @@ export interface IUser extends Document {
   verificationToken: string | null;
   verificationTokenExpires: Date | null;
   githubId: string | null;
+  googleId: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,6 +35,7 @@ const userSchema = new Schema<IUser>({
   verificationToken: { type: String, default: null },
   verificationTokenExpires: { type: Date, default: null },
   githubId: { type: String, default: null },
+  googleId: { type: String, default: null },
 }, { timestamps: true });
 
 export const User = mongoose.model<IUser>("User", userSchema);

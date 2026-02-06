@@ -37,7 +37,9 @@ export function setupGitHubAuth(app: Express) {
       const email = profile.emails?.[0]?.value || `${profile.username}@github.local`;
       const githubId = profile.id;
       
-      let existingUser = await User.findOne({ email });
+      let existingUser = await User.findOne({
+        $or: [{ email }, { githubId }]
+      });
       
       if (!existingUser) {
         const boxCode = generateBoxCode();

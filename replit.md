@@ -40,7 +40,7 @@ The platform uses the REVERIE | RVR Creative Development framework:
 - **ODM**: Mongoose for MongoDB access
 - **Database**: MongoDB (Atlas) with connect-mongo session storage
 - **Stack**: MERN (MongoDB, Express, React, Node.js)
-- **Authentication**: Replit Auth (OAuth via OIDC) + Email/Password + GitHub OAuth
+- **Authentication**: Google OAuth + GitHub OAuth + Email/Password (Replit Auth kept as fallback)
 - **Entry Point**: `server/index.ts`
 - **API Port**: 3000 (proxied through Vite on 5000)
 
@@ -49,7 +49,7 @@ The platform uses the REVERIE | RVR Creative Development framework:
 - **Studio** - Business accounts that manage artist rosters, curate portfolios, and feature client work
 
 ### Database Schema (Mongoose/MongoDB)
-- **users** - User accounts (_id, email, passwordHash, displayName, firstName, lastName, profileImageUrl, role, businessName, businessBio, boxCode, emailVerified, verificationToken, verificationTokenExpires, githubId)
+- **users** - User accounts (_id, email, passwordHash, displayName, firstName, lastName, profileImageUrl, role, businessName, businessBio, boxCode, emailVerified, verificationToken, verificationTokenExpires, githubId, googleId)
 - **sessions** - Express session storage for auth persistence
 - **projects** - Creative works with title, type, status, description, metadata (JSONB), isFeatured
 - **studio_artists** - Studio-artist relationships (studioId, artistId, status, inviteEmail, acceptedAt)
@@ -62,9 +62,13 @@ The platform uses the REVERIE | RVR Creative Development framework:
 
 ### API Structure
 
-**Authentication (Dual: Replit Auth + Email/Password):**
-- `GET /api/login` - Redirect to OAuth login
-- `GET /api/callback` - OAuth callback handler
+**Authentication (Google OAuth + GitHub OAuth + Email/Password):**
+- `GET /api/auth/google` - Redirect to Google OAuth login
+- `GET /api/auth/google/callback` - Google OAuth callback handler
+- `GET /api/auth/github` - Redirect to GitHub OAuth login
+- `GET /api/auth/github/callback` - GitHub OAuth callback handler
+- `GET /api/login` - Redirect to Replit OAuth login (fallback)
+- `GET /api/callback` - Replit OAuth callback handler (fallback)
 - `GET /api/logout` - End session
 - `GET /api/auth/user` - Get current authenticated user
 - `POST /api/auth/register` - Email/password registration (sends verification email)
@@ -175,12 +179,18 @@ The platform uses the REVERIE | RVR Creative Development framework:
 ### Environment Variables Required
 - `MONGODB_URI` - MongoDB connection string (MongoDB Atlas)
 - `SESSION_SECRET` - Auto-generated session secret
-- `REPL_ID` - Replit app ID (auto-configured for OAuth)
+- `REPL_ID` - Replit app ID (auto-configured for OAuth fallback)
+- `GOOGLE_CLIENT_ID` - Google OAuth client ID (from Google Cloud Console)
+- `GOOGLE_CLIENT_SECRET` - Google OAuth client secret (from Google Cloud Console)
+- `GOOGLE_CALLBACK_URL` - Google OAuth callback URL (auto-detected, optional override)
 - `GITHUB_CLIENT_ID` - GitHub OAuth app client ID (optional)
 - `GITHUB_CLIENT_SECRET` - GitHub OAuth app client secret (optional)
 - `GITHUB_CALLBACK_URL` - GitHub OAuth callback URL (optional)
 
 ## Recent Changes
+
+- **Replaced Replit Auth with Google OAuth** - Landing page now shows "Continue with Google" and "Continue with GitHub" buttons instead of Replit OAuth, so users don't need a Replit account
+- **Added Google OAuth** - passport-google-oauth20 strategy for Google Sign-In, with googleId field on User model
 
 - **Migrated from PostgreSQL to MongoDB** - Full MERN stack: Mongoose ODM replaces Drizzle ORM, connect-mongo for sessions, MongoDB Atlas for data storage
 - **Added GitHub OAuth** - passport-github2 strategy for portable authentication outside Replit

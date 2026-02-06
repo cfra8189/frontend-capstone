@@ -30,7 +30,8 @@ var userSchema = new Schema({
   emailVerified: { type: Boolean, default: false },
   verificationToken: { type: String, default: null },
   verificationTokenExpires: { type: Date, default: null },
-  githubId: { type: String, default: null }
+  githubId: { type: String, default: null },
+  googleId: { type: String, default: null }
 }, { timestamps: true });
 var User = mongoose.model("User", userSchema);
 
@@ -625,6 +626,156 @@ async function connectMongoDB() {
   console.log("Connected to MongoDB");
 }
 
+// server/auth/google.ts
+import passport2 from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+function generateBoxCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "BOX-";
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+function setupGoogleAuth(app2) {
+  const clientID = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  if (!clientID || !clientSecret) {
+    console.log("Google OAuth not configured - GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET required");
+    return;
+  }
+  const callbackURL = process.env.GOOGLE_CALLBACK_URL || (process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(",")[0]}/api/auth/google/callback` : "http://localhost:5000/api/auth/google/callback");
+  passport2.use(new GoogleStrategy({
+    clientID,
+    clientSecret,
+    callbackURL,
+    scope: ["profile", "email"]
+  }, async (_accessToken, _refreshToken, profile, done) => {
+    try {
+      const email = profile.emails?.[0]?.value;
+      if (!email) {
+        return done(new Error("No email found in Google profile"));
+      }
+      const googleId = profile.id;
+      let existingUser = await User.findOne({
+        $or: [{ email }, { googleId }]
+      });
+      if (!existingUser) {
+        const boxCode = generateBoxCode();
+        existingUser = await User.create({
+          email,
+          displayName: profile.displayName || email,
+          firstName: profile.name?.givenName || profile.displayName?.split(" ")[0] || "",
+          lastName: profile.name?.familyName || profile.displayName?.split(" ").slice(1).join(" ") || "",
+          profileImageUrl: profile.photos?.[0]?.value || null,
+          role: "artist",
+          boxCode,
+          emailVerified: true,
+          googleId
+        });
+      } else if (!existingUser.googleId) {
+        existingUser.googleId = googleId;
+        existingUser.profileImageUrl = existingUser.profileImageUrl || profile.photos?.[0]?.value;
+        existingUser.emailVerified = true;
+        await existingUser.save();
+      }
+      return done(null, existingUser);
+    } catch (error) {
+      console.error("Google auth error:", error);
+      return done(error);
+    }
+  }));
+  app2.get("/api/auth/google", passport2.authenticate("google", { scope: ["profile", "email"] }));
+  app2.get(
+    "/api/auth/google/callback",
+    passport2.authenticate("google", { failureRedirect: "/?error=google_auth_failed" }),
+    (req, res) => {
+      const user = req.user;
+      const expiresAt = Math.floor(Date.now() / 1e3) + 7 * 24 * 60 * 60;
+      req.session.passport = {
+        user: {
+          claims: { sub: user._id.toString() },
+          expires_at: expiresAt
+        }
+      };
+      res.redirect("/");
+    }
+  );
+  console.log("Google OAuth configured");
+}
+
+// server/auth/github.ts
+import passport3 from "passport";
+import { Strategy as GitHubStrategy } from "passport-github2";
+function generateBoxCode2() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "BOX-";
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+function setupGitHubAuth(app2) {
+  const clientID = process.env.GITHUB_CLIENT_ID;
+  const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+  if (!clientID || !clientSecret) {
+    console.log("GitHub OAuth not configured - GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET required");
+    return;
+  }
+  const callbackURL = process.env.GITHUB_CALLBACK_URL || (process.env.REPL_SLUG ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co/api/auth/github/callback` : "http://localhost:5000/api/auth/github/callback");
+  passport3.use(new GitHubStrategy({
+    clientID,
+    clientSecret,
+    callbackURL,
+    scope: ["user:email"]
+  }, async (accessToken, refreshToken, profile, done) => {
+    try {
+      const email = profile.emails?.[0]?.value || `${profile.username}@github.local`;
+      const githubId = profile.id;
+      let existingUser = await User.findOne({ email });
+      if (!existingUser) {
+        const boxCode = generateBoxCode2();
+        existingUser = await User.create({
+          email,
+          displayName: profile.displayName || profile.username,
+          firstName: profile.displayName?.split(" ")[0] || profile.username,
+          lastName: profile.displayName?.split(" ").slice(1).join(" ") || null,
+          profileImageUrl: profile.photos?.[0]?.value || null,
+          role: "artist",
+          boxCode,
+          emailVerified: true,
+          githubId
+        });
+      } else if (!existingUser.githubId) {
+        existingUser.githubId = githubId;
+        existingUser.profileImageUrl = existingUser.profileImageUrl || profile.photos?.[0]?.value;
+        await existingUser.save();
+      }
+      return done(null, existingUser);
+    } catch (error) {
+      console.error("GitHub auth error:", error);
+      return done(error);
+    }
+  }));
+  app2.get("/api/auth/github", passport3.authenticate("github", { scope: ["user:email"] }));
+  app2.get(
+    "/api/auth/github/callback",
+    passport3.authenticate("github", { failureRedirect: "/?error=github_auth_failed" }),
+    (req, res) => {
+      const user = req.user;
+      const expiresAt = Math.floor(Date.now() / 1e3) + 7 * 24 * 60 * 60;
+      req.session.passport = {
+        user: {
+          claims: { sub: user._id.toString() },
+          expires_at: expiresAt
+        }
+      };
+      res.redirect("/");
+    }
+  );
+  console.log("GitHub OAuth configured");
+}
+
 // shared/models/mongoose/Project.ts
 import mongoose3, { Schema as Schema2 } from "mongoose";
 var projectSchema = new Schema2({
@@ -868,6 +1019,8 @@ async function main() {
   });
   await setupAuth(app);
   registerAuthRoutes(app);
+  setupGoogleAuth(app);
+  setupGitHubAuth(app);
   registerObjectStorageRoutes(app);
   app.post("/api/auth/change-password", isAuthenticated, async (req, res) => {
     try {
