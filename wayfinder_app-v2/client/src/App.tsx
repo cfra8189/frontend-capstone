@@ -14,6 +14,7 @@ import Portfolio from "./pages/Portfolio";
 import SubmissionGenerator from "./pages/SubmissionGenerator";
 import EPKEditor from "./pages/EPKEditor";
 import EPKView from "./pages/EPKView";
+import CapstoneDoc from "./pages/CapstoneDoc";
 
 function App() {
   const { user, isLoading, isAuthenticated } = useAuth();
@@ -29,6 +30,10 @@ function App() {
 
   if (location === "/docs") {
     return <Docs />;
+  }
+
+  if (location === "/capstone") {
+    return <CapstoneDoc />;
   }
 
   if (location.startsWith("/portfolio/")) {
