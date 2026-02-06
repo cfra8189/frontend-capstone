@@ -107,10 +107,25 @@ export async function setupAuth(app: Express) {
   });
 
   app.get("/api/callback", (req, res, next) => {
-    ensureStrategy(req.hostname);
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      successReturnToOrRedirect: "/",
-      failureRedirect: "/api/login",
+    const hostname = req.hostname;
+    console.log(`OAuth callback received for hostname: ${hostname}`);
+    ensureStrategy(hostname);
+    passport.authenticate(`replitauth:${hostname}`, (err: any, user: any, info: any) => {
+      if (err) {
+        console.error("OAuth callback error:", err);
+        return res.redirect("/?error=auth_failed");
+      }
+      if (!user) {
+        console.error("OAuth callback: no user returned, info:", info);
+        return res.redirect("/api/login");
+      }
+      req.logIn(user, (loginErr) => {
+        if (loginErr) {
+          console.error("OAuth login error:", loginErr);
+          return res.redirect("/?error=login_failed");
+        }
+        return res.redirect("/");
+      });
     })(req, res, next);
   });
 
