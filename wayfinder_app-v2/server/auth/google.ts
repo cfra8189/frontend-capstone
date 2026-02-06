@@ -23,9 +23,11 @@ export function setupGoogleAuth(app: Express) {
   }
 
   const callbackURL = process.env.GOOGLE_CALLBACK_URL ||
-    (process.env.REPL_SLUG
-      ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co/api/auth/google/callback`
-      : "http://localhost:5000/api/auth/google/callback");
+    (process.env.REPLIT_DEV_DOMAIN
+      ? `https://${process.env.REPLIT_DEV_DOMAIN}/api/auth/google/callback`
+      : (process.env.REPLIT_DOMAINS
+        ? `https://${process.env.REPLIT_DOMAINS.split(",")[0]}/api/auth/google/callback`
+        : "http://localhost:5000/api/auth/google/callback"));
 
   passport.use(new GoogleStrategy({
     clientID,

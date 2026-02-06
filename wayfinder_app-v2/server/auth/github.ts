@@ -23,9 +23,11 @@ export function setupGitHubAuth(app: Express) {
   }
 
   const callbackURL = process.env.GITHUB_CALLBACK_URL || 
-    (process.env.REPL_SLUG 
-      ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co/api/auth/github/callback`
-      : "http://localhost:5000/api/auth/github/callback");
+    (process.env.REPLIT_DEV_DOMAIN
+      ? `https://${process.env.REPLIT_DEV_DOMAIN}/api/auth/github/callback`
+      : (process.env.REPLIT_DOMAINS
+        ? `https://${process.env.REPLIT_DOMAINS.split(",")[0]}/api/auth/github/callback`
+        : "http://localhost:5000/api/auth/github/callback"));
 
   passport.use(new GitHubStrategy({
     clientID,
