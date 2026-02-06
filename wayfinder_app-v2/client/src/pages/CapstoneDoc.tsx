@@ -466,7 +466,7 @@ export default function CapstoneDoc() {
             <div className="mb-6">
               <h2 className="text-xl font-bold mb-2">Entity Relationship Diagram</h2>
               <p className="text-sm text-theme-secondary mb-1">
-                MongoDB (Atlas) with Mongoose ODM. 9 collections with referential relationships.
+                MongoDB (Atlas) with Mongoose ODM. 10 collections with referential relationships.
               </p>
               <p className="text-xs text-theme-muted">
                 PK = Primary Key | FK = Foreign Key | UQ = Unique Constraint
