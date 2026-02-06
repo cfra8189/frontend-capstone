@@ -1,9 +1,6 @@
-import { users, type User, type UpsertUser } from "../../../shared/models/auth";
-import { db } from "../../db";
-import { eq } from "drizzle-orm";
+import { User, type IUser } from "../../../shared/models/mongoose/User";
 import crypto from "crypto";
 
-// Helper function to generate unique BOX code
 async function generateUniqueBoxCode(): Promise<string> {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let attempts = 0;
@@ -12,7 +9,7 @@ async function generateUniqueBoxCode(): Promise<string> {
     for (let i = 0; i < 6; i++) {
       code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    const [existing] = await db.select().from(users).where(eq(users.boxCode, code));
+    const existing = await User.findOne({ boxCode: code });
     if (!existing) {
       return code;
     }
@@ -21,41 +18,45 @@ async function generateUniqueBoxCode(): Promise<string> {
   return "BOX-" + crypto.randomBytes(4).toString("hex").toUpperCase().slice(0, 6);
 }
 
-// Interface for auth storage operations
-// (IMPORTANT) These user operations are mandatory for Replit Auth.
 export interface IAuthStorage {
-  getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser): Promise<User>;
+  getUser(id: string): Promise<IUser | null>;
+  upsertUser(user: any): Promise<IUser>;
 }
 
 class AuthStorage implements IAuthStorage {
-  async getUser(id: string): Promise<User | undefined> {
-    const userId = parseInt(id);
-    if (isNaN(userId)) return undefined;
-    const [user] = await db.select().from(users).where(eq(users.id, userId));
+  async getUser(id: string): Promise<IUser | null> {
+    const user = await User.findById(id);
     
     if (user && !user.boxCode) {
       const boxCode = await generateUniqueBoxCode();
-      await db.update(users).set({ boxCode }).where(eq(users.id, userId));
       user.boxCode = boxCode;
+      await user.save();
     }
     
     return user;
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
+  async upsertUser(userData: any): Promise<IUser> {
     const boxCode = await generateUniqueBoxCode();
-    const [user] = await db
-      .insert(users)
-      .values({ ...userData, boxCode })
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          ...userData,
+    const user = await User.findOneAndUpdate(
+      { email: userData.email },
+      {
+        $set: {
+          email: userData.email,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          profileImageUrl: userData.profileImageUrl,
           updatedAt: new Date(),
         },
-      })
-      .returning();
+        $setOnInsert: {
+          displayName: userData.firstName || userData.email,
+          boxCode,
+          role: "artist",
+          emailVerified: true,
+        }
+      },
+      { upsert: true, new: true }
+    );
     return user;
   }
 }

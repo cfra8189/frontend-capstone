@@ -37,9 +37,10 @@ The platform uses the REVERIE | RVR Creative Development framework:
 
 ### Backend Architecture
 - **Framework**: Express.js with TypeScript
-- **ORM**: Drizzle ORM for type-safe database access
-- **Database**: PostgreSQL with session storage
-- **Authentication**: Replit Auth (OAuth via OIDC - Google, GitHub, Apple, email)
+- **ODM**: Mongoose for MongoDB access
+- **Database**: MongoDB (Atlas) with connect-mongo session storage
+- **Stack**: MERN (MongoDB, Express, React, Node.js)
+- **Authentication**: Replit Auth (OAuth via OIDC) + Email/Password + GitHub OAuth
 - **Entry Point**: `server/index.ts`
 - **API Port**: 3000 (proxied through Vite on 5000)
 
@@ -47,8 +48,8 @@ The platform uses the REVERIE | RVR Creative Development framework:
 - **Artist** - Individual artists managing their own projects, creative space, and agreements
 - **Studio** - Business accounts that manage artist rosters, curate portfolios, and feature client work
 
-### Database Schema (Drizzle ORM)
-- **users** - User accounts (id, email, passwordHash, displayName, firstName, lastName, profileImageUrl, role, businessName, businessBio, boxCode, emailVerified, verificationToken, verificationTokenExpires)
+### Database Schema (Mongoose/MongoDB)
+- **users** - User accounts (_id, email, passwordHash, displayName, firstName, lastName, profileImageUrl, role, businessName, businessBio, boxCode, emailVerified, verificationToken, verificationTokenExpires, githubId)
 - **sessions** - Express session storage for auth persistence
 - **projects** - Creative works with title, type, status, description, metadata (JSONB), isFeatured
 - **studio_artists** - Studio-artist relationships (studioId, artistId, status, inviteEmail, acceptedAt)
@@ -152,13 +153,13 @@ The platform uses the REVERIE | RVR Creative Development framework:
 ### Runtime Dependencies
 - **@tanstack/react-query** - Server state management
 - **bcryptjs** - Password hashing
-- **connect-pg-simple** - PostgreSQL session store
-- **drizzle-orm** - Type-safe ORM
+- **connect-mongo** - MongoDB session store
+- **mongoose** - MongoDB ODM
 - **express** - Web server framework
 - **express-session** - Session management
 - **openid-client** - OIDC authentication
 - **passport** - Authentication middleware
-- **pg** - PostgreSQL client
+- **passport-github2** - GitHub OAuth strategy
 - **react/react-dom** - UI framework
 - **resend** - Email sending for verification
 - **wouter** - React routing
@@ -166,19 +167,27 @@ The platform uses the REVERIE | RVR Creative Development framework:
 ### Dev Dependencies
 - **@vitejs/plugin-react** - React plugin for Vite
 - **concurrently** - Run multiple commands
-- **drizzle-kit** - Database migrations
 - **tailwindcss/autoprefixer/postcss** - CSS processing
 - **tsx** - TypeScript execution
 - **typescript** - Type checking
 - **vite** - Build tool
 
 ### Environment Variables Required
-- `DATABASE_URL` - PostgreSQL connection string (auto-configured)
+- `MONGODB_URI` - MongoDB connection string (MongoDB Atlas)
 - `SESSION_SECRET` - Auto-generated session secret
 - `REPL_ID` - Replit app ID (auto-configured for OAuth)
+- `GITHUB_CLIENT_ID` - GitHub OAuth app client ID (optional)
+- `GITHUB_CLIENT_SECRET` - GitHub OAuth app client secret (optional)
+- `GITHUB_CALLBACK_URL` - GitHub OAuth callback URL (optional)
 
 ## Recent Changes
 
+- **Migrated from PostgreSQL to MongoDB** - Full MERN stack: Mongoose ODM replaces Drizzle ORM, connect-mongo for sessions, MongoDB Atlas for data storage
+- **Added GitHub OAuth** - passport-github2 strategy for portable authentication outside Replit
+- **Interactive IP Protection Workflow** - Click steps to expand, enter data (copyright #, ISRC, UPC, etc.), mark complete
+- **Search bar with guided hints** - Shows suggestions ("docs", "agreements", "community") when focused
+- **Simplified navigation** - Premium minimal header with search-based discovery
+- **Fixed logout flow** - Clean local session destroy instead of OIDC redirect that caused errors
 - **Added Electronic Press Kit (EPK) system** - Full EPK editor with biography (3 lengths), photos, videos, featured tracks, achievements, press quotes, contact info, technical rider, and stage plot
 - **EPK public view** - Professional shareable page accessible via /epk/:boxCode
 - **Added Submission File Generator** - Export project data in CSV formats for The MLC, ASCAP/BMI, Music Reports, SoundExchange, and Harry Fox Agency

@@ -1,12 +1,11 @@
 import passport from "passport";
 import { Strategy as GitHubStrategy } from "passport-github2";
 import { Express } from "express";
-import { db } from "../db";
-import { users } from "../../shared/schema";
-import { eq } from "drizzle-orm";
+import { User } from "../../shared/models/mongoose/User";
+import crypto from "crypto";
 
 function generateBoxCode(): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let code = "BOX-";
   for (let i = 0; i < 6; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -38,12 +37,11 @@ export function setupGitHubAuth(app: Express) {
       const email = profile.emails?.[0]?.value || `${profile.username}@github.local`;
       const githubId = profile.id;
       
-      let [existingUser] = await db.select().from(users).where(eq(users.email, email));
+      let existingUser = await User.findOne({ email });
       
       if (!existingUser) {
         const boxCode = generateBoxCode();
-        const [newUser] = await db.insert(users).values({
-          id visibleForTesting: crypto.randomUUID(),
+        existingUser = await User.create({
           email,
           displayName: profile.displayName || profile.username,
           firstName: profile.displayName?.split(" ")[0] || profile.username,
@@ -53,13 +51,11 @@ export function setupGitHubAuth(app: Express) {
           boxCode,
           emailVerified: true,
           githubId,
-        }).returning();
-        existingUser = newUser;
+        });
       } else if (!existingUser.githubId) {
-        await db.update(users).set({ 
-          githubId,
-          profileImageUrl: existingUser.profileImageUrl || profile.photos?.[0]?.value,
-        }).where(eq(users.id, existingUser.id));
+        existingUser.githubId = githubId;
+        existingUser.profileImageUrl = existingUser.profileImageUrl || profile.photos?.[0]?.value;
+        await existingUser.save();
       }
 
       return done(null, existingUser);
@@ -75,12 +71,11 @@ export function setupGitHubAuth(app: Express) {
     passport.authenticate("github", { failureRedirect: "/?error=github_auth_failed" }),
     (req: any, res) => {
       const user = req.user;
-      req.session.user = {
-        claims: {
-          sub: user.id,
-          email: user.email,
-          name: user.displayName,
-          picture: user.profileImageUrl,
+      const expiresAt = Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60);
+      req.session.passport = {
+        user: {
+          claims: { sub: user._id.toString() },
+          expires_at: expiresAt,
         }
       };
       res.redirect("/");

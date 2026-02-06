@@ -12,6 +12,7 @@
   "dependencies": {
     "@google-cloud/storage": "^7.18.0",
     "@tanstack/react-query": "^5.90.20",
+    "@types/connect-mongo": "^3.1.2",
     "@types/connect-pg-simple": "^7.0.3",
     "@types/express-session": "^1.18.2",
     "@types/memoizee": "^0.4.12",
@@ -24,6 +25,7 @@
     "@vitejs/plugin-react": "^5.1.2",
     "autoprefixer": "^10.4.23",
     "bcryptjs": "^3.0.3",
+    "connect-mongo": "^6.0.0",
     "connect-pg-simple": "^10.0.0",
     "crypto": "^1.0.1",
     "drizzle-kit": "^0.31.8",
@@ -31,6 +33,7 @@
     "express-session": "^1.19.0",
     "google-auth-library": "^10.5.0",
     "memoizee": "^0.4.17",
+    "mongoose": "^9.1.6",
     "openid-client": "^6.8.1",
     "passport": "^0.7.0",
     "passport-github2": "^0.1.12",

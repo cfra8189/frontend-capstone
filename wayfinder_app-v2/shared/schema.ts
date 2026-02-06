@@ -1,2 +1,1 @@
-export * from "./models/auth";
-export * from "./models/projects";
+export * from "./models/mongoose";

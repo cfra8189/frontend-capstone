@@ -5,7 +5,7 @@ import passport from "passport";
 import session from "express-session";
 import type { Express, RequestHandler } from "express";
 import memoize from "memoizee";
-import connectPg from "connect-pg-simple";
+import MongoStore from "connect-mongo";
 import { authStorage } from "./storage";
 
 const getOidcConfig = memoize(
@@ -19,22 +19,20 @@ const getOidcConfig = memoize(
 );
 
 export function getSession() {
-  const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
-  const pgStore = connectPg(session);
-  const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
-    createTableIfMissing: false,
-    ttl: sessionTtl,
-    tableName: "sessions",
+  const sessionTtl = 7 * 24 * 60 * 60 * 1000;
+  const sessionStore = MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI!,
+    collectionName: "sessions",
+    ttl: sessionTtl / 1000,
   });
   return session({
-    secret: process.env.SESSION_SECRET!,
+    secret: process.env.SESSION_SECRET || "box-session-secret-" + (process.env.REPL_ID || "dev"),
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === "production" || !!process.env.REPL_ID,
       maxAge: sessionTtl,
     },
   });
@@ -78,10 +76,8 @@ export async function setupAuth(app: Express) {
     verified(null, user);
   };
 
-  // Keep track of registered strategies
   const registeredStrategies = new Set<string>();
 
-  // Helper function to ensure strategy exists for a domain
   const ensureStrategy = (domain: string) => {
     const strategyName = `replitauth:${domain}`;
     if (!registeredStrategies.has(strategyName)) {
@@ -131,7 +127,14 @@ export async function setupAuth(app: Express) {
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
   const user = req.user as any;
 
-  if (!req.isAuthenticated() || !user.expires_at) {
+  if (!req.isAuthenticated() || !user) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
+  if (!user.expires_at) {
+    if (user.claims?.sub) {
+      return next();
+    }
     return res.status(401).json({ message: "Unauthorized" });
   }
 
