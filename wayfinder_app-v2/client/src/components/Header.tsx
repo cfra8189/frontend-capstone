@@ -33,7 +33,7 @@ export default function Header({ showNav = true }: HeaderProps) {
     { type: "page", title: "Submissions", subtitle: "Export for platforms", href: "/submissions" },
     { type: "page", title: "EPK", subtitle: "Electronic Press Kit", href: "/epk" },
     { type: "page", title: "Settings", subtitle: "Account settings", href: "/settings" },
-    { type: "page", title: "Documentation", subtitle: "IP & copyright guide", href: "/docs" },
+    { type: "page", title: "Documentation", subtitle: "IP & copyright guide (docs)", href: "/docs" },
     { type: "page", title: "Community", subtitle: "Shared content", href: "/community" },
   ];
 
@@ -55,7 +55,7 @@ export default function Header({ showNav = true }: HeaderProps) {
 
     const query = searchQuery.toLowerCase();
     const pageResults = pages.filter(
-      p => p.title.toLowerCase().includes(query) || p.subtitle?.toLowerCase().includes(query)
+      p => p.title.toLowerCase().includes(query) || p.subtitle?.toLowerCase().includes(query) || p.href?.toLowerCase().includes(query)
     );
 
     async function searchData() {
