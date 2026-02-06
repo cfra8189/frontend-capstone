@@ -13,17 +13,15 @@ Built on the **REVERIE | RVR Creative Development** framework:
 
 ## Table of Contents
 
-- [Technologies Used](#technologies-used)
+- [Technologies Used](#technologiesused)
 - [Features](#features)
-- [Backend Route Tree](#backend-route-tree)
-- [Entity Relationship Diagram](#entity-relationship-diagram)
-- [Future Features](#future-features)
-- [Deployed App](#deployed-app)
-- [Installation & Setup](#installation--setup)
-- [About the Author](#about-the-author)
-- [Works Cited](#works-cited)
+- [Backend Route Tree](#routetree)
+- [Entity Relationship Diagram](#erd)
+- [Future Features](#nextsteps)
+- [Deployed App](#deployment)
+- [About the Author](#author)
 
-## <a name="technologies-used"></a>Technologies Used
+## <a name="technologiesused"></a>Technologies Used
 
 - **React 18** - Component-based UI with TypeScript
 - **Vite 5** - Fast build tool and dev server
@@ -39,7 +37,7 @@ Built on the **REVERIE | RVR Creative Development** framework:
 - **bcryptjs** - Password hashing for email/password auth
 - **connect-mongo** - MongoDB-backed session storage
 
-## <a name="features"></a>Features
+## <a name="features"></a> Features
 
 **Google OAuth Authentication** - Sign in securely with Google account
 **Email/Password Auth** - Register with email verification via Resend
@@ -62,7 +60,7 @@ Built on the **REVERIE | RVR Creative Development** framework:
 
 - [ ] Custom domain deployment (luctheleo.com)
 
-## <a name="backend-route-tree"></a>Backend Route Tree
+## <a name="routetree"></a>Backend Route Tree
 
 Express.js REST API running on port 3000, proxied through Vite on port 5000.
 Most routes prefixed with `/api`. Object storage served at `/objects`.
@@ -173,13 +171,11 @@ EXPRESS APP  server/index.ts
 - **Email Registration:** Client → `POST /api/auth/register` → Hash Password → Send Verification Email → `GET /api/auth/verify?token=...` → Activate Account
 - **Email Login:** Client → `POST /api/auth/login` → Verify Email + Password → Set Session → Return User
 
-## <a name="entity-relationship-diagram"></a>Entity Relationship Diagram
+## <a name="erd"></a>Entity Relationship Diagram
 
 MongoDB (Atlas) with Mongoose ODM. 10 collections with referential relationships.
 
 **Legend:** PK = Primary Key | FK = Foreign Key | UQ = Unique Constraint
-
-### Collections
 
 #### Users
 | Field | Type | Key |
@@ -333,7 +329,7 @@ SharedContent ── 1 : N ── CommunityComments  Content has many Comments
 SharedContent ── 1 : 1 ── BlogPosts          Content becomes Blog Post
 ```
 
-## <a name="future-features"></a>Future Features
+## <a name="nextsteps"></a>Future Features
 
 - **Custom Domain** - Deploy to luctheleo.com
 - **Advanced Analytics** - Stream tracking and royalty reporting dashboards
@@ -344,7 +340,7 @@ SharedContent ── 1 : 1 ── BlogPosts          Content becomes Blog Post
 - **Payment Processing** - In-app licensing and agreement payments
 - **Expanded EPK Templates** - Genre-specific press kit layouts
 
-## <a name="deployed-app"></a>Deployed App
+## <a name="deployment"></a>Deployed App
 
 **Live Application:**
 [BOX on Replit](https://box-luctheleo.replit.app)
@@ -352,7 +348,24 @@ SharedContent ── 1 : 1 ── BlogPosts          Content becomes Blog Post
 **Repository:**
 [GitHub Repository](https://github.com/luctheleo/BOX)
 
-## <a name="installation--setup"></a>Installation & Setup
+## <a name="author"></a>About The Author
+
+**Luc The Leo**
+
+- [luctheleo.com](https://luctheleo.com)
+
+## Development Process
+
+This project was built as a capstone using:
+
+- MERN stack (MongoDB, Express, React, Node.js)
+- TypeScript across the full stack
+- Google OAuth 2.0 for authentication (capstone requirement)
+- MongoDB Atlas for cloud database hosting
+- Vite for fast development and production builds
+- Git version control with iterative feature development
+
+## Installation & Setup
 
 1. Clone the repository:
 
@@ -388,24 +401,7 @@ SharedContent ── 1 : 1 ── BlogPosts          Content becomes Blog Post
 
 6. View in browser at `localhost:5000`
 
-## <a name="about-the-author"></a>About The Author
-
-**Luc The Leo**
-
-- [luctheleo.com](https://luctheleo.com)
-
-## Development Process
-
-This project was built as a capstone using:
-
-- MERN stack (MongoDB, Express, React, Node.js)
-- TypeScript across the full stack
-- Google OAuth 2.0 for authentication (capstone requirement)
-- MongoDB Atlas for cloud database hosting
-- Vite for fast development and production builds
-- Git version control with iterative feature development
-
-## <a name="works-cited"></a>Works Cited
+## Works Cited
 
 - [React Documentation](https://react.dev/)
 - [Express.js Documentation](https://expressjs.com/)
