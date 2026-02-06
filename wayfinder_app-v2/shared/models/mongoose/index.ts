@@ -6,4 +6,4 @@ export { CommunityFavorite, type ICommunityFavorite } from "./CommunityFavorite"
 export { CommunityComment, type ICommunityComment } from "./CommunityComment";
 export { BlogPost, type IBlogPost } from "./BlogPost";
 export { StudioArtist, type IStudioArtist } from "./StudioArtist";
-export { PressKit, type IPressKit } from "./PressKit";
+export { PressKit } from "./PressKit";
