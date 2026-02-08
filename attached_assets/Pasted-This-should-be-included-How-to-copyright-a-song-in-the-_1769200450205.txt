@@ -1,0 +1,573 @@
+This should be included:
+
+How to copyright a song in the US
+Edouard Witrand
+By Edouard Witrand
+Published July 22, 2025
+Behind every royalty check, playlist placement, or sync deal, there’s a copyright at work. Your music is technically protected the moment you record it — but if you want the power to defend that right, earn every dollar you’re owed, and take action if someone uses your work without permission, you need to register your copyright officially.
+
+Whether you’re an independent songwriter, a self-releasing artist, or a publisher managing a catalog, knowing how to protect and monitor your music is one of the smartest moves you can make for your career.
+
+In this guide, you’ll learn how music copyright works in the US, how to register your song step by step, how much it costs in 2025, and how to avoid common mistakes that could cost you money.
+
+Is music copyright automatic?
+Yes — but there's a vast difference between having copyright protection and being able to enforce it.
+
+Under the Berne Convention, your song is automatically protected the moment it's "fixed in a tangible medium." This means your music exists in a form that can be perceived and reproduced, like a recording, sheet music, or digital file (Source: US Copyright Office for Musicians).
+
+You don't need to register or use the © symbol for the copyright to exist — that's true in all 181 Berne member countries worldwide. (Source: Am Badar & Partners - Berne Convention).
+
+However, in the US, registration with the Copyright Office isn't just a formality — it gives you the legal right to enforce your copyright in court, including access to federal courts. Without formal registration:
+
+You can't file an infringement lawsuit
+You can't claim statutory damages or attorney's fees.
+Your options for recovering lost income are minimal.
+That's why professional songwriters, labels, and publishers don't stop at automatic protection — they ensure their works are officially registered. In 2024, over 1,200,000 new registrations were made with the US Copyright Office alone (Source: US Copyright Office Annual Report 2024).
+
+Key takeaway: Automatic protection is real, but only formal registration makes your copyright enforceable in the US.
+
+How to copyright a song — a 4-step guide
+1. Fix your song in a tangible form
+Under the US Copyright Act (17 U.S.C. § 102(a)), copyright protection exists the moment your song is “fixed in a tangible medium of expression.” (Source: Law Cornell Wex, 2022).
+
+Your musical work — including any accompanying lyrics — must be expressed in a form that others can hear, read, or record. The law exists to protect creative works, not ideas that live only in your head. Here are practical examples of "fixation":
+
+Recording your performance as an audio file or on physical media.
+Notating your composition in sheet music or a digital score.
+Saving your demo session files with timestamps.
+A famous example is live TV: a live broadcast alone isn’t fixed, but if the program is recorded, it becomes a tangible record that courts and others can refer to. (Source: Law Cornell Wex, 2022)
+
+For musical compositions, the law explicitly protects “musical works, including any accompanying words,” that are fixed. (Source: USCO, Circular 50).
+This covers original songs and arrangements, and gives you the exclusive rights to make copies, create derivative works, and authorize recordings.
+
+Pro Tip: Keep your raw project files, session metadata, and file timestamps safe. This is an extra proof of fixation if you ever need to defend your copyright.
+
+2. Complete the US Copyright Office Application
+Once your song is fixed, the next step is to file an official registration with the US Copyright Office. This turns your automatic protection into an enforceable legal claim.
+
+Electronic Copyright Office (eCO) portal
+Electronic Copyright Office (eCO) portal
+
+Where to do it
+
+Go to the USCO Registration Portal and create an account on the Electronic Copyright Office (eCO) system. Filing online is faster and cheaper than mailing paper forms.
+
+Choose the correct application type
+
+When you start your application in the eCO Portal, you’ll need to select the Type of Work that best describes what you’re registering. This is a required step — and once you click “Continue,” you can’t change it later.
+
+PA (Performing Arts) Copyright: Covers the underlying composition — melody, harmony, lyrics. Needed by songwriters and composers.
+SR (Sound Recording) Copyright: Covers the actual recorded version — the master. Needed by artists, producers, and labels.
+eCO Standard Application dashboard
+eCO Standard Application dashboard
+
+Register a group of unpublished works
+
+If you have multiple unpublished songs, you can register up to 10 in one application — but be sure to select “Register a Group of Unpublished Works” in the eCO Portal, not the Standard Application.
+
+All works must be unpublished and created by the same author(s).
+
+Key details to check
+
+A small mistake on your application can create big headaches later. Double-check these fields:
+
+Title(s) of the work: Use exact spellings as they appear on your release.
+Authors & contributors: Include all songwriters and composers; clarify who owns which part.
+Year of creation & publication: Add the first publication date if your song is already out.
+Work for hire? If you hired session musicians or a producer, check if any part qualifies.
+eCO Sound Recording (SR) Standard Application
+eCO Sound Recording (SR) Standard Application
+
+Pro Tip: Always save a copy of your completed application for your records. Your effective registration date is when the Copyright Office receives your complete application, not when they approve it. So don’t wait too long after you release your music.
+
+3. Pay the filing fee
+Once you’ve completed your application, you’ll need to pay the filing fee to make it official.
+
+This fee depends on how many works you’re registering and which type of application you choose, but expect to pay around $45–$65 for a single registration. We've detailed the prices in the next section.
+
+You can pay directly through the USCO eCO Portal using a credit card, debit card, or electronic check (ACH).
+
+Pro Tip: Keep your payment confirmation email and your eCO login details somewhere safe — they’re the fastest way to check your registration status or fix issues later.
+
+4. Submit a copy of the work
+The final step is to submit a copy of your work — called a deposit — to the US Copyright Office.
+
+This deposit is your official proof of what you’re protecting. Without it, your registration won’t be processed.
+
+When you file online, you’ll be prompted to upload your files directly in the eCO system.
+
+For a musical composition: submit a PDF of your sheet music, a lyric sheet, or a lead sheet.
+For a sound recording: upload an MP3 or WAV file of the final recording.
+For both: submit each version accordingly.
+If you file by mail, you’ll send a physical copy (like a CD or printed sheet music) with your application barcode.
+
+Most online applications are processed within 3–7 months, depending on the workload and whether your forms are complete.
+
+Once your deposit is submitted, you’re done — you’ll get an email confirmation from the USCO. No need to wait for the certificate to release your music: your protection is effective as soon as they receive your complete submission.
+
+How much does it cost to copyright my music?
+The cost of registering your music copyright in the US depends on how many works you want to protect and how you file your application.
+
+According to the US Copyright Office Fee Schedule, here’s what you can expect in 2025:
+
+Basic Single Registration — $45 per title
+This is the most straightforward and most affordable option. It’s for one song, by one author, with the same claimant — and it’s not made for hire. Most independent artists who write and own their work fall into this category.
+
+Standard application — $65 per title
+You'll need to file a standard application if your song involves multiple authors, if you are in a work-for-hire situation, or if you want to add extra details like co-writer splits. It’s also used for albums that have already been published.
+
+Group Registration — $85 total
+If you have several new songs that haven’t been released yet, you can register up to 10 unpublished tracks at once. This is a popular way for artists to protect a batch of demos or an entire EP without paying for each song separately.
+
+Paper filing — $125 per title
+Filing by mail is still possible, but is rarely recommended. It’s slower, costs more, and there’s no real benefit over doing it online.
+
+Pro Tip: For unusual situations — like older recordings, databases, or anything outside a standard music release — you can check the full USCO Fee Schedule for all the details.
+
+Can I copyright my music for free?
+Technically, yes — copyright protection is automatic and free the moment your song is fixed in a tangible form (recorded, written down, or saved digitally).
+
+That’s true in the US and in every country that follows the Berne Convention.
+
+However, without official registration, you can’t enforce your rights in court, claim statutory damages, or create a public record of your ownership.
+
+So while your music is protected the moment you create it, registering it isn’t free — it’s a small but essential investment if you want real legal protection.
+
+Pro Tip: Forget the old myth of mailing a copy to yourself — the so-called “poor man’s copyright” doesn’t hold up in court. Always file an official registration if you want to protect your royalties.
+
+Common mistakes to avoid (and how to avoid them)
+Mistake #1 — Assuming uploading to streaming platforms protects you
+Just putting your track on SoundCloud, Spotify, or TikTok doesn’t mean your copyright is officially registered — streaming platforms and distributors like CD Baby or DistroKid don’t handle legal copyright filings for you. Their job is to distribute your music, not to register your rights.
+
+Instead, always file an official registration with the US Copyright Office to make your rights enforceable.
+
+Mistake #2 — Believing in the "Poor Man's Copyright"
+This old myth says you can mail a copy of your song in a sealed envelope and use the postmark as proof of ownership in court. In reality, courts rarely accept this as valid evidence — it doesn’t replace official registration, and the US Copyright Office does not recognize it.
+
+Instead, register your music through copyright.gov. It’s the only way to secure absolute legal protection and access the full benefits of copyright law.
+
+Mistake #3 — Missing the deadline for statutory damages
+Many artists don’t realize that you can only claim statutory damages (and attorney’s fees) if you register your work before an infringement happens or within three months of publication. After that window, you may still sue, but you’re limited to actual damages, which are harder to prove and often much lower.
+
+Instead, always register your work before you release it — or within three months of publishing it — to keep the door open for full legal remedies.
+
+Mistake #4 — Overpaying when you could file as a group
+If you’re registering multiple unpublished songs separately, you’re spending more than you need to. Group registration is designed for up to 10 unpublished works by the same author(s) — perfect for batches of demos, EPs, or an unreleased album.
+
+Instead, use the group registration option to save money and simplify your paperwork.
+
+Mistake #5 — Not monitoring where your song earns royalties
+Many artists register a song and stop there, but you can’t protect what you don’t monitor. If you don’t know where your songs are being played — on streaming platforms or radio — you risk missing out on royalties you’re owed.
+
+Instead, always track where your music generates income and how your PROs and publishers collect for you. Soundcharts is used by publishers and gives you real-time data on how your songs perform worldwide, so you never miss a spin or a payout.
+
+Final thoughts
+Copyright protection for your music starts automatically the moment your song is fixed — but real legal protection comes when you register it officially.
+
+In the US, registration gives you the right to sue, claim statutory damages, and prove your ownership in court.
+
+Always fix your work, choose the right application, file on time, and don’t leave royalties on the table.
+
+Smart artists, publishers, and managers don’t stop at registration — they track where their songs earn money in real time.
+
+
+6 Basics of Music Copyright Law: What It Protects and How to Copyright a Song
+
+By Soundcharts Team
+Published December 31, 2023
+Behind every royalty, every streaming payout, and every sync license, there’s a copyright and a copyright owner. If you ever want to earn money on musical composition or sound recording, and if you’re going to protect that right and ensure that people aren’t stealing your work, you need to know your copyright protections. 
+
+But the music copyright landscape is notoriously complicated. There are different copyrights for different parts of a musical work, with copyright ownership and royalties split between artists, songwriters, labels, and publishers (the specific nature of those splits is a subject of negotiation). Then, there is various middleman, from collection agencies to distributors, that facilitate the collection of royalties on behalf of rights holders.
+
+In this article we’ve untangled this web to give you a straightforward explanation of how copyrights work, what protections they confer, and how to copyright your music. 
+
+But first, let’s start with the basics: 
+
+What is music copyright?
+Music copyright designates legal ownership of a musical composition or sound recording. This ownership includes exclusive rights to redistribute and reproduce the work, as well as licensing rights that enable the copyright holder to earn royalties.
+
+Two types of music copyright: master and composition
+When you hear a song play on the radio, you might think that there’s only one copyright for that song, owned by the artist whose voice you hear. But, in fact, that is not the case. In fact, in some parts of the world, it might be that the recording artist hasn’t earned a single cent on that radio spin.
+
+The reason is that each piece of recorded music that has two sets of copyrights: one for the musical composition, and one for the actual sound recording. 
+
+Composition
+The compositional copyright covers an underlying musical composition: the arrangement of notes, melodies, and chords in a specific order. It is held by songwriters, lyricists, and composers, and managed by their music publishers (who also partially own the copyright).
+
+Master Recording
+The master copyright covers the specific sound recording, or “master recording,” that contains a particular expression of the underlying musical composition created by performing or recording artists. This copyright is held by the performing artists and, typically, their label. 
+
+Now, sometimes, the songwriter and the artists might be the same person — if we’re talking about a band that both writes and records their own music. However, even in that case, the music industry will treat the songwriter and the recording artists as two separate entities. Besides, it’s never that simple — think cover versions, samples, quoted lyrics, external producers, assisting lyricists, and so on. The structure of the music copyright behind the given song can get complicated — and quick. 
+
+When are copyrights created?
+The simple answer is: copyright protection begins when music is fixed in a tangible form… However, depending on the type of music copyright, that can mean very different things. 
+
+For compositions, the copyright is automatically created when music or lyrics are recorded, put on paper, or otherwise written down in a document — even if it’s a simple tweet or a crumpled napkin. 
+
+For master recordings, on the other hand, according to the US Copyright Office, the copyright is created as soon as “a sound recording is fixed, meaning that the sounds must be captured in a medium from which they can be perceived, reproduced, or otherwise communicated”. This may be “in a digital track, disk, tape, or other formats”.
+
+However, while the initial copyright is created as soon as the musical work is fixed, you may need to take extra steps to ensure that the copyright is actually enforced. This depends on where you live: in Europe, no additional registration of the copyright is needed to enforce copyright protections, but in the US, you’ll need to register the copyright with the Copyright Office to get full copyright protections. 
+
+6 exclusive rights held by copyright owners
+Royalties are generated when these exclusive rights are licensed over to other parties, so these rights are what allow music professionals to make money (and also how they protect their original work):
+
+1. Reproduce the copyrighted work
+The first right held by copyright owners is to reproduce the copyrighted work via printing CDs or vinyl, and make the work publicly available via streaming services. Technically, every time a listener presses play on a specific song on a streaming service, they are triggering a reproduction of the sound recording (aka the master) AND the underlying musical work (the composition). 
+
+So, streaming services must have licenses from copyright owners to reproduce any songs in their catalog. Master copyright owners receive compensation via streaming payouts, while composition owners receive mechanical royalties. 
+
+2. Prepare derivative works based upon the copyrighted work
+Only the copyright holder of the musical composition can legally create a derivative version of that work (or permit others to do so). A derivative work is any musical work that includes major copyrightable components of previous, original work.
+
+If a third party wants to create a derivative work of a composition or master recording, they will require either a synchronization license (on the composition side) or a master use license (on the master side). Most commonly, derivative works are audio-visual combinations that incorporate songs as part of a larger work: advertisements, TV shows, movies, and video games, to name a few. 
+
+But derivative musical works (think remixes or cover versions) are a bit more complicated: for the work to be considered derivative, it needs to incorporate some aspect of the underlying work to create a new, separate copyrighted work. So, for example, remixes and samples of a song require both master use and sync licenses (since they use the underlying master and composition to create new copyrighted works). 
+
+Generally, sync and master use licenses are negotiated one-on-one between the copyright holders and the licensing parties (or their respective representatives). 
+
+3. Distribute copies of the copyrighted work to the public
+Just as copyright protects the author’s right to create new copies of the composition or recording, it also gives copyright holders (or authorized parties) the right to sell these created copies to the public. 
+
+In the modern age, the right to distribute the sound recording is covered by streaming payouts. At the same time, the distribution of compositions occurs only if the composition itself is distributed and sold (e.g., sheet music sales).
+
+4. Perform the work publicly 
+The copyright provides the author an exclusive right to perform the work publicly. That doesn’t mean that a living person has to “perform” it — any kind of an audio broadcast in a public space will qualify. Live shows, performances, music playing in public spaces like bars or clubs, radio/TV broadcasts, and even audio-streaming on Spotify are all considered public performances. Performance rights are one of the biggest sources of revenue for songwriters and publishers, though whether or not recording artists receive performance royalties depends on the country.
+
+In most of the world, performance rights exist for both the composition owners and master copyright holders (the performance rights for recording artists are also known as “neighbouring rights” or “related rights”). The neighbouring rights are eligible for all performances in signatory countries of Rome Convention of 1961, if the recording artist is a resident of one of those countries.
+
+The US, however, is not one of them, which has two implications. First, the public performances in the US don’t generate royalties for master owners. Second, the recording created by US residents doesn’t generate neighbouring royalties — even if they are played on the radio in the UK. 
+
+5. Perform the copyrighted work publicly by means of a digital audio transmission 
+This right, known as “digital performance rights,” is specific to the US and few other countries, and is designed to counterweight the lack of neighbouring rights when it comes to digital radio.
+
+Basically, digital performance rights function like neighboring rights in the US, but they ONLY apply to digital services like Pandora and SiriusXM or webcasts — not to traditional radio (or any other type of public performance). This means that recording artists in the US will only earn performance royalties when their music is played on digital radio. 
+
+6. Display the work publicly
+Another less used right conferred by copyright ownership is the right to display the work publicly. That right is more applicable to works of visual art or literature — in music, it accounts for a minuscule part of the actual royalties generated. First of all, the “print rights” don’t apply to sound recordings, which can’t really be “displayed”. However, it can be relevant if, for instance, a label wants to print out a song’s lyrics (i.e., a part of a composition) on a CD, or when a music streaming service wants to display lyrics to its users. In this scenario, a print license must be acquired (which is typically inexpensive).
+
+Basically, every type of royalty in the music industry — whether it’s on composition or master side of things — can be traced back to one of the exclusive rights listed above. Public performance royalties are compensating composition owners for right #4, the mechanical royalties are generated by right #1, sync licensing and master use fees compensate both sides for the #2, and so on. Whenever an artist gets paid, copyright is operating behind the scenes to make that happen. 
+
+The 6 basics of music copyright law
+Now that you understand the protections that come with music copyright, the question is: how does copyright law work? We lay out the basic rules of music copyright law below. 
+
+1. Copyrighted work must be original 
+The bedrock of music copyright is that it’s a unique result of the author’s creative process: it doesn’t have to be novel or revolutionary — the Copyright Office isn’t going to be your critic — but it has to be original. 
+
+So, what determines originality? When push comes to shove, this is determined in a court of law. Claiming that the underlying work isn’t original and thus is not protected by copyright is the most common defense in music copyright infringement lawsuits. If multiple works are borrowing from the same source (let’s say both use the same idiom in the lyrics), the copyright owners of one can’t claim the infringement by the second and vice versa.
+
+2. Violation of Copyright Law must be established in court
+Now, as we’ve discussed earlier, the copyright owner holds several exclusive rights — and so anyone who violates those rights is considered a copyright infringer. If a copyright infringement is proven in the court of law, the offender will have to compensate the owner — in most cases, by paying a LOT of money.  
+
+However, copyright infringement must be established first. That means proving that:
+
+The copyrighted work has been copied 
+The copy is “sustainably similar” to the original work
+The second point is usually examined through a mix of quantitative and qualitative analysis, which means that the court will have to bring external experts to establish the amount and the extent to which the work has been copied — and if it makes the work similar enough to the source. The extent is usually more important than the amount — the court can rule copyright infringement for samples that are less than 2 seconds long, given that the “character” of the original composition has been copied. 
+
+Proving that the copyrighted work has been copied is a bit more interesting. First of all, copyright infringement doesn’t have to be intentional. Let’s say you’ve used a sample from a pack you found on the internet, which stated that all the samples were licensed under creative commons, and thus free to use. However, if it turns out that the sample that you used was, in fact, a part of a copyrighted work, you will still be liable for copyright infringement — even though you had no intent to do so. 
+
+However, the court has to also establish that the potential infringer had access, or, in other words, the ability to see or obtain the copyrighted material. On paper, two different people can come up with the exact same material, independently. So, if neither of them had access to the other’s work — let’s say it was stored in a bunker and never published — they will both end up owning legitimate copyrights, even if the work they’ve created is 100% identical. That is, of course, a completely unrealistic scenario — but in the eyes of copyright law, it is, in fact, possible. 
+
+But be mindful — the concept of access doesn’t mean that the prosecution has to prove that the infringer has actually accessed the copywriter material. Instead, it has to establish that the infringer had an ability to do so — if, for example, the work has been hosted on an open platform like YouTube. 
+
+3. Master recording copyrights are administered (and, often, owned) by record labels
+Depending on the type of recording deal in place, the label is either a primary owner or just a party, acquiring the rights to exploit the master copyright on behalf of the artists (and retaining a portion of the revenue). As a general rule, the record label that footed the bill for the recording will handle the copyrights and royalties on a work.
+
+A classic “artist deal” works like this: the label signs the artists before the recording is produced (recording) and pays for the recording process, thus becoming the primary owner of the master copyright. The label then shares a portion of the revenue with the artist, as dictated by the recording contract. 
+
+Lately, however, a new kind of “licensing” deal that empowers the artist is becoming more and more popular. In these deals, the artists create a recording by themselves (thus obtaining the master copyright) and then licenses that existing recording to the label for a fixed period of time. Thus, the artist retains the master rights as well as the ultimate control over their music. 
+
+4. Compositional copyrights are administered by publishers
+In the same way that master copyrights are typically managed by labels, the compositional copyright is usually administered by publishers. 
+
+However, compositional copyrights work differently from masters. First and foremost, there’s a share of copyright that is always reserved to the author (or authors) of the composition, known as a writer’s share. Usually, it’s 50% of the copyright — though this can differ depending on the country or even a type of royalty. 
+
+The other 50% of the copyright is allotted to the publisher, though a portion of this share goes to the songwriter as well. It works like this: when a songwriter signs a publishing deal, they transfer a percentage of their publisher’s share to the publisher in exchange for their services. That split can fall from 10 to 100% of the publisher’s share and either, with the rights duration ranging from entire copyright duration to a couple of years. It all depends on the type of publishing deal. 
+
+5. Copyrights last 70 years past the owners lifetime
+Typically, copyright protections last for 70 years after the end of the calendar year in which the last surviving writer dies. In some cases, this period can be as long as 95 years from publication or 120 years from creation. After this, it becomes public domain.
+
+6. Cover versions require only a mechanical license — and only in the US
+Covers don’t require sync or master use licenses, but in some countries, you’ll have to clear a mechanical license if you want to release them commercially.
+
+Simple covers are NOT derivative works — they don’t borrow any components of the master recording (thus, no master use license needed), and they copy the composition in its entirety (which is covered by mechanical license instead of a sync license). 
+
+No further licenses are required — and if you just plan to perform covers as a part of the live show, you don’t need any permits. 
+
+The 2 main benefits of registering your music copyright
+While copyright is automatically created when a work is fixed in a tangible form, that’s not the same as the copyright actually being registered. And if you want full copyright protections, then registering your copyright is a must (at least in the US). 
+
+1. Create a public record of your copyright 
+The first benefit of registering your copyright is that it’s now in the public record. You may have heard of the “poor man’s copyright,” where you mail a dated version of the copyrighted work to yourself to “prove” it’s your creation, but, tough luck: that won’t hold up in a court of law, the work must actually be registered with the US Copyright Office. 
+
+2. Sue for copyright infringement 
+The other, related benefit is that once your copyright is registered and in the public record, you can sue for copyright infringement. In other words, to actually enforce the rights conferred by music copyright, it must be registered. 
+
+How to copyright a song
+If you’re a little overwhelmed with the complexity of music copyright law, here’s the good news: registering musical copyright is actually quite simple. Here’s how you do it in 4 steps. 
+
+1. Make sure the song is fixed in a tangible form
+If the song is just in your head, then you can’t copyright it: it has to be written down or recorded in some form that can be sent into the US Copyright Office. 
+
+2. Fill out an application form with the US Copyright Office
+There are two different forms for compositional copyrights and master copyrights: 
+
+For a composition, use the form PA
+For a sound recording, use the form SR
+3. Pay the filing fee
+Submitting an online application costs $35, while a physical application costs $65. 
+
+4. Submit copies of the work
+For musical compositions, this will be a copy of sheet music. For audio recordings, it will typically be an audio file or a physical copy of the sound recording like a CD.
+
+4 ways to maximize your rights
+How you earn the most royalties will depend on which side of the copyright you’re trying to maximize: composition or master recording. For master recordings, it’s pretty straightforward: put your music out on streaming platforms through a distributor and grow your music sales (via streams). The composition copyright, however, is a bit more tricky:
+
+1. Register with the US Copyright Office (or equivalent in your country)
+As we said in the benefits section, to enforce copyright protections or sue for copyright infringement, the copyright must be registered with the US Copyright Office (or your country’s equivalent). This is true for both master and compositional copyrights
+
+2. File for a license with Harry Fox Agency
+The Harry Fox Agency (HFA) is the only mechanical royalties collection society, so if you want to earn mechanicals you need to be a member. 
+
+3. Join a PRO (as a songwriter)
+Public performance royalties are administered by collection societies as well, called PROs (Performance Rights Organizations). In the US, you can choose between BMI, ASCAP, or SESAC (which is invitation-only). Joining a PRO ensures that you’ll receive royalties any time your music is performed publicly — that is, the writer’s share of the copyright.  
+
+4. Publish your works
+Earning the full compositional royalties that you’re owed requires publishing your music since 50% of the royalties for any composition go to the publisher. But that doesn’t mean you have to be signed with a publisher: you can also register a publishing micro-company of your own and self-publish (in this scenario, you would register with a PRO as both the publisher AND songwriter).
+
+The advantage of self-publishing is that you’ll get 100% of the compositional royalties, but there are advantages to getting real publishing representation as well. Royalties tend to get lost in the PRO system, and music publishers have the administrative capabilities and technology to track royalties throughout the pipeline and ensure that all possible royalties are claimed. They can also help with representing your work and promotion of your compositions. 
+
+Check out our full guide to music publishing here. 
+
+Conclusion
+So, while the world of musical copyrights is quite complex, copyrighting a musical work and earning royalties on that work isn’t so tricky — at least mechanically. It’s just a matter of registering your copyright and joining the necessary collection agencies and picking a distributor. And remember: registering your copyright doesn’t just protect your royalties, it protects you from theft as well. 
+
+
+How Music Royalties Work: 6 Types of Music Royalties
+
+By Soundcharts Team
+Published January 8, 2020
+Music royalties are notoriously complicated: if you were hoping for a cut-and-dry “a song got this many plays on Spotify, so the artist gets this much $” type situation, then you’re in for a rude surprise. There are a ton of different players, some of whom have partial ownership of copyrights, and some who are just middlemen collecting royalties and taking a cut. Take, for example, if you’re a singer/songwriter with music on Spotify: Spotify will pay out several types of royalties for each play, and between you and Spotify, there will likely be a record label, publisher, distributor, and a collective management organization. And then, to complicate things even further, between all these players, there are multiple layers of deals and calculations that determine exactly what you end up with. 
+
+How does this all sync up? How do royalties travel through the pipeline and ultimately end up in the artist’s pocket? Soundcharts explains with this first, top level overview on the royalties, powering the music business. Today, we will establish the main royalty types, and primary players involved in royalty collection and distribution system — and get down to details, zooming in on particular royalty types in the coming articles.
+
+What are music royalties?
+Music royalties are compensatory payments received by rights holders (songwriters, composers, recording artists, and their respective representatives) in exchange for the licensed use of their music. These royalties are paid out by institutions that use the music (from TV channels, radio stations and venues to streaming platforms and beyond), and collected on behalf of rights holders by intermediary bodies — most of the time. Sometimes, the user will pay out the royalties directly to rights holders — if we’re talking the major label collecting it’s streaming payouts, for example. But let’s not get ahead of ourselves. Before we really get into different types of music royalties, we need to lay out the two subsets of music rights. 
+
+Two types of music rights: Master vs. Composition
+For each piece of music ever recorded, there are two distinct sets of music rights attached to it:
+
+Composition: songwriters and their music publishers own the copyright for the harmony, melody, and lyrics. Composition copyright is obtained whenever an authentic and unique musical work is committed to a tangible medium — whether its a notepad, sheet music, or even a single tweet. 
+Master: the copyright for the particular expression of a composition, created when the composition is turned into a sound recording, and owned by recording artists and their record labels (if there’s a recording deal in place). 
+Accordingly, there are two general types of music royalties: royalties paid out for the licensed use of the sound recording, and royalties paid out for the authorized use of the composition. Unfortunately, from there, the waters get even murkier.
+
+The 6 different types of royalties 
+So, there are quite a few different types of royalties — but what makes this whole topic extremely complicated, is that even the same type of royalty can be paid out in different ways, depending on the context of use. Public performance royalties, for example, are paid out by both your local cafe and global streaming heavyweights — but, as you might’ve guessed already, the processes there are very different. Then, to complicate things even further, the rates and payout processes also vary greatly depending on the country. There are even some royalty types that are present in one country, and not in the other (for example, in the US, master rights holders don’t get royalties for radio airplay, while in much of the rest of the world they do).
+
+It’s nearly impossible to cover every country in one go, so in this article, we will focus primarily on the US. First, let’s start with royalties on the master side:
+
+1. Streaming Royalties
+The rise of streaming services has made royalties more important than ever for recording artists: where once music was primarily monetized by selling records (which isn’t exactly a royalty), these days recordings are licensed to streaming platforms, and payouts for digital streams are therefore royalties. Labels and recording artists work with distributors (or aggregators) to put the recording on streaming platforms and get back royalties due.
+
+Here’s a quick 3-step rundown of how streaming payouts are calculated:
+
+Digital streaming platforms negotiate global payout rates with content owners (this rate on the master side is typically around 50% of the platform’s revenue).
+The revenue pool is split between all artists with music on the platforms.
+The split is determined by “share of content” or the number of streams a given artist has on the platform divided by all streams on the platform. 
+2. Neighbouring Rights (and Royalties) 
+Remember, there are two types of copyright in music, one for the composition and one for the sound recording. Public Performance royalties are paid out to copyright holders who own the musical composition (see: #5 on this list) for, you’ve guessed it, public performance of their compositions. Now, neighboring rights are very similar, except that neighbouring royalties are paid out to the copyright holders of the sound recording performing artists and/or recording labels. So, from a legislative perspective, they sit next to performance rights — hence the term “neighboring rights”. Ye, we know, the logic behind the term is a bit confusing. 
+
+In any case, just like performance rights, neighboring rights are collected by PROs in their respective markets, and then distributed to sound recording owners. That is, if a combination of the recording artist’s nationality, public performance type, and country, where the recording has been created, makes the public performance eligible for neighbouring royalties collection. Yea, you heard it right. Basically, the neighbouring rights remuneration depends greatly on the local legislation. To give you a single (and the most common) example, terrestrial radio in the US doesn’t compensate sound recording owners — whereas airplay in other countries does generate neighbouring royalties. 
+
+3. Digital performance royalties
+Here’s where it gets trickier (we warned you): the US rule of not having to pay sound recording owners for radio airplay applies ONLY to AM/FM terrestrial radio. That means that digital internet radio, satellite radio stations and cable radio DO pay the master owners. That means that the digital performance royalties can be considered neighbouring rights payments — but since the use is very specific, it’s easier to use a separate term and keep up the idea that the US doesn’t recognize neighbouring rights. For the purposes of digital performance royalties collection, the US government has established a designated collection society: SoundExchange
+
+Digital radio platforms must get a statutory license from SoundExchange to use licensed music, and recording artists, labels, and session musicians must register with SoundExchange to collect digital performance royalties. SoundExchange allocates royalties to rights holders based on how often each song was played, with the following breakdown:
+
+45% to featured artists
+5% to non-featured artists
+50% to the rights owner of the master recording
+4. Sync Licensing Fees
+Sync licensing fees are paid out when music is synchronized to any other type of content, including video content for ads, TV shows, movies, video games, and — though this is pretty rare — audio-only sync. Anytime a song is used memorably as a component of any other type of content — think Iggy Pop playing over the opening scene of Trainspotting — sync fees are paid out. 
+
+In order to sync a song, music users need to get a license from both sound recording and composition owners — accordingly, the owners of both subsets of music copyrights earn money on sync licensing (which makes sync licensing different from other types of royalties). The picture is further complicated because sometimes the use of the composition is referred to as sync licensing, while the master side of the deal is dubbed “master use licensing” — but that’s not always the case. As usual, the music industry likes to play loose with its terms.
+
+Unlike other forms of royalties, where music users pay for the blanket right to use nearly all music in the world (see: Public Performance royalties below), sync is a 1:1 deal, which turns sync licensing into a sub-industry of its own. 
+
+Now, let’s talk about royalties paid out to songwriters through CMOs and publishers (which we explored more deeply in our article on the music publishing industry). 
+
+5. Public Performance Royalties
+Performance royalties are royalties that are collected when a song, featuring a specific composition, is played in a commercial environment. Essentially, the entire landscape of public performance royalties can be divided into two parts: the royalties paid out by streaming services and royalties generated by more conventional public broadcasters — radio, TV channels, venues, clubs, restaurants, and everything in between.
+
+Now, when it comes to the latter, the public performance royalties will be managed, collected, and distributed by performance rights organizations, or simply PROs: ASCAP, BMI, and SESAC in the US, PRS in the UK, and so forth. First, broadcasters will have to get a blanket license from their local PRO, giving them the right to publicly perform almost all music in the world. Then, the users will report the music they’ve broadcasted to PROs, which will then use that data to distribute the blanket license money to the corresponding songwriters. 
+
+For example — and any touring artist will know this — performing artists report their setlists to venues. That is exactly for purposes of public performance royalties calculation. The venue will then “forward” the setlist to the PRO, and the PRO will allocate the public performance royalties back to songwriters — which are often the same performers who played the song in the first place. 
+
+Then, there are public performance royalties on the streaming side. Those are tightly linked to the mechanical royalties (see next section) that the streaming services pay out, creating a so-called “all-in royalty pool”. All-in royalty pool is set by the CRB (Copyright Royalty Board) and it establishes the sum that a given streaming service has to pay out to songwriters and publishers in both mechanical and public performance royalties. The exact mechanics of how this all-in royalty pool is calculated (which are quite complex and country-specific) are beyond the scope of this article. But the important thing is that the streaming service will pass the public performance portion of the all-in royalty pool down to PROs, which will then allocate it to songwriters and their publishers. Much like the streaming royalties on the master side, public performance royalties are distributed on a per-rata basis. Share of content and all that.
+
+6. Mechanical Royalties
+Mechanical royalties are due every time a copyrighted composition is reproduced or distributed in either physical or digital form. Historically, that meant mechanically producing a physical media — cassette, vinyl, CD and so forth — hence the name. Today, though, the bulk of mechanical royalties are generated by digital streaming platforms. Any time a user CHOOSES to play a specific song on-demand — forcing a reproduction of the underlying composition — the streaming service pays out the mechanicals. That also means that the non-interactive streaming of Pandora, for example, doesn’t generate mechanicals. 
+
+In the case of interactive streaming, streaming platforms pay mechanical royalties to the publisher through the local PRO. On-demand downloads and physical sales, on the other hand, are paid by the master’s owner (label) to the publishers. But in the US, in both scenarios, the middleman between the streaming platforms/record labels and the copyright holders is Harry Fox Agency (HFA), who collect all mechanicals and distribute them according to the rates set by the Copyright Royalty Board (see the full breakdown of how these royalties are calculated here). 
+
+Who gets paid when royalty is dealt?
+As you can see, there are many different parties with fingers in the pot: some rights holders who are the final destination of the royalties, and some middlemen who collect royalties on behalf of rights holders and take a cut. Here’s the breakdown of who gets paid. 
+
+Recording Artists
+Recording artists are partial owners of a master recording, so they get a share of all royalties on the master side (this includes the featured artists, who get the lion’s share of the royalties, as well as non-featured artists). The exact percentage of the royalties that recording artists receive is stipulated in the deal they signed with the record labels and distributors. 
+
+So, recording artists receive the following types of royalties:
+
+Streaming royalties
+Neighbouring royalties
+Digital performance royalties
+Sync licensing fees (master use license)
+Record labels
+Royalties on the master side are typically split between the recording artists and the record labels, given there’s a recording deal in place. Typically, record labels finance release marketing and/or production, taking a sizable stake in the future master royalties. Accordingly, record labels earn a share of all different types of royalties due to recording artists. If you want to know more about how labels and artists make money in the post-streaming era of 2020 and common recording deal types, check out our latest analysis of release cycle profits and losses.
+
+Distributors
+Put simply, the distributor’s job is to get an artist’s music onto the digital streaming platforms, promote the artist’s content is visible across the digital storefronts, and collect streaming royalties on behalf of the artists. In exchange — just like the PROs on the composition side — distributors take a percentage of the royalties or a flat fee for each payout. However, since distributors (most of the time) work exclusively on the streaming side of things, they won’t partake in sync fees or neighbouring royalties. Together distributors, labels, and recording artists make up the pipeline of the recording royalties. 
+
+Licensing Companies and Sync Agencies
+Working with both the master and compositions sides of the music industry (remember, syncs have to be cleared with both artists and songwriters), sync agencies build connections between right owners and music users. Helping the artist find a sync placement in the latest blockbuster, or, inversely, helping the movie producers find the song to fit the scene, licensing companies usually take a cut on all sync fees passing through them. For more insights on how music sync industry works, check out our Mechanics of Sync Licensing,
+
+Songwriters
+In the same way that recording artists are part-owners of the master recording and get a share of the master royalties, songwriters are owners of the composition and receive a percentage of all composition royalties.
+
+For any music work created, two equal shares of copyright are assigned: the writer’s share and the publisher’s share (each worth 50%, though this is US-specific). The writer’s share is paid out by PROs directly to the authors, but only publishers can collect the publisher’s share. So, a songwriter who doesn’t have a publishing company behind them, even if it’s a self-established publisher, will miss out on this share.
+
+In summary, songwriters receive:
+
+Performance royalties
+Mechanical royalties
+Sync licensing fees (synchronization license)
+Publishers 
+As stated above, the songwriter receives 50% of the performance and mechanical royalties. The other 50% is the publisher’s share. Now, this doesn’t mean that the publisher keeps 50% of the royalties — it just means that it’s the publisher’s duty to collect this share. Typically, the publishers take a cut from this share in exchange for the administrative and/or promotion services, involved in collecting and maximizing the composition royalties on behalf of the songwriter. 
+
+The exact cut that the publisher takes depends on the specific terms of the publishing deal they have with the songwriters. Then, sometimes there’s a sub-publisher (usually, a vast, international company) in the mix, providing administration services to smaller publishers in exchange for a small stake in royalties. For an overview of the publisher’s role in the music industry and available deal types and splits, check out our Mechanics of Publishing. 
+
+PROs (and other collective management organizations)
+PROs are the organizations that collect performance royalties and neighboring rights on behalf of songwriters and publishers. They are the distributors on the composition, issuing licenses to music users and allocating the money generated to proper songwriters and their publishers. Depending on the country, there might be a single PRO processing all of the royalties, a couple of organizations each taking care of a specific royalty type (MCO for mechanical royalty collection, PRO for public performance) or even a number of competing PROs (which is a case of the US, where ASCAP, BMI, and SESAC provide the same service). 
+
+Furthermore, local PROs usually have partnership agreements with PROs in other countries, creating a network of organizations covering the entire globe. Usually, PROs take a small percentage of royalties they collect to cover their administrative costs. Together PROs, publishers, and songwriters make up the pipeline of composition royalties.
+
+How do royalties work?
+Disclaimer: this is a HUGELY complicated subject, and the way royalties are paid out depends entirely on the context: the type of royalty, country, platform, and a thousand other factors. In this section, we give you a boilerplate, generalized view of how royalties are paid out. 
+
+1. Artists create 
+The first step in the process is creation: an artist records a song, a songwriter writes a composition. Two sets of the music copyright, composition and master, are therefore created. Then, usually, artists enter some kind of deal with a dedicated partner (label for recording artists and publishers for songwriters) to promote and monetize their work. 
+
+2. Artists and their representatives contact the intermediaries 
+Next, the work has to be distributed and/or registered to unlock the potential royalties. On the master side, that means the recording artists and their labels working with distributors to license their music to streaming platforms. On the composition side, songwriters and publishers register the work with the PRO, so that the PRO can track and collect royalties on their behalf. 
+
+3. Music is played
+The next step is the music consumption itself — although it can take about 100% different shapes and forms. Local radio stations put the song on the air, generating public performance and (maybe) neighbouring royalties. A user on the streaming service presses play, simultaneously triggering public performance, mechanical, and streaming royalties. You get the idea. 
+
+4. The intermediary collects and distributes royalties
+Depending on the type of royalty and music use, this step can take very different forms. The gist of it, however, is that the intermediary collects payments from music users alongside the data on how, when and what music was used. Then, the intermediary will use that data to distribute the money collected to proper right owners. 
+
+Sometimes (if we’re talking streaming royalties, for example), this role of defining how gets what can be internalized by music users themselves. For instance, Spotify will track the music played on the platform and assign it to right holders itself — in that case, PROs and distributors will simply pass the cash along.
+
+5. Rights holders get paid 
+Then, finally the artists and songwriters get paid, sharing the revenues with their partners — record labels and publishers. The artists and record labels receive a share of the streaming royalties, neighboring royalties, digital performance royalties, and sync fees. At the same time, the publisher and songwriters receive the performance royalties, mechanical royalties, and sync fees (with the PROs and distributors also taking their cut). 
+
+Conclusion 
+Phew, still with us? As you can see, earning royalties depends on the synchronized efforts of a whole bunch of different players: PROs, publishers, record labels, distributors, mechanical rights organizations, you name it. The bottom line is: due to the nature of how artists make money in the post-streaming era, all players in the music industry have to rely on the network of partners to succeed. Those partners won’t always be aligned, but they have to work together to reach the common end goal — building music careers and allowing music talent to find appreciation (and pay) that they deserve. The music business is built on collaboration. 
+
+ISWC, ISRC, IPI, IPN, ISNI… Why are your music unique identifiers so important?
+In the music industry, the importance of unique identifiers like ISWC, ISRC, IPI, IPN, and ISNI is paramount. These codes are instrumental in distinguishing and overseeing musical compositions and recordings, guaranteeing precise attribution, identifying the rightsholders, efficient music rights management, and equitable royalty distribution.
+
+This article explores the vital significance of these music identifiers, revealing their contributions to the integrity, transparency, and efficiency of the worldwide music ecosystem.
+
+Key takeaways
+In the music industry, unique identifiers are crucial for managing music rights, ensuring accurate attribution, and distributing royalties.
+An ISWC (International Standard Musical Work Code) is a unique identifier for a musical work (the composition). It’s issued by Performing Rights Organizations (PROs) and is vital for matching musical works to sound recordings in DSP reports, which in turn ensures that rightsholders receive royalties.
+An ISRC (International Standard Recording Code) is a unique identifier for a specific sound recording. It’s used for tracking and managing the recording across various platforms like streaming services and radio. You cannot distribute a recording without an ISRC, and each unique recording should only have one ISRC to avoid confusion.
+An IPI (Interested Party Information) is a unique identifier for legal rightsholders, including writers and publishers. It’s issued by PROs and is used to identify rightsholders and expedite royalty payments, especially when other identifiers like ISWCs are missing from reports.
+An IPN (International Performer Number) is for performers (artists, musicians). Issued by Collective Management Organizations (CMOs), it’s used to ensure performers are accurately credited and compensated for their work, especially if two or more artists share the same name.
+An ISNI (International Standard Name Identifier) is for public entities, like individuals or bands. It helps ensure accurate attribution and organization of artist pages on digital service platforms, which is particularly important in the DIY music business. It does not directly facilitate royalty collection but aids in proper attribution.
+MusicTeam® offers an all-in-one platform where artists can manage their metadata, keeping track of music unique identifiers easiyl so they can be paid what they are owed for each project.
+Table of contents
+
+What are music unique identifiers?
+What is an ISWC?
+What is an ISRC?
+Are an ISRC and ISWC the same?
+What is an IPI number in music?
+What is an IPN number?
+What is an ISNI number?
+Music unique identifiers are essential for accessing your royalties
+Let MusicTeam® help you with your metadata
+What are music unique identifiers?
+Music unique identifiers are alphanumeric codes designed to distinguish and manage various elements within the music industry, ensuring accurate identification, attribution, and tracking. Prominent examples include:
+
+ISWC, for the musical work;
+ISRC, for the sound recording;
+IPI, for legal rightsholder;
+IPN, for performers;
+ISNI, for public persona name.
+Let’s dive into each one specifically.
+
+What is an ISWC?
+The ISWC, or International Standard Musical Work Code, serves as a permanent and unique identifier for a musical work.
+
+Who issues an ISWC?
+Traditionally, an ISWC is issued by a Performing Rights Organization (PRO). ISWCs are usually given after a work registration, and it can take between 4 weeks to 8 weeks to get one.
+
+With the MusicTeam® all-in-one music platform for music makersindependent creators, you can get an ISWC before you register your work, in 2-4 days.
+
+Why is an ISWC important?
+The issuance of ISWCs plays a crucial role in the music industry’s royalty distribution process. Digital Service Providers (DSPs) have agreements with PROs and Mechanical Rights Organizations (MROs) globally to determine royalty rates for their members, including writers and publishers.
+
+DSPs send reports to PROs and MROs, detailing the sound recordings streamed within a specific period. In these reports, PROs and MROs seek to match the underlying musical works and rightsholders, using metadata like ISWCs, IPIs, ISRCs, artist names and sometimes legal names. Too often, ISWCs or IPIs — vital identifiers that aid Societies in their matching process to determine royalties on the musical works — are missing from the DSPs reports. This results in delayed identification of the underlying musical works, the identification of its rightsholders as well as the distribution of royalties to the rights owners.
+
+What is an ISRC?
+The International Standard Recording Code (ISRC) is a unique identifier assigned to individual sound recordings. It serves as a standardized and internationally recognized code for identifying a specific sound recording or audiovisual.
+
+Each unique recording receives its own ISRC, allowing for accurate tracking and management in the digital music distribution and broadcasting industry. You cannot distribute your recording without an ISRC.
+
+Once an ISRC is assigned, creators must ensure they are not associating a new ISRC with the same recording. The reason behind this requirement is to avoid confusion in tracking, reporting, and managing the usage and distribution of the recording. Consistency in the ISRC allows for accurate identification and attribution of the recording across various platforms, such as streaming services, radio, and digital stores.
+
+Are an ISRC and ISWC the same?
+No, ISRC and ISWC are not the same. An ISWC is assigned to a musical work, the underlying composition of a sound recording. An ISWC uniquely identifies each individual musical work, helping manage rights and royalties independant of specific recordings.
+
+An ISRC, on the other hand, is assigned to an individual sound recording, tracking usage and royalties for specific versions of a song. You can read a detailed breakdown of the difference between an ISWC and an ISRC in our dedicated article.
+
+What is an IPI number in music?
+IPI, or Interested Party Information, functions as a permanent and unique identifier for rightsholders associated with a musical work. It is similar to a social insurance number that represents legal entities, including both writers and publishers.
+
+Who issues an IPI?
+This identifier is exclusively issued by Performing Rights Organizations (PROs), and all rightsholders who are members of PROs automatically receive an IPI.
+
+Why is an IPI number important?
+In the context of the royalty distribution process, missing IPIs can have a significant impact on creators. When PROs are unable to locate ISWCs in the reports sent by DSPs, they turn to IPIs as a crucial alternative. IPIs then help to swiftly identify the rightsholders of underlying musical works.
+
+Importantly, for musical works that are ineligible for ISWCs, the IPI takes precedence in identifying rightsholders and expediting royalty payments. This number entails a better recognition when it comes to the writer’s share vs the publisher’s share.
+
+What is an IPN number?
+The International Performer Number (IPN) is attributed to performers, whether artists, musicians or any performer working on a sound recording. It represents the legal person behind the performer’s name.
+
+Who issues an IPN?
+The IPN is issued by Collective Management Organizations (CMO). As it is not publicly available, you need to ask your CMO to get it. SCAPR is the international body that oversees the issuance of the IPN.
+
+The importance of an IPN
+To accurately identify performers on sound recordings, you need an IPN. It ensures that performers are appropriately credited and compensated for their work, especially if two artists have the same name. It also facilitates international collaboration and data exchange between CMOs, enhancing transparency and efficiency in the global music industry.
+
+What is an ISNI number?
+ISNI, or International Standard Name Identifier, serves as a unique identifier for public entities, which can encompass both organizations and individuals. This identifier may be associated with a display artist name or a legal name. The issuance of ISNIs is managed by ISNI agencies, and in the near future, there are plans to issue ISNIs specifically for artists.
+
+This is the only identifier that can be assigned to a band.
+
+You can get your ISNI directly from our MusicTeam® platform if you choose to distribute your music with us.
+
+Missing ISNI – How does it affect creators & artists?
+The absence of ISNI can impact creators and artists, particularly in the context of the evolving landscape of music distribution.
+
+While ISNI does not directly facilitate the collection of royalties, its importance lies in ensuring accurate attribution on digital service platforms. The collaboration with DSPs aims to enhance the visibility and organization of artist pages, particularly in the context of the democratization of music distribution. For example, ISNI helps DSPs correctly associate releases with the respective artist pages, a task that may be more challenging in the do-it-yourself (DIY) music business.
+
+Music unique identifiers are essential for accessing your royalties
+After reading this, you will no doubt have realized how important these identifiers are for recovering your royalties. The absence of these music metadata have a significant impact on creators. Without these identifiers, it becomes challenging for PROs to accurately identify and reconcile musical works and rightsholders, leading to potential delays and inaccuracies in royalty distribution.
+
+This can result in financial losses for artists and composers who rely on these payments. Furthermore, it complicates the task of tracking the usage of music across various platforms and geographical locations.
+
+To ensure fair compensation and proper management of music copyright, the adoption and accurate use of these unique identifiers are imperative. They serve not only as tools for rights management but also as a foundation for a transparent and efficient music industry ecosystem.

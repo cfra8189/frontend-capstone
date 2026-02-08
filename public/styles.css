@@ -1,0 +1,24 @@
+/* Matrix-like flicker + retro glow */
+body {
+  background: black;
+}
+
+#terminal {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+#terminal div {
+  animation: fadeIn 0.2s ease-in;
+  text-shadow: 0 0 5px #00ff00aa, 0 0 10px #00ff00aa;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Blinking cursor effect for input */
+#terminal-input {
+  caret-color: lime;
+}

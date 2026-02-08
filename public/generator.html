@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agreement Generator | WayfinderOS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'JetBrains Mono', monospace; }
+        body { background: #0a0a0a; }
+        .accent { color: #c3f53c; }
+        .btn-primary { background: #22c55e; }
+        .btn-primary:hover { background: #16a34a; }
+        .input-field { background: #111; border: 1px solid #333; }
+        .input-field:focus { border-color: #c3f53c; outline: none; }
+        .preview-box { background: #111; border: 1px solid #333; }
+    </style>
+</head>
+<body class="text-white min-h-screen p-6">
+    <div class="max-w-4xl mx-auto">
+        <header class="flex items-center gap-4 mb-8">
+            <div class="w-10 h-10 bg-[#c3f53c] rounded-lg flex items-center justify-center text-black font-bold">W</div>
+            <div>
+                <h1 class="text-xl accent font-bold tracking-wider">WAYFINDER OS</h1>
+                <p class="text-gray-500 text-sm">Agreement Generator</p>
+            </div>
+            <a href="/" class="ml-auto text-gray-400 hover:text-white text-sm">Back to Terminal</a>
+        </header>
+
+        <div id="step-1" class="space-y-6">
+            <h2 class="text-lg accent">Step 1: Select Agreement Type</h2>
+            <div id="agreement-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            </div>
+        </div>
+
+        <div id="step-2" class="hidden space-y-6">
+            <div class="flex items-center gap-4">
+                <button onclick="goBack()" class="text-gray-400 hover:text-white">&larr; Back</button>
+                <h2 class="text-lg accent">Step 2: Fill in Details</h2>
+            </div>
+            <h3 id="selected-agreement-name" class="text-xl font-bold"></h3>
+            <form id="agreement-form" class="space-y-4">
+            </form>
+            <button onclick="generateAgreement()" class="btn-primary px-6 py-3 rounded text-black font-bold w-full">
+                GENERATE AGREEMENT
+            </button>
+        </div>
+
+        <div id="step-3" class="hidden space-y-6">
+            <div class="flex items-center gap-4">
+                <button onclick="goToStep2()" class="text-gray-400 hover:text-white">&larr; Edit</button>
+                <h2 class="text-lg accent">Step 3: Your Agreement</h2>
+            </div>
+            <div class="flex gap-4 mb-4">
+                <button onclick="copyToClipboard()" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-sm">
+                    Copy Text
+                </button>
+                <button onclick="downloadPDF()" class="btn-primary px-4 py-2 rounded text-black font-bold text-sm">
+                    Download PDF
+                </button>
+            </div>
+            <div id="agreement-preview" class="preview-box p-6 rounded-lg whitespace-pre-wrap text-sm leading-relaxed">
+            </div>
+        </div>
+    </div>
+
+    <script src="generator.js"></script>
+</body>
+</html>

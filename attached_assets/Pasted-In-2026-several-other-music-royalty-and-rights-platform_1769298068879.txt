@@ -1,0 +1,67 @@
+In 2026, several other music royalty and rights platforms use submission methods similar to the Harry Fox Agency (HFA), emphasizing bulk templates (Excel) and industry-standard file formats like CWR (Common Works Registration).
+1. The Mechanical Licensing Collective (The MLC)
+The MLC is the primary body for collecting digital mechanical royalties in the U.S. It offers three submission methods: 
+Bulk Work Registration: A downloadable Excel-based template used to upload multiple songs at once.
+Common Works Registration (CWR): The preferred global standard for large-scale catalog ingestion.
+Individual Registration: A manual entry option within the MLC Portal. 
+2. Performance Rights Organizations (ASCAP, BMI, SESAC) 
+These organizations collect performance royalties for songwriters. While they offer manual portals, they use a shared system for bulk data: 
+MusicMark: A joint registration platform for ASCAP, BMI, and SOCAN that uses CWR or Electronic Batch Registration (EBR) via a standardized spreadsheet.
+CWR Support: High-volume publishers primarily use CWR files to register works across these societies simultaneously. 
+3. Music Reports (MRI)
+Music Reports manages licensing for platforms like TikTok and Amazon Music. They use a proprietary registry called Songdex: 
+Songdex Excel Catalog Template: Used to register recordings and compositions in bulk via email.
+CWR/MWN: They also accept industry-standard CWR or MWN (Music Work Notification) formats. 
+4. SoundExchange
+SoundExchange collects digital performance royalties for masters (not compositions). Their submission process mirrors the others: 
+ISRC Ingest Form: A specialized Excel spreadsheet for bulk submission of ISRC codes and recording data.
+Licensee Direct Portal: An online hub for uploading these files or entering individual claims. 
+Summary of File Types Used
+Platform 	Primary Bulk Format	Standard Technical Format
+The MLC	Bulk Work Registration (Excel)	CWR
+ASCAP/BMI	MusicMark EBR (Spreadsheet)	CWR
+Music Reports	Songdex Catalog Template (Excel)	CWR / MWN
+SoundExchange	ISRC Ingest Form (Excel)	ASCII / CSV
+Would you like a list of the software tools available in 2026 to help you convert your song data into the CWR format?
+
+
+
+
+undefined
+undefined
+undefined
+16 sites
+Work Registration - Mechanical Licensing Collective
+As a Member of The MLC, there are three ways to register your works: 1. Register one work at a time directly in the Member Hub wit...
+
+Mechanical Licensing Collective
+
+MusicMark
+MusicMark & Electronic Batch Registration. Electronic Batch Registration (EBR) is an alternative to CWR that captures the relevant...
+
+www.musicmark.com
+
+Songdex Account Setup Deck 20250715 - Music Reports
+PRO File Delivery. Songdex Catalog Template. Use industry-standard formats such as CWR or MWN to register your song information in...
+
+Music Reports
+
+Show all
+So the technical formats are CWR, MWN, ASCII, and CSV?
+Yes, those are the primary technical formats used for registering music metadata across the industry in 2026. However, they serve very different roles in the submission process.
+1. CWR (Common Works Registration)
+Role: The "gold standard" for music publishing.
+Use Case: Used by publishers to submit large catalogs of compositions to agencies like HFA, The MLC, and ASCAP/BMI.
+Format: A highly technical, machine-readable text file (typically version 2.1 or 2.2). It cannot be easily edited by hand and usually requires specialized software to generate. 
+2. MWN (Music Work Notification)
+Role: Part of the DDEX (Digital Data Exchange) standards.
+Use Case: Often used for communication between publishers and societies to synchronize work information. It is designed to be more modern and flexible than CWR, supporting detailed instrumentation and usage data. 
+3. ASCII and CSV
+Relationship: CSV (Comma-Separated Values) is a specific type of ASCII (plain text) file.
+Role: These are the "flat-file" formats used for most bulk upload templates.
+Use Case:
+CSV: The format most platforms (like SoundExchange or The MLC) use for their downloadable Excel-style templates.
+ASCII: A broader category for any plain text file (.txt, .dat) that can be imported into databases or spreadsheets for royalty tracking. 
+Which one should you use?
+For Independent Artists/Small Publishers: You will almost always use CSV (via Excel templates) because it is user-friendly and doesn't require complex software.
+For Large Publishers: You will likely use CWR or MWN to automate the registration of thousands of tracks simultaneously across global societies.
