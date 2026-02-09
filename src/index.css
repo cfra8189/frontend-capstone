@@ -170,7 +170,7 @@ body {
 .background-gif-container {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   pointer-events: none;
   overflow: hidden;
 }
@@ -185,5 +185,11 @@ body {
   object-fit: cover;
   filter: blur(2px) saturate(1.1) contrast(0.95);
   will-change: opacity, transform;
+  opacity: 0.12;
+}
+
+/* When background GIF is active, make page background transparent so GIF shows through */
+body.has-bg-gif {
+  background: transparent !important;
 }
 

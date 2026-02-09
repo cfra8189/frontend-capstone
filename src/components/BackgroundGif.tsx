@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 // Public assets are served from the root. Use a static list of filenames
 // located in `public/background_gif` so Vite serves them unchanged.
@@ -18,6 +18,13 @@ function pickRandom(list: string[]) {
 export default function BackgroundGif({ opacity = 0.08 }: { opacity?: number }) {
   const src = pickRandom(gifs);
   if (!src) return null;
+
+  useEffect(() => {
+    document.body.classList.add("has-bg-gif");
+    return () => {
+      document.body.classList.remove("has-bg-gif");
+    };
+  }, []);
 
   return (
     <div className="background-gif-container" aria-hidden="true">
