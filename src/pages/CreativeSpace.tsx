@@ -3,6 +3,103 @@ import { useAuth } from "../hooks/use-auth";
 import { Link } from "wouter";
 import { useUpload } from "../hooks/use-upload";
 import Header from "../components/Header";
+import PinterestEmbed from "../components/PinterestEmbed";
+import TwitterEmbed from "../components/TwitterEmbed";
+
+// Minimal Pinterest renderer: prefer motion assets (mp4/m3u8) and fall back to GIF/static image
+function PinterestImage({ url }: { url: string }) {
+  const [img, setImg] = useState<string | null>(null);
+  const [video, setVideo] = useState<string | null>(null);
+  const [isHls, setIsHls] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const res = await fetch(`/api/oembed?url=${encodeURIComponent(url)}`, { credentials: "include" });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (cancelled) return;
+
+        // If oEmbed provides a thumbnail, prefer it as a fallback image (may be GIF)
+        if (data.thumbnail_url) {
+          // but first check html for video variants
+          if (data.html) {
+            const html = String(data.html || "");
+            // look for mp4
+            const mp4 = html.match(/https?:\/\/[^"'<>\s]+\.mp4/i);
+            if (mp4 && mp4[0]) { setVideo(mp4[0]); setIsHls(false); return; }
+            // look for m3u8
+            const m3u8 = html.match(/https?:\/\/[^"'<>\s]+\.m3u8/i);
+            if (m3u8 && m3u8[0]) { setVideo(m3u8[0]); setIsHls(true); return; }
+          }
+          setImg(data.thumbnail_url);
+          return;
+        }
+
+        if (data.html) {
+          const html = String(data.html || "");
+          // Prefer mp4
+          const mp4 = html.match(/https?:\/\/[^"'<>\s]+\.mp4/i);
+          if (mp4 && mp4[0]) { setVideo(mp4[0]); setIsHls(false); return; }
+          // HLS stream
+          const m3u8 = html.match(/https?:\/\/[^"'<>\s]+\.m3u8/i);
+          if (m3u8 && m3u8[0]) { setVideo(m3u8[0]); setIsHls(true); return; }
+          // JSON-LD video
+          const ld = html.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/i);
+          if (ld && ld[1]) {
+            try {
+              const j = JSON.parse(ld[1]);
+              const videoUrl = j?.video?.contentUrl || j?.video?.url || j?.sharedContent?.video?.contentUrl || null;
+              if (typeof videoUrl === 'string' && videoUrl) {
+                if (videoUrl.endsWith('.m3u8')) { setVideo(videoUrl); setIsHls(true); return; }
+                setVideo(videoUrl); setIsHls(false); return;
+              }
+            } catch (e) { /* ignore */ }
+          }
+
+          // fallback: image tag
+          const imgTag = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+          if (imgTag && imgTag[1]) { setImg(imgTag[1]); return; }
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, [url]);
+
+  if (video) {
+    return (
+      <div className="media-embed mb-3">
+        <video
+          src={video}
+          controls
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{ width: '100%', height: 'auto', maxHeight: 360, display: 'block' }}
+        />
+      </div>
+    );
+  }
+
+  if (img) {
+    return (
+      <div className="media-embed mb-3">
+        <img src={img} alt="Pinterest" loading="lazy" />
+      </div>
+    );
+  }
+
+  return (
+    <a href={url} target="_blank" rel="noreferrer" className="text-accent text-xs hover:underline block mb-3">
+      {url.length > 60 ? url.substring(0, 60) + "..." : url} →
+    </a>
+  );
+}
 
 interface Note {
   id: number;
@@ -292,32 +389,30 @@ export default function CreativeSpace() {
       );
     }
 
-    // Pinterest embed iframe (user pastes the embed code)
+    // Pinterest embed iframe (user pastes the embed code) — treat as a Pinterest link and
+    // render a safe image-only preview instead of injecting the iframe which may load scripts.
     const pinterestEmbedMatch = url.match(/assets\.pinterest\.com\/ext\/embed\.html\?id=(\d+)/);
     if (pinterestEmbedMatch) {
-      return (
-        <div className="media-embed mb-3">
-          <iframe
-            src={`https://assets.pinterest.com/ext/embed.html?id=${pinterestEmbedMatch[1]}`}
-            scrolling="no"
-            style={{ border: 'none' }}
-          />
-        </div>
-      );
+      // Convert assets embed id into a canonical pin URL for the image proxy
+      const pinUrl = `https://www.pinterest.com/pin/${pinterestEmbedMatch[1]}/`;
+      return <PinterestImage url={pinUrl} />;
     }
 
-    // Pinterest URL
+    // Pinterest URL (including short pin.it links)
     const pinterestPinMatch = url.match(/pinterest\.com\/pin\/(\d+)/);
     if (pinterestPinMatch) {
-      return (
-        <div className="media-embed mb-3">
-          <iframe
-            src={`https://assets.pinterest.com/ext/embed.html?id=${pinterestPinMatch[1]}`}
-            scrolling="no"
-            style={{ border: 'none' }}
-          />
-        </div>
-      );
+      return <PinterestEmbed url={url} />;
+    }
+
+    // handle Pinterest links: show a safe image (GIF) when possible
+    if (url.includes("pin.it") || url.includes("pinterest.co") || url.includes("pinterest.com")) {
+      return <PinterestImage url={url} />;
+    }
+
+    // Twitter/X
+    const twitterMatch = url.match(/(?:twitter|x)\.com\/[^\/]+\/status\/([0-9]+)/);
+    if (twitterMatch || url.includes("twitter.com") || url.includes("x.com")) {
+      return <TwitterEmbed url={url} />;
     }
 
     // Default: show link
@@ -428,8 +523,8 @@ export default function CreativeSpace() {
                     </button>
                   </div>
                 </div>
-                <p className="text-sm whitespace-pre-wrap mb-3 text-theme-primary">{note.content}</p>
                 {note.media_url && getMediaEmbed(note.media_url)}
+                <p className="text-sm whitespace-pre-wrap mb-3 text-theme-primary">{note.content}</p>
                 {note.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1">
                     {note.tags.map(tag => (

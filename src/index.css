@@ -148,14 +148,20 @@ body {
 .media-embed img {
   width: 100%;
   height: auto;
-  max-height: 200px;
+  max-height: 360px;
   object-fit: cover;
+  display: block;
 }
 
 .media-embed iframe {
   width: 100%;
-  height: 160px;
+  height: 240px;
   border: none;
+}
+
+.media-embed {
+  padding: 6px;
+  border: 1px solid rgba(255,255,255,0.03);
 }
 
 .tag-pill {

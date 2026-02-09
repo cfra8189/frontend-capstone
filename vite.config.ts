@@ -4,15 +4,25 @@ import react from "@vitejs/plugin-react";
 // Vite config with dev proxy; proxy target comes from BACKEND_URL env var
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
-  // Default to localhost:3003 but allow override via env var
-  const backendUrl = env.VITE_BACKEND_URL || "http://localhost:3003";
+  // Default to localhost:61234 (backend dev server) but allow override via env var
+  const backendUrl = env.VITE_BACKEND_URL || "http://localhost:61234";
 
   return {
     plugins: [react()],
     server: {
-      // Set a relaxed CSP for the dev server so tools and dev extensions can connect
+      // Very permissive Content-Security-Policy for local development only.
+      // Allows loading images, fonts, scripts, media, and frames from common CDN/providers.
       headers: {
-        "Content-Security-Policy": "default-src 'self' 'unsafe-inline' data: blob:; connect-src *"
+        "Content-Security-Policy": [
+          "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: *;",
+          "img-src * data: blob: 'unsafe-inline';",
+          "media-src * data: blob:;",
+          "font-src * data:;",
+          "script-src * 'unsafe-inline' 'unsafe-eval' blob:;",
+          "style-src * 'unsafe-inline' data:;",
+          "connect-src *;",
+          "frame-src *;"
+        ].join(' ')
       },
       port: 5173,
       proxy: {
