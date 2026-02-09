@@ -85,36 +85,15 @@ function PinterestImage({ url }: { url: string }) {
       </div>
     );
   }
-
   if (img) {
     return (
       <div className="media-embed mb-3">
-        <img src={img} alt="Pinterest" loading="lazy" />
+        <img src={img} alt="Pinterest" loading="lazy" style={{ width: '100%', height: 'auto', display: 'block' }} />
       </div>
     );
   }
 
-  return (
-    <a href={url} target="_blank" rel="noreferrer" className="text-accent text-xs hover:underline block mb-3">
-      {url.length > 60 ? url.substring(0, 60) + "..." : url} →
-    </a>
-  );
-}
-
-interface Note {
-  id: number;
-  category: string;
-  content: string;
-  media_url: string | null;
-  tags: string[];
-  is_pinned: boolean;
-  sort_order: number;
-  created_at: string;
-}
-
-interface Submission {
-  noteId: number;
-  status: "pending" | "approved" | "rejected";
+  return null;
 }
 
 export default function CreativeSpace() {
@@ -324,6 +303,18 @@ export default function CreativeSpace() {
     return (a.sort_order || 0) - (b.sort_order || 0);
   });
 
+  // Pagination (client-side)
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(12);
+  const totalPages = Math.max(1, Math.ceil(sortedNotes.length / perPage));
+
+  useEffect(() => {
+    // Reset to first page when notes or filter change
+    setPage(1);
+  }, [activeCategory, notes, perPage]);
+
+  const paginatedNotes = sortedNotes.slice((page - 1) * perPage, page * perPage);
+
   function getMediaEmbed(url: string) {
     if (!url) return null;
     
@@ -459,9 +450,10 @@ export default function CreativeSpace() {
           <div className="text-center py-12 text-theme-muted">
             No notes yet. Start capturing your ideas!
           </div>
-        ) : (
+          ) : (
+          <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {sortedNotes.map(note => (
+            {paginatedNotes.map(note => (
               <div
                 key={note.id}
                 draggable={activeCategory === "all"}
@@ -535,6 +527,34 @@ export default function CreativeSpace() {
               </div>
             ))}
           </div>
+          <div className="mt-4 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-sm text-theme-muted">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-3 py-1 rounded bg-theme-tertiary disabled:opacity-50"
+              >
+                ◀ Prev
+              </button>
+              <span>Page {page} of {totalPages}</span>
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="px-3 py-1 rounded bg-theme-tertiary disabled:opacity-50"
+              >
+                Next ▶
+              </button>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <label className="text-theme-muted">Per page:</label>
+              <select value={perPage} onChange={(e) => setPerPage(Number(e.target.value))} className="input-field text-sm">
+                <option value={6}>6</option>
+                <option value={12}>12</option>
+                <option value={24}>24</option>
+              </select>
+            </div>
+          </div>
+          </>
         )}
       </main>
 
