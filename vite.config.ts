@@ -10,6 +10,10 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     server: {
+      // Set a relaxed CSP for the dev server so tools and dev extensions can connect
+      headers: {
+        "Content-Security-Policy": "default-src 'self' 'unsafe-inline' data: blob:; connect-src *"
+      },
       port: 5173,
       proxy: {
         "/api": {
