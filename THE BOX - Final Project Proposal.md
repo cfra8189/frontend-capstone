@@ -302,3 +302,5 @@ The Box solves the critical challenge of music business administration for indep
 **Total Development Time:** ~4.5 months (with pause)
 
 ---
+
+![The Box - Wireframe](Wireframe.png)
