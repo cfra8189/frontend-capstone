@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import LogoGif from "./LogoGif";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "../hooks/use-auth";
 import { useTheme } from "../context/ThemeContext";
@@ -146,7 +147,8 @@ export default function Header({ showNav = true }: HeaderProps) {
       <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
         <Link href="/">
           <div className="flex items-center gap-2 sm:gap-3 cursor-pointer">
-            <img src="/box-logo.png" alt="BOX" className="w-6 h-6 sm:w-8 sm:h-8" />
+            {/* Use a small animated GIF for the logo (falls back to static PNG) */}
+            <LogoGif className="w-6 h-6 sm:w-8 sm:h-8" />
             <span className="text-lg sm:text-xl brand-font tracking-wider text-theme-primary">BOX</span>
           </div>
         </Link>
