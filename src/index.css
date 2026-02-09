@@ -176,13 +176,15 @@ body {
 }
 
 .background-gif {
+  /* Centered, contained image that fits within the viewport without cropping */
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 110%;
-  height: 110%;
-  transform: translate(-50%, -50%);
-  object-fit: cover;
+  inset: 0;
+  margin: auto;
+  width: auto;
+  height: auto;
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
   filter: blur(2px) saturate(1.1) contrast(0.95);
   will-change: opacity, transform;
   opacity: 0.12;
