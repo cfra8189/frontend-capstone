@@ -29,7 +29,17 @@ async function fetchUser(): Promise<User | null> {
 }
 
 async function logout(): Promise<void> {
-  window.location.href = "/api/logout";
+  try {
+    await fetch("/api/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+    // Clear the auth state in React Query
+    window.location.href = "/";
+  } catch (error) {
+    console.error("Logout error:", error);
+    window.location.href = "/";
+  }
 }
 
 export function useAuth() {

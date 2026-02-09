@@ -4,7 +4,8 @@ import react from "@vitejs/plugin-react";
 // Vite config with dev proxy; proxy target comes from BACKEND_URL env var
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
-  const backendUrl = env.BACKEND_URL || env.VITE_BACKEND_URL || "http://localhost:3003";
+  // Default to localhost:3003 but allow override via env var
+  const backendUrl = env.VITE_BACKEND_URL || "http://localhost:3003";
 
   return {
     plugins: [react()],
