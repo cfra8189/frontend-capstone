@@ -82,6 +82,7 @@ export default function ProjectDetails() {
   const [loading, setLoading] = useState(true);
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [localWorkflow, setLocalWorkflow] = useState<Record<string, any>>({});
 
   useEffect(() => {
     loadProject();
@@ -93,6 +94,7 @@ export default function ProjectDetails() {
       if (res.ok) {
         const data = await res.json();
         setProject(data.project);
+        setLocalWorkflow(data.project?.metadata?.workflow || {});
       }
     } catch (error) {
       console.error("Failed to load project:", error);
@@ -101,21 +103,18 @@ export default function ProjectDetails() {
     }
   }
 
-  async function updateWorkflow(stepId: string, updates: Record<string, any>) {
+  async function toggleStepComplete(stepId: string) {
     if (!project) return;
-    
+    const next = { ...localWorkflow, [`${stepId}_complete`]: !localWorkflow[`${stepId}_complete`] };
+    setLocalWorkflow(next);
     setSaving(true);
     try {
-      const currentWorkflow = project.metadata?.workflow || {};
-      const newWorkflow = { ...currentWorkflow, ...updates };
-      const newMetadata = { ...project.metadata, workflow: newWorkflow };
-      
+      const newMetadata = { ...project.metadata, workflow: next };
       const res = await fetch(`/api/projects/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ metadata: newMetadata }),
       });
-      
       if (res.ok) {
         const data = await res.json();
         setProject(data.project);
@@ -127,15 +126,8 @@ export default function ProjectDetails() {
     }
   }
 
-  async function toggleStepComplete(stepId: string) {
-    if (!project) return;
-    const currentWorkflow = project.metadata?.workflow || {};
-    const isComplete = currentWorkflow[`${stepId}_complete`];
-    await updateWorkflow(stepId, { [`${stepId}_complete`]: !isComplete });
-  }
-
-  async function handleFieldChange(stepId: string, fieldKey: string, value: string) {
-    await updateWorkflow(stepId, { [fieldKey]: value });
+  function handleFieldChange(_stepId: string, fieldKey: string, value: string) {
+    setLocalWorkflow(prev => ({ ...prev, [fieldKey]: value }));
   }
 
   if (loading) {
@@ -156,8 +148,6 @@ export default function ProjectDetails() {
       </div>
     );
   }
-
-  const workflow = project.metadata?.workflow || {};
 
   return (
     <div className="min-h-screen bg-theme-primary">
@@ -189,7 +179,7 @@ export default function ProjectDetails() {
               </div>
 
               {(() => {
-                const completedCount = workflowSteps.filter(s => workflow[`${s.id}_complete`]).length;
+                const completedCount = workflowSteps.filter(s => localWorkflow[`${s.id}_complete`]).length;
                 const progressPercent = Math.round((completedCount / workflowSteps.length) * 100);
                 return (
                   <div className="mb-6">
@@ -209,7 +199,7 @@ export default function ProjectDetails() {
               
               <div className="space-y-3">
                 {workflowSteps.map(step => {
-                  const isComplete = workflow[`${step.id}_complete`];
+                  const isComplete = localWorkflow[`${step.id}_complete`];
                   const isExpanded = expandedStep === step.id;
                   
                   return (
@@ -251,7 +241,7 @@ export default function ProjectDetails() {
                                 <label className="block text-xs text-theme-muted mb-1">{field.label}</label>
                                 {field.type === "select" && field.options ? (
                                   <select
-                                    value={workflow[field.key] || ""}
+                                    value={localWorkflow[field.key] || ""}
                                     onChange={(e) => handleFieldChange(step.id, field.key, e.target.value)}
                                     className="w-full input-field px-3 py-2 rounded text-sm"
                                     disabled={saving}
@@ -264,7 +254,7 @@ export default function ProjectDetails() {
                                 ) : (
                                   <input
                                     type={field.type}
-                                    value={workflow[field.key] || ""}
+                                    value={localWorkflow[field.key] || ""}
                                     onChange={(e) => handleFieldChange(step.id, field.key, e.target.value)}
                                     placeholder={field.placeholder}
                                     className="w-full input-field px-3 py-2 rounded text-sm"
@@ -301,19 +291,19 @@ export default function ProjectDetails() {
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-theme-muted">ISRC</span>
-                  <span className="text-theme-secondary font-mono">{workflow.isrc || "Not set"}</span>
+                  <span className="text-theme-secondary font-mono">{localWorkflow.isrc || "Not set"}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-theme-muted">UPC</span>
-                  <span className="text-theme-secondary font-mono">{workflow.upc || "Not set"}</span>
+                  <span className="text-theme-secondary font-mono">{localWorkflow.upc || "Not set"}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-theme-muted">ISWC</span>
-                  <span className="text-theme-secondary font-mono">{workflow.iswc || "Not set"}</span>
+                  <span className="text-theme-secondary font-mono">{localWorkflow.iswc || "Not set"}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-theme-muted">Copyright #</span>
-                  <span className="text-theme-secondary font-mono">{workflow.copyright_reg_number || "Not set"}</span>
+                  <span className="text-theme-secondary font-mono">{localWorkflow.copyright_reg_number || "Not set"}</span>
                 </div>
               </div>
             </div>
@@ -347,10 +337,10 @@ export default function ProjectDetails() {
                   <span className="text-theme-muted">Updated</span>
                   <span className="text-theme-secondary">{new Date(project.updated_at).toLocaleDateString()}</span>
                 </div>
-                {workflow.release_date && (
+                {localWorkflow.release_date && (
                   <div className="flex justify-between">
                     <span className="text-theme-muted">Released</span>
-                    <span className="text-theme-secondary">{new Date(workflow.release_date).toLocaleDateString()}</span>
+                    <span className="text-theme-secondary">{new Date(localWorkflow.release_date).toLocaleDateString()}</span>
                   </div>
                 )}
               </div>
