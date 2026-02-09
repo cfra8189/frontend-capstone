@@ -15,52 +15,93 @@ import SubmissionGenerator from "./pages/SubmissionGenerator";
 import EPKEditor from "./pages/EPKEditor";
 import EPKView from "./pages/EPKView";
 import CapstoneDoc from "./pages/CapstoneDoc";
+import BackgroundGif from "./components/BackgroundGif";
 
 function App() {
   const { user, isLoading, isAuthenticated } = useAuth();
   const [location] = useLocation();
 
   if (location === "/admin") {
-    return <Admin />;
+    return (
+      <>
+        <BackgroundGif />
+        <Admin />
+      </>
+    );
   }
 
   if (location === "/community") {
-    return <Community />;
+    return (
+      <>
+        <BackgroundGif />
+        <Community />
+      </>
+    );
   }
 
   if (location === "/docs") {
-    return <Docs />;
+    return (
+      <>
+        <BackgroundGif />
+        <Docs />
+      </>
+    );
   }
 
   if (location === "/capstone") {
-    return <CapstoneDoc />;
+    return (
+      <>
+        <BackgroundGif />
+        <CapstoneDoc />
+      </>
+    );
   }
 
   if (location.startsWith("/portfolio/")) {
-    return <Portfolio />;
+    return (
+      <>
+        <BackgroundGif />
+        <Portfolio />
+      </>
+    );
   }
 
   if (location.startsWith("/epk/")) {
-    return <EPKView />;
+    return (
+      <>
+        <BackgroundGif />
+        <EPKView />
+      </>
+    );
   }
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <img src="/box-logo.png" alt="BOX" className="w-12 h-12 mx-auto mb-4 animate-pulse" />
-          <p className="text-gray-500">Loading...</p>
+      <>
+        <BackgroundGif />
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <img src="/box-logo.png" alt="BOX" className="w-12 h-12 mx-auto mb-4 animate-pulse" />
+            <p className="text-gray-500">Loading...</p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (!isAuthenticated) {
-    return <Landing />;
+    return (
+      <>
+        <BackgroundGif />
+        <Landing />
+      </>
+    );
   }
 
   return (
-    <Switch>
+    <>
+      <BackgroundGif />
+      <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/creative" component={CreativeSpace} />
       <Route path="/project/:id" component={ProjectDetails} />
@@ -78,6 +119,7 @@ function App() {
         </div>
       </Route>
     </Switch>
+    </>
   );
 }
 
