@@ -4,9 +4,12 @@
 ## 1. Application Name
 **The Box**
 
+![The Box - Wireframe](Wireframe.png)
 ---
 
 ## 2. Application Description
+
+![The Box](app_glance.png)
 
 ### Overview
 The Box is a music business administration platform designed specifically for independent music artists. It serves as a centralized hub for managing the administrative and legal aspects of music creation, ensuring artists maintain proper documentation, protect their intellectual property, and stay organized throughout their creative journey.
@@ -303,4 +306,3 @@ The Box solves the critical challenge of music business administration for indep
 
 ---
 
-![The Box - Wireframe](Wireframe.png)
