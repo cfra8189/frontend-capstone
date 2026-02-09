@@ -216,26 +216,15 @@ The Box solves the critical challenge of music business administration for indep
 
 ## 5. Project Timeline
 
-### Phase 1: Initial Development (Sept 7 - Oct 2025)
-- **Sept 7, 2025**: Project started
-- **Sept 7-14**: Set up project repository, database design, and initial planning
-- **Sept 15-21**: Backend setup - User authentication and project routes
-- **Sept 22-30**: Frontend setup - Dashboard and project management UI
-- **Oct 1-15**: Document management system implementation
-- **Oct 16-31**: Creative dashboard with drag-and-drop functionality
-
-### Phase 2: Development Pause (Nov - Dec 25, 2025)
-- Project on hold due to other commitments
-
-### Phase 3: Resumed Development (Dec 26, 2025 - Feb 13, 2026)
-- **Dec 26, 2025**: Resumed development
-- **Dec 26 - Jan 5**: Code review, bug fixes, refactoring
-- **Jan 6-15**: Submission tracker feature implementation
-- **Jan 16-25**: File upload integration and document vault
-- **Jan 26 - Feb 5**: UI/UX improvements and responsive design
-- **Feb 6-10**: Testing, debugging, and optimization
-- **Feb 11-12**: Final polish and deployment preparation
-- **Feb 13, 2026**: **Project completion and submission**
+### Sept 7, 2025 - Project started
+- Sept-Oct 2025 - Initial development and planning
+- Nov-Dec 25, 2025 - Development pause
+- Dec 26, 2025 - Resumed development
+- Jan 2026 - Continued feature development
+- Feb 2026 - Began applying MERN stack skills - Built out full-stack architecture with MongoDB/Express/React/Node, implemented authentication, API routes, database models, and React components
+- Feb 6-10, 2026 - Testing, debugging, optimization
+- Feb 11-12, 2026 - Final polish and deployment prep
+- Feb 13, 2026 - Project completion
 
 ### Major Milestones Achieved
 - ✅ User authentication (Google OAuth + Email/Password)
@@ -298,10 +287,9 @@ The Box solves the critical challenge of music business administration for indep
 
 ## Project Information
 
-**Project Start Date:** September 7, 2025  
-**Project Resumed Date:** December 26, 2025  
-**Project Completion Date:** February 13, 2026  
-**Total Development Time:** ~4.5 months (with pause)
-
+**Project Start Date**: September 7, 2025
+**MERN Stack Application**: February 2026
+**Project Completion Date**: February 13, 2026
+**Total Development Time**: ~4.5 months
 ---
 
