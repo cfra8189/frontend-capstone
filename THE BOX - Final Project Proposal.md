@@ -287,9 +287,12 @@ The Box solves the critical challenge of music business administration for indep
 
 ## Project Information
 
-**Project Start Date**: September 7, 2025
-**MERN Stack Application**: February 2026
-**Project Completion Date**: February 13, 2026
+**Project Start Date**: September 7, 2025,
+
+**MERN Stack Application**: February 2026,
+
+**Project Completion Date**: February 13, 2026,
+
 **Total Development Time**: ~4.5 months
 ---
 
