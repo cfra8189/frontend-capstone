@@ -3,98 +3,8 @@ import { useAuth } from "../hooks/use-auth";
 import { Link } from "wouter";
 import { useUpload } from "../hooks/use-upload";
 import Header from "../components/Header";
-import PinterestEmbed from "../components/PinterestEmbed";
-import TwitterEmbed from "../components/TwitterEmbed";
+import PremiumEmbed from "../components/PremiumEmbed";
 
-// Minimal Pinterest renderer: prefer motion assets (mp4/m3u8) and fall back to GIF/static image
-function PinterestImage({ url }: { url: string }) {
-  const [img, setImg] = useState<string | null>(null);
-  const [video, setVideo] = useState<string | null>(null);
-  const [isHls, setIsHls] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    async function load() {
-      try {
-        const res = await fetch(`/api/oembed?url=${encodeURIComponent(url)}`, { credentials: "include" });
-        if (!res.ok) return;
-        const data = await res.json();
-        if (cancelled) return;
-
-        // If oEmbed provides a thumbnail, prefer it as a fallback image (may be GIF)
-        if (data.thumbnail_url) {
-          // but first check html for video variants
-          if (data.html) {
-            const html = String(data.html || "");
-            // look for mp4
-            const mp4 = html.match(/https?:\/\/[^"'<>\s]+\.mp4/i);
-            if (mp4 && mp4[0]) { setVideo(mp4[0]); setIsHls(false); return; }
-            // look for m3u8
-            const m3u8 = html.match(/https?:\/\/[^"'<>\s]+\.m3u8/i);
-            if (m3u8 && m3u8[0]) { setVideo(m3u8[0]); setIsHls(true); return; }
-          }
-          setImg(data.thumbnail_url);
-          return;
-        }
-
-        if (data.html) {
-          const html = String(data.html || "");
-          // Prefer mp4
-          const mp4 = html.match(/https?:\/\/[^"'<>\s]+\.mp4/i);
-          if (mp4 && mp4[0]) { setVideo(mp4[0]); setIsHls(false); return; }
-          // HLS stream
-          const m3u8 = html.match(/https?:\/\/[^"'<>\s]+\.m3u8/i);
-          if (m3u8 && m3u8[0]) { setVideo(m3u8[0]); setIsHls(true); return; }
-          // JSON-LD video
-          const ld = html.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/i);
-          if (ld && ld[1]) {
-            try {
-              const j = JSON.parse(ld[1]);
-              const videoUrl = j?.video?.contentUrl || j?.video?.url || j?.sharedContent?.video?.contentUrl || null;
-              if (typeof videoUrl === 'string' && videoUrl) {
-                if (videoUrl.endsWith('.m3u8')) { setVideo(videoUrl); setIsHls(true); return; }
-                setVideo(videoUrl); setIsHls(false); return;
-              }
-            } catch (e) { /* ignore */ }
-          }
-
-          // fallback: image tag
-          const imgTag = html.match(/<img[^>]+src=["']([^"']+)["']/i);
-          if (imgTag && imgTag[1]) { setImg(imgTag[1]); return; }
-        }
-      } catch (e) {
-        // ignore
-      }
-    }
-    load();
-    return () => { cancelled = true; };
-  }, [url]);
-
-  if (video) {
-    return (
-      <div className="media-embed mb-3">
-        <video
-          src={video}
-          controls
-          autoPlay
-          muted
-          loop
-          playsInline
-          style={{ width: '100%', height: 'auto', maxHeight: 360, display: 'block' }}
-        />
-      </div>
-    );
-  }
-  if (img) {
-    return (
-      <div className="media-embed mb-3">
-        <img src={img} alt="Pinterest" loading="lazy" style={{ width: '100%', height: 'auto', display: 'block' }} />
-      </div>
-    );
-  }
-
-  return null;
-}
 
 export default function CreativeSpace() {
   const { user } = useAuth();
@@ -108,7 +18,7 @@ export default function CreativeSpace() {
   const [dragOverId, setDragOverId] = useState<number | null>(null);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const { uploadFile, isUploading, progress } = useUpload({
     onSuccess: (response) => {
       setUploadedMediaUrl(response.objectPath);
@@ -221,14 +131,14 @@ export default function CreativeSpace() {
   async function togglePin(id: number) {
     try {
       // Optimistic update
-      setNotes(prev => prev.map(n => 
+      setNotes(prev => prev.map(n =>
         n.id === id ? { ...n, is_pinned: !n.is_pinned } : n
       ));
-      
+
       const res = await fetch(`/api/creative/notes/${id}/pin`, { method: "POST" });
       if (!res.ok) {
         // Revert on failure
-        setNotes(prev => prev.map(n => 
+        setNotes(prev => prev.map(n =>
           n.id === id ? { ...n, is_pinned: !n.is_pinned } : n
         ));
       }
@@ -255,7 +165,7 @@ export default function CreativeSpace() {
   async function handleDrop(e: React.DragEvent, targetNote: Note) {
     e.preventDefault();
     setDragOverId(null);
-    
+
     if (!draggedNote || draggedNote.id === targetNote.id) {
       setDraggedNote(null);
       return;
@@ -317,93 +227,16 @@ export default function CreativeSpace() {
 
   function getMediaEmbed(url: string) {
     if (!url) return null;
-    
-    // YouTube
-    const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-    if (ytMatch) {
-      return (
-        <div className="media-embed mb-3">
-          <iframe
-            src={`https://www.youtube.com/embed/${ytMatch[1]}`}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        </div>
-      );
-    }
 
-    // Vimeo
-    const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-    if (vimeoMatch) {
-      return (
-        <div className="media-embed mb-3">
-          <iframe
-            src={`https://player.vimeo.com/video/${vimeoMatch[1]}`}
-            allow="autoplay; fullscreen; picture-in-picture"
-            allowFullScreen
-          />
-        </div>
-      );
-    }
+    // Unified premium embed for Pinterest, Twitter, YouTube, etc.
+    const isSocial = url.includes("pinterest.com") || url.includes("pin.it") ||
+      url.includes("twitter.com") || url.includes("x.com") ||
+      url.includes("youtube.com") || url.includes("youtu.be") ||
+      url.includes("spotify.com") || url.includes("soundcloud.com") ||
+      url.match(/\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i);
 
-    // SoundCloud
-    if (url.includes("soundcloud.com")) {
-      return (
-        <div className="media-embed mb-3">
-          <iframe
-            src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%23000000&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=true`}
-            allow="autoplay"
-          />
-        </div>
-      );
-    }
-
-    // Spotify
-    const spotifyMatch = url.match(/open\.spotify\.com\/(track|album|playlist|episode)\/([a-zA-Z0-9]+)/);
-    if (spotifyMatch) {
-      return (
-        <div className="media-embed mb-3">
-          <iframe
-            src={`https://open.spotify.com/embed/${spotifyMatch[1]}/${spotifyMatch[2]}`}
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          />
-        </div>
-      );
-    }
-
-    // Image URLs
-    if (url.match(/\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i) || url.includes("images.unsplash.com") || url.includes("pbs.twimg.com") || url.includes("i.pinimg.com")) {
-      return (
-        <div className="media-embed mb-3">
-          <img src={url} alt="Inspiration" loading="lazy" />
-        </div>
-      );
-    }
-
-    // Pinterest embed iframe (user pastes the embed code) — treat as a Pinterest link and
-    // render a safe image-only preview instead of injecting the iframe which may load scripts.
-    const pinterestEmbedMatch = url.match(/assets\.pinterest\.com\/ext\/embed\.html\?id=(\d+)/);
-    if (pinterestEmbedMatch) {
-      // Convert assets embed id into a canonical pin URL for the image proxy
-      const pinUrl = `https://www.pinterest.com/pin/${pinterestEmbedMatch[1]}/`;
-      return <PinterestImage url={pinUrl} />;
-    }
-
-    // Pinterest URL (including short pin.it links)
-    const pinterestPinMatch = url.match(/pinterest\.com\/pin\/(\d+)/);
-    if (pinterestPinMatch) {
-      return <PinterestEmbed url={url} />;
-    }
-
-    // handle Pinterest links: show a safe image (GIF) when possible
-    if (url.includes("pin.it") || url.includes("pinterest.co") || url.includes("pinterest.com")) {
-      return <PinterestImage url={url} />;
-    }
-
-    // Twitter/X
-    const twitterMatch = url.match(/(?:twitter|x)\.com\/[^\/]+\/status\/([0-9]+)/);
-    if (twitterMatch || url.includes("twitter.com") || url.includes("x.com")) {
-      return <TwitterEmbed url={url} />;
+    if (isSocial) {
+      return <PremiumEmbed url={url} />;
     }
 
     // Default: show link
@@ -450,110 +283,110 @@ export default function CreativeSpace() {
           <div className="text-center py-12 text-theme-muted">
             No notes yet. Start capturing your ideas!
           </div>
-          ) : (
+        ) : (
           <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {paginatedNotes.map(note => (
-              <div
-                key={note.id}
-                draggable={activeCategory === "all"}
-                onDragStart={(e) => { if (activeCategory === "all") handleDragStart(e, note); }}
-                onDragOver={(e) => { e.preventDefault(); if (activeCategory === "all") handleDragOver(e, note.id); }}
-                onDragLeave={handleDragLeave}
-                onDrop={(e) => { if (activeCategory === "all") handleDrop(e, note); }}
-                onDragEnd={handleDragEnd}
-                className={`card p-4 rounded-xl transition-all ${activeCategory === "all" ? "cursor-move" : ""} ${note.is_pinned ? "border-accent" : ""} ${draggedNote?.id === note.id ? "opacity-50 scale-95" : ""} ${dragOverId === note.id ? "ring-2 ring-accent scale-105" : ""}`}
-              >
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-theme-muted uppercase">{note.category}</span>
-                    {note.is_pinned && <span className="text-xs text-accent">[pinned]</span>}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {paginatedNotes.map(note => (
+                <div
+                  key={note.id}
+                  draggable={activeCategory === "all"}
+                  onDragStart={(e) => { if (activeCategory === "all") handleDragStart(e, note); }}
+                  onDragOver={(e) => { e.preventDefault(); if (activeCategory === "all") handleDragOver(e, note.id); }}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => { if (activeCategory === "all") handleDrop(e, note); }}
+                  onDragEnd={handleDragEnd}
+                  className={`card p-4 rounded-xl transition-all ${activeCategory === "all" ? "cursor-move" : ""} ${note.is_pinned ? "border-accent" : ""} ${draggedNote?.id === note.id ? "opacity-50 scale-95" : ""} ${dragOverId === note.id ? "ring-2 ring-accent scale-105" : ""}`}
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-theme-muted uppercase">{note.category}</span>
+                      {note.is_pinned && <span className="text-xs text-accent">[pinned]</span>}
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      {(() => {
+                        const status = getSubmissionStatus(note.id);
+                        if (status === "pending") {
+                          return <span className="text-xs px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-400">pending</span>;
+                        } else if (status === "approved") {
+                          return <span className="text-xs px-2 py-0.5 rounded bg-green-500/20 text-green-400">shared</span>;
+                        } else if (status === "rejected") {
+                          return <span className="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-400">declined</span>;
+                        } else {
+                          return (
+                            <button
+                              type="button"
+                              onClick={() => shareNote(note.id)}
+                              className="text-xs px-2 py-0.5 rounded bg-theme-tertiary text-theme-secondary hover:bg-theme-secondary"
+                              title="Submit to community"
+                            >
+                              share
+                            </button>
+                          );
+                        }
+                      })()}
+                      <button
+                        type="button"
+                        onClick={() => togglePin(note.id)}
+                        className={`text-xs px-2 py-0.5 rounded ${note.is_pinned ? "bg-accent text-theme-primary" : "bg-theme-tertiary text-theme-secondary hover:bg-theme-secondary"}`}
+                        style={note.is_pinned ? { color: 'var(--bg-primary)' } : {}}
+                      >
+                        {note.is_pinned ? "unpin" : "pin"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setEditingNote(note); setShowModal(true); }}
+                        className="text-theme-muted hover:text-theme-primary text-sm"
+                      >
+                        ✎
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => deleteNote(note.id)}
+                        className="text-theme-muted hover:text-red-400 text-sm"
+                      >
+                        ×
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex gap-2 items-center">
-                    {(() => {
-                      const status = getSubmissionStatus(note.id);
-                      if (status === "pending") {
-                        return <span className="text-xs px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-400">pending</span>;
-                      } else if (status === "approved") {
-                        return <span className="text-xs px-2 py-0.5 rounded bg-green-500/20 text-green-400">shared</span>;
-                      } else if (status === "rejected") {
-                        return <span className="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-400">declined</span>;
-                      } else {
-                        return (
-                          <button
-                            type="button"
-                            onClick={() => shareNote(note.id)}
-                            className="text-xs px-2 py-0.5 rounded bg-theme-tertiary text-theme-secondary hover:bg-theme-secondary"
-                            title="Submit to community"
-                          >
-                            share
-                          </button>
-                        );
-                      }
-                    })()}
-                    <button
-                      type="button"
-                      onClick={() => togglePin(note.id)}
-                      className={`text-xs px-2 py-0.5 rounded ${note.is_pinned ? "bg-accent text-theme-primary" : "bg-theme-tertiary text-theme-secondary hover:bg-theme-secondary"}`}
-                      style={note.is_pinned ? { color: 'var(--bg-primary)' } : {}}
-                    >
-                      {note.is_pinned ? "unpin" : "pin"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { setEditingNote(note); setShowModal(true); }}
-                      className="text-theme-muted hover:text-theme-primary text-sm"
-                    >
-                      ✎
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => deleteNote(note.id)}
-                      className="text-theme-muted hover:text-red-400 text-sm"
-                    >
-                      ×
-                    </button>
-                  </div>
+                  {note.media_url && getMediaEmbed(note.media_url)}
+                  <p className="text-sm whitespace-pre-wrap mb-3 text-theme-primary">{note.content}</p>
+                  {note.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {note.tags.map(tag => (
+                        <span key={tag} className="tag-pill">{tag}</span>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                {note.media_url && getMediaEmbed(note.media_url)}
-                <p className="text-sm whitespace-pre-wrap mb-3 text-theme-primary">{note.content}</p>
-                {note.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {note.tags.map(tag => (
-                      <span key={tag} className="tag-pill">{tag}</span>
-                    ))}
-                  </div>
-                )}
+              ))}
+            </div>
+            <div className="mt-4 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2 text-sm text-theme-muted">
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="px-3 py-1 rounded bg-theme-tertiary disabled:opacity-50"
+                >
+                  ◀ Prev
+                </button>
+                <span>Page {page} of {totalPages}</span>
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="px-3 py-1 rounded bg-theme-tertiary disabled:opacity-50"
+                >
+                  Next ▶
+                </button>
               </div>
-            ))}
-          </div>
-          <div className="mt-4 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2 text-sm text-theme-muted">
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="px-3 py-1 rounded bg-theme-tertiary disabled:opacity-50"
-              >
-                ◀ Prev
-              </button>
-              <span>Page {page} of {totalPages}</span>
-              <button
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="px-3 py-1 rounded bg-theme-tertiary disabled:opacity-50"
-              >
-                Next ▶
-              </button>
+              <div className="flex items-center gap-2 text-sm">
+                <label className="text-theme-muted">Per page:</label>
+                <select value={perPage} onChange={(e) => setPerPage(Number(e.target.value))} className="input-field text-sm">
+                  <option value={6}>6</option>
+                  <option value={12}>12</option>
+                  <option value={24}>24</option>
+                </select>
+              </div>
             </div>
-            <div className="flex items-center gap-2 text-sm">
-              <label className="text-theme-muted">Per page:</label>
-              <select value={perPage} onChange={(e) => setPerPage(Number(e.target.value))} className="input-field text-sm">
-                <option value={6}>6</option>
-                <option value={12}>12</option>
-                <option value={24}>24</option>
-              </select>
-            </div>
-          </div>
           </>
         )}
       </main>
