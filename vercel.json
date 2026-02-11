@@ -3,10 +3,17 @@
     {
       "source": "/api/(.*)",
       "destination": "https://box-backend-otsb.onrender.com/api/$1"
-    },
+    }
+  ],
+  "headers": [
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
     }
   ]
 }

@@ -5,6 +5,26 @@ import { useUpload } from "../hooks/use-upload";
 import Header from "../components/Header";
 import PremiumEmbed from "../components/PremiumEmbed";
 
+interface Note {
+  id: number;
+  content: string;
+  category: string;
+  is_pinned: boolean;
+  sortOrder: number;
+  created_at: string;
+  updated_at: string;
+  media_url?: string;
+  tags?: string[];
+}
+
+interface Submission {
+  id: number;
+  noteId: number;
+  userId: string;
+  status: string;
+  created_at: string;
+}
+
 
 export default function CreativeSpace() {
   const { user } = useAuth();
@@ -36,6 +56,7 @@ export default function CreativeSpace() {
   }, []);
 
   async function loadNotes() {
+    setLoading(true);
     try {
       const res = await fetch("/api/creative/notes");
       if (res.ok) {
@@ -50,6 +71,7 @@ export default function CreativeSpace() {
   }
 
   async function loadSubmissions() {
+    setLoading(true);
     try {
       const res = await fetch("/api/community/my-submissions");
       if (res.ok) {
@@ -58,6 +80,8 @@ export default function CreativeSpace() {
       }
     } catch (error) {
       console.error("Failed to load submissions:", error);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -92,10 +116,16 @@ export default function CreativeSpace() {
 
     const mediaLink = formData.get("media_url") as string;
     const noteData = {
-      category: formData.get("category") as string,
       content: formData.get("content") as string,
+      category: formData.get("category") as string,
       media_url: uploadedMediaUrl || mediaLink || null,
       tags: (formData.get("tags") as string)?.split(",").map(t => t.trim()).filter(Boolean) || [],
+    };
+
+    const newNote = {
+      content: noteData.content,
+      category: noteData.category,
+      tags: noteData.tags || []
     };
 
     const url = editingNote ? `/api/creative/notes/${editingNote.id}` : "/api/creative/notes";
@@ -131,15 +161,16 @@ export default function CreativeSpace() {
   async function togglePin(id: number) {
     try {
       // Optimistic update
-      setNotes(prev => prev.map(n =>
-        n.id === id ? { ...n, is_pinned: !n.is_pinned } : n
-      ));
+      const newSortOrder = notes.find(note => note.id === id)?.sortOrder + 1;
+      const reorderedNotes = notes.map(note =>
+        note.id === id ? { ...note, sortOrder: newSortOrder, is_pinned: !note.is_pinned } : note
+      );
 
       const res = await fetch(`/api/creative/notes/${id}/pin`, { method: "POST" });
       if (!res.ok) {
         // Revert on failure
-        setNotes(prev => prev.map(n =>
-          n.id === id ? { ...n, is_pinned: !n.is_pinned } : n
+        setNotes(prev => prev.map(noteItem =>
+          noteItem.id === id ? { ...noteItem, sortOrder: newSortOrder, is_pinned: !noteItem.is_pinned } : noteItem
         ));
       }
     } catch (error) {
