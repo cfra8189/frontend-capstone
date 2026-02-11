@@ -1,12 +1,15 @@
 {
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "https://box-backend-otsb.onrender.com/api/$1"
+      "src": "/api/(.*)",
+      "dest": "https://box-backend-otsb.onrender.com/api/$1"
     },
     {
-      "source": "/((?!assets/.*|favicon.ico|manifest.json|robots.txt).*)",
-      "destination": "/index.html"
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
