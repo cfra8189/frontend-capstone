@@ -48,6 +48,11 @@ export default function CreativeSpace() {
     },
   });
 
+  const softRefresh = () => {
+    loadNotes();
+    loadSubmissions();
+  };
+
   const categories = ["all", "ideas", "lyrics", "inspiration", "audio", "visual", "journal"];
 
   useEffect(() => {
@@ -476,12 +481,10 @@ export default function CreativeSpace() {
                       className="hidden"
                     />
                     <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={isUploading}
+                      onClick={softRefresh}
                       className="px-3 py-1 text-xs bg-theme-tertiary rounded hover:bg-theme-secondary"
                     >
-                      {isUploading ? `Uploading ${progress}%...` : "Upload File"}
+                      Refresh
                     </button>
                     {uploadedMediaUrl && (
                       <span className="text-xs text-green-500">✓ Uploaded</span>
