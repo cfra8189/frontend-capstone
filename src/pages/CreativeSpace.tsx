@@ -53,7 +53,7 @@ export default function CreativeSpace() {
   useEffect(() => {
     loadNotes();
     loadSubmissions();
-  }, []);
+  }, [activeCategory]);
 
   async function loadNotes() {
     setLoading(true);
