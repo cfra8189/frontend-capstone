@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import Header from "../components/Header";
 
 const templateData = {
@@ -76,6 +77,7 @@ export default function Generator() {
   const [isSaving, setIsSaving] = useState(false);
   const [savedDocumentId, setSavedDocumentId] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [, setLocation] = useLocation();
 
   function handleSelect(templateId: string) {
     setSelectedTemplate(templateId);
@@ -228,7 +230,10 @@ export default function Generator() {
       });
       const data = await resp.json();
       if (!resp.ok) throw new Error(data?.message || "Save failed");
-      setSavedDocumentId(data.document?.id || null);
+      const docId = data.document?.id || null;
+      setSavedDocumentId(docId);
+      // Auto-open saved document in Documents page
+      if (docId) setLocation(`/documents?open=${docId}`);
     } catch (err: any) {
       setSaveError(err.message || "Save failed");
     } finally {

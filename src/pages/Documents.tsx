@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import { useAuth } from "../hooks/use-auth";
+import { useLocation } from "wouter";
 
 interface DocItem {
   id: string;
@@ -18,20 +19,45 @@ export default function Documents() {
   const [selectedTitle, setSelectedTitle] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  const [location, setLocation] = useLocation();
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [limit] = useState(12);
+  const [total, setTotal] = useState(0);
+
   useEffect(() => {
     if (!isAuthenticated) return;
+    const params = new URLSearchParams();
+    if (query) params.set("q", query);
+    params.set("page", String(page));
+    params.set("limit", String(limit));
+
     setLoading(true);
     setError(null);
-    fetch("/api/documents")
+    fetch(`/api/documents?${params.toString()}`)
       .then(async (res) => {
         if (!res.ok) throw new Error((await res.json()).message || "Failed to load");
         return res.json();
       })
       .then((data) => {
-        setDocs((data || []).map((d: any) => ({ id: d.id, title: d.title, templateId: d.templateId, createdAt: d.createdAt })));
+        setDocs((data.documents || []).map((d: any) => ({ id: d.id, title: d.title, templateId: d.templateId, createdAt: d.createdAt })));
+        setTotal(data.total || 0);
       })
       .catch((err) => setError(err.message || "Failed to load documents"))
       .finally(() => setLoading(false));
+  }, [isAuthenticated, query, page, limit]);
+
+  // auto-open if ?open=<id> in URL
+  useEffect(() => {
+    const u = new URL(window.location.href);
+    const openId = u.searchParams.get("open");
+    if (openId) {
+      // clear query param after reading
+      const p = new URL(window.location.href);
+      p.searchParams.delete("open");
+      window.history.replaceState({}, "", p.toString());
+      openDoc(openId);
+    }
   }, [isAuthenticated]);
 
   async function openDoc(id: string) {
@@ -61,7 +87,52 @@ export default function Documents() {
     a.remove();
     URL.revokeObjectURL(url);
   }
+  // rename / delete UI state
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState("");
 
+  function startRename(id: string, currentTitle: string) {
+    setRenamingId(id);
+    setRenameValue(currentTitle);
+  }
+
+  async function doRename() {
+    if (!renamingId) return;
+    try {
+      const res = await fetch(`/api/documents/${renamingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: renameValue }),
+      });
+      if (!res.ok) throw new Error((await res.json()).message || "Rename failed");
+      setDocs(docs.map(d => d.id === renamingId ? { ...d, title: renameValue } : d));
+      setRenamingId(null);
+    } catch (err: any) {
+      setError(err.message || "Rename failed");
+    }
+  }
+
+  async function confirmDelete(id: string) {
+    if (!confirm("Delete this saved agreement? This cannot be undone.")) return;
+    try {
+      const res = await fetch(`/api/documents/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error((await res.json()).message || "Delete failed");
+      setDocs(docs.filter(d => d.id !== id));
+      if (selectedId === id) {
+        setSelectedHtml(null);
+        setSelectedId(null);
+        setSelectedTitle(null);
+      }
+    } catch (err: any) {
+      setError(err.message || "Delete failed");
+    }
+  }
+
+  // pagination helpers
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+  function gotoPage(p: number) {
+    setPage(Math.max(1, Math.min(totalPages, p)));
+  }
   return (
     <div className="min-h-screen bg-theme-primary">
       <Header />
@@ -87,6 +158,13 @@ export default function Documents() {
                   <div className="text-theme-muted">No saved agreements yet. Generate one in the <a className="text-accent" href="/generator">Agreement Generator</a>.</div>
                 )}
 
+                <div className="mb-4">
+                  <div className="flex items-center gap-2">
+                    <input value={query} onChange={(e) => { setQuery(e.target.value); setPage(1); }} placeholder="Search saved agreements..." className="input-field p-2 rounded flex-1" />
+                    <div className="text-sm text-theme-muted">{total} results</div>
+                  </div>
+                </div>
+
                 <div className="space-y-3 mt-4">
                   {docs.map((d) => (
                     <div key={d.id} className="p-4 rounded border border-theme-tertiary flex items-center justify-between gap-4">
@@ -94,13 +172,36 @@ export default function Documents() {
                         <div className="font-bold">{d.title}</div>
                         <div className="text-xs text-theme-muted">{d.templateId || 'Custom'} • {new Date(d.createdAt).toLocaleString()}</div>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 items-center">
                         <button onClick={() => openDoc(d.id)} className="px-3 py-2 rounded border border-theme-tertiary text-theme-secondary">View</button>
                         <a href={`/api/documents/${d.id}`} className="px-3 py-2 rounded bg-theme-accent text-white" target="_blank" rel="noreferrer">Open</a>
+                        <button onClick={() => startRename(d.id, d.title)} className="px-3 py-2 rounded border border-theme-tertiary text-theme-secondary">Rename</button>
+                        <button onClick={() => confirmDelete(d.id)} className="px-3 py-2 rounded border border-red-500 text-red-500">Delete</button>
                       </div>
                     </div>
                   ))}
                 </div>
+
+                <div className="mt-6 flex items-center justify-between">
+                  <div className="text-sm text-theme-muted">Page {page} of {totalPages}</div>
+                  <div className="flex gap-2">
+                    <button onClick={() => gotoPage(1)} disabled={page===1} className="px-3 py-1 rounded border border-theme-tertiary">First</button>
+                    <button onClick={() => gotoPage(page-1)} disabled={page===1} className="px-3 py-1 rounded border border-theme-tertiary">Prev</button>
+                    <button onClick={() => gotoPage(page+1)} disabled={page===totalPages} className="px-3 py-1 rounded border border-theme-tertiary">Next</button>
+                    <button onClick={() => gotoPage(totalPages)} disabled={page===totalPages} className="px-3 py-1 rounded border border-theme-tertiary">Last</button>
+                  </div>
+                </div>
+
+                {renamingId && (
+                  <div className="mt-4 p-4 rounded border border-theme-tertiary">
+                    <div className="text-sm font-bold mb-2">Rename Agreement</div>
+                    <div className="flex gap-2">
+                      <input className="input-field p-2 rounded flex-1" value={renameValue} onChange={(e) => setRenameValue(e.target.value)} />
+                      <button onClick={doRename} className="px-3 py-2 rounded bg-theme-accent text-white">Save</button>
+                      <button onClick={() => setRenamingId(null)} className="px-3 py-2 rounded border border-theme-tertiary">Cancel</button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
