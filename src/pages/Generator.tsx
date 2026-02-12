@@ -1,44 +1,180 @@
 import { useState } from "react";
 import Header from "../components/Header";
 
-const agreementTypes = [
-  { id: "split_sheet", name: "Split Sheet", description: "Document ownership splits" },
-  { id: "license_basic", name: "Basic License", description: "Non-exclusive lease" },
-  { id: "license_premium", name: "Premium License", description: "Exclusive rights" },
-  { id: "production", name: "Production Agreement", description: "Producer/artist terms" },
-  { id: "confidentiality", name: "NDA", description: "Confidentiality agreement" },
-];
+const templateData = {
+  'basic-ne': { 
+    title: 'BASIC NON-EXCLUSIVE LICENSE', 
+    idPrefix: 'LIC-B', 
+    fields: [], 
+    terms: 'Grant of non-exclusive rights for limited digital streaming and one official music video. Producer retains 100% ownership of composition.' 
+  },
+  'standard-ne': { 
+    title: 'STANDARD NON-EXCLUSIVE LICENSE', 
+    idPrefix: 'LIC-S', 
+    fields: [], 
+    terms: 'Grant of non-exclusive rights for increased streaming limits. Includes high-quality WAV files.' 
+  },
+  'premium-ne': { 
+    title: 'PREMIUM NON-EXCLUSIVE LICENSE', 
+    idPrefix: 'LIC-P', 
+    fields: [], 
+    terms: 'Unlimited non-exclusive rights for streaming and distribution. Includes multi-track stems.' 
+  },
+  'exclusive': { 
+    title: 'EXCLUSIVE LICENSE AGREEMENT', 
+    idPrefix: 'LIC-EX', 
+    fields: ['exclusiveFee', 'masterShare'], 
+    terms: 'Transfer of exclusive rights. Producer shall cease further licensing of the track. Fee: $[exclusiveFee]. Master Royalty Share: [masterShare]%.' 
+  },
+  'buyout-addendum': { 
+    title: 'EXCLUSIVE RIGHTS BUYOUT ADDENDUM', 
+    idPrefix: 'LIC-BO', 
+    fields: ['buyoutAmount', 'originalDate'], 
+    terms: 'Complete transfer of all rights, title, and interest including publishing and master royalties for a buyout fee of $[buyoutAmount].' 
+  },
+  'split-sheet': { 
+    title: 'SONGWRITER SPLIT SHEET', 
+    idPrefix: 'SS', 
+    fields: [], 
+    terms: 'Official registration of songwriting and publishing percentages for the track [Track Title].' 
+  },
+  'producer-agreement': { 
+    title: 'PRODUCER SERVICE AGREEMENT', 
+    idPrefix: 'PSA', 
+    fields: ['exclusiveFee'], 
+    terms: 'Contract for professional production services as a work-for-hire. Producer fee: $[exclusiveFee].' 
+  },
+  'nda': { 
+    title: 'NON-DISCLOSURE AGREEMENT', 
+    idPrefix: 'NDA', 
+    fields: [], 
+    terms: 'Agreement to maintain strict confidentiality regarding all unreleased files, stems, and project details.' 
+  },
+  'custom-license': { 
+    title: 'CUSTOM MUSIC AGREEMENT', 
+    idPrefix: 'CUST', 
+    fields: ['exclusiveFee', 'masterShare'], 
+    terms: 'Custom agreement for the track [Track Title].' 
+  }
+};
+
+interface Collaborator {
+  id: string;
+  name: string;
+  role: string;
+  split: string;
+}
 
 export default function Generator() {
   const [step, setStep] = useState(1);
-  const [selectedType, setSelectedType] = useState("");
+  const [selectedTemplate, setSelectedTemplate] = useState("");
   const [formData, setFormData] = useState<Record<string, string>>({});
+  const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
+  const [generatedContent, setGeneratedContent] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  function handleSelect(typeId: string) {
-    setSelectedType(typeId);
+  function handleSelect(templateId: string) {
+    setSelectedTemplate(templateId);
     setStep(2);
   }
 
-  function handleFormChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleFormChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   }
 
-  function handleGenerate(e: React.FormEvent) {
+  function addCollaborator() {
+    const newCollaborator: Collaborator = {
+      id: Date.now().toString(),
+      name: "",
+      role: "",
+      split: ""
+    };
+    setCollaborators([...collaborators, newCollaborator]);
+  }
+
+  function removeCollaborator(id: string) {
+    setCollaborators(collaborators.filter(c => c.id !== id));
+  }
+
+  function updateCollaborator(id: string, field: keyof Collaborator, value: string) {
+    setCollaborators(collaborators.map(c => 
+      c.id === id ? { ...c, [field]: value } : c
+    ));
+  }
+
+  async function handleGenerate(e: React.FormEvent) {
     e.preventDefault();
+    setIsGenerating(true);
     setStep(3);
+
+    const template = templateData[selectedTemplate as keyof typeof templateData];
+    const collaboratorData = collaborators
+      .filter(c => c.name && c.role && c.split)
+      .map(c => `- ${c.name} (${c.role}): ${c.split}%`)
+      .join('\n');
+
+    // Simulate API call (replace with actual API integration)
+    setTimeout(() => {
+      const mockContent = `
+        <div class="agreement-document">
+          <h2>${template.title}</h2>
+          <p><strong>ID:</strong> ${template.idPrefix}-${Date.now()}</p>
+          <p><strong>Producer/Company:</strong> ${formData.producerName || 'TBD'}</p>
+          <p><strong>Artist/Client:</strong> ${formData.artistName}</p>
+          <p><strong>Track:</strong> ${formData.trackTitle}</p>
+          <p><strong>Effective Date:</strong> ${formData.effectiveDate || 'TBD'}</p>
+          
+          ${collaborators.length > 0 ? `
+          <h3>Parties/Splits:</h3>
+          <pre>${collaboratorData}</pre>
+          ` : ''}
+          
+          <h3>Agreement Terms:</h3>
+          <p>${template.terms}</p>
+          
+          ${formData.customTerms ? `
+          <h3>Additional Terms:</h3>
+          <p>${formData.customTerms}</p>
+          ` : ''}
+          
+          <h3>SIGNATORIES</h3>
+          <div class="signatures">
+            <div class="signature-block">
+              <p>Producer/Company: _________________________ Date: _________</p>
+            </div>
+            <div class="signature-block">
+              <p>Artist/Client: _________________________ Date: _________</p>
+            </div>
+            ${collaborators.map(c => `
+              <div class="signature-block">
+                <p>${c.name} (${c.role}): _________________________ Date: _________</p>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      
+      setGeneratedContent(mockContent);
+      setIsGenerating(false);
+    }, 2000);
   }
 
   function handleReset() {
     setStep(1);
-    setSelectedType("");
+    setSelectedTemplate("");
     setFormData({});
+    setCollaborators([]);
+    setGeneratedContent("");
   }
+
+  const template = templateData[selectedTemplate as keyof typeof templateData];
+  const showAdditionalFields = template && template.fields.length > 0;
 
   return (
     <div className="min-h-screen bg-theme-primary">
       <Header />
 
-      <main className="max-w-4xl mx-auto p-6">
+      <main className="max-w-7xl mx-auto p-6">
         <div className="flex items-center gap-4 mb-8">
           {[1, 2, 3].map(s => (
             <div key={s} className="flex items-center gap-2">
@@ -46,7 +182,7 @@ export default function Generator() {
                 {s}
               </div>
               <span className={`text-sm ${step >= s ? "text-theme-primary" : "text-theme-muted"}`}>
-                {s === 1 ? "Select Type" : s === 2 ? "Fill Details" : "Download"}
+                {s === 1 ? "Select Template" : s === 2 ? "Fill Details" : "Generate"}
               </span>
               {s < 3 && <div className="w-8 h-px bg-theme-tertiary" />}
             </div>
@@ -55,16 +191,16 @@ export default function Generator() {
 
         {step === 1 && (
           <div>
-            <h2 className="text-xl font-bold mb-4">Select Agreement Type</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {agreementTypes.map(type => (
+            <h2 className="text-2xl font-bold mb-4">Select Agreement Template</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Object.entries(templateData).map(([id, template]) => (
                 <div
-                  key={type.id}
-                  onClick={() => handleSelect(type.id)}
+                  key={id}
+                  onClick={() => handleSelect(id)}
                   className="card p-6 rounded-xl cursor-pointer hover:border-accent transition-colors"
                 >
-                  <h3 className="font-bold mb-1">{type.name}</h3>
-                  <p className="text-sm text-theme-muted">{type.description}</p>
+                  <h3 className="font-bold mb-2">{template.title}</h3>
+                  <p className="text-sm text-theme-muted">{template.terms}</p>
                 </div>
               ))}
             </div>
@@ -73,26 +209,170 @@ export default function Generator() {
 
         {step === 2 && (
           <div>
-            <h2 className="text-xl font-bold mb-4">Fill in Details</h2>
-            <form onSubmit={handleGenerate} className="card p-6 rounded-xl space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <h2 className="text-2xl font-bold mb-6">Fill Agreement Details</h2>
+            <form onSubmit={handleGenerate} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm text-theme-secondary mb-1">Party A Name *</label>
-                  <input name="partyA" required onChange={handleFormChange} className="input-field w-full p-2 rounded" />
+                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Track Title *</label>
+                  <input 
+                    name="trackTitle" 
+                    required 
+                    onChange={handleFormChange} 
+                    className="input-field w-full p-3 rounded" 
+                    placeholder="e.g. Moonlight"
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm text-theme-secondary mb-1">Party B Name *</label>
-                  <input name="partyB" required onChange={handleFormChange} className="input-field w-full p-2 rounded" />
+                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Template Type</label>
+                  <div className="input-field w-full p-3 rounded bg-theme-tertiary">
+                    {template?.title || 'Not selected'}
+                  </div>
                 </div>
               </div>
-              <div>
-                <label className="block text-sm text-theme-secondary mb-1">Work Title *</label>
-                <input name="workTitle" required onChange={handleFormChange} className="input-field w-full p-2 rounded" />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Producer/Company *</label>
+                  <input 
+                    name="producerName" 
+                    required 
+                    onChange={handleFormChange} 
+                    className="input-field w-full p-3 rounded" 
+                    placeholder="Legal Name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Artist/Client *</label>
+                  <input 
+                    name="artistName" 
+                    required 
+                    onChange={handleFormChange} 
+                    className="input-field w-full p-3 rounded" 
+                    placeholder="Legal Name"
+                  />
+                </div>
               </div>
+
               <div>
-                <label className="block text-sm text-theme-secondary mb-1">Date</label>
-                <input name="date" type="date" onChange={handleFormChange} className="input-field w-full p-2 rounded" />
+                <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Effective Date</label>
+                <input 
+                  name="effectiveDate" 
+                  type="date" 
+                  onChange={handleFormChange} 
+                  className="input-field w-full p-3 rounded" 
+                />
               </div>
+
+              {showAdditionalFields && (
+                <div className="card p-4 rounded-lg bg-theme-tertiary">
+                  <h3 className="font-bold mb-4">Additional Fields</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {template.fields.includes('exclusiveFee') && (
+                      <div>
+                        <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Fee ($)</label>
+                        <input 
+                          name="exclusiveFee" 
+                          type="number" 
+                          onChange={handleFormChange} 
+                          className="input-field w-full p-3 rounded" 
+                        />
+                      </div>
+                    )}
+                    {template.fields.includes('masterShare') && (
+                      <div>
+                        <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Master Royalty (%)</label>
+                        <input 
+                          name="masterShare" 
+                          type="number" 
+                          onChange={handleFormChange} 
+                          className="input-field w-full p-3 rounded" 
+                        />
+                      </div>
+                    )}
+                    {template.fields.includes('buyoutAmount') && (
+                      <div>
+                        <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Buyout Amount ($)</label>
+                        <input 
+                          name="buyoutAmount" 
+                          type="number" 
+                          onChange={handleFormChange} 
+                          className="input-field w-full p-3 rounded" 
+                        />
+                      </div>
+                    )}
+                    {template.fields.includes('originalDate') && (
+                      <div>
+                        <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Original Agreement Date</label>
+                        <input 
+                          name="originalAgreementDate" 
+                          type="date" 
+                          onChange={handleFormChange} 
+                          className="input-field w-full p-3 rounded" 
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <div className="card p-4 rounded-lg">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-bold text-theme-secondary uppercase">Additional Collaborators</h3>
+                  <button 
+                    type="button"
+                    onClick={addCollaborator}
+                    className="text-sm bg-theme-accent text-white px-3 py-1 rounded hover:bg-accent/80"
+                  >
+                    + Add Party
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {collaborators.map(collaborator => (
+                    <div key={collaborator.id} className="flex gap-2 items-center">
+                      <input
+                        type="text"
+                        placeholder="Full Legal Name"
+                        value={collaborator.name}
+                        onChange={(e) => updateCollaborator(collaborator.id, 'name', e.target.value)}
+                        className="flex-1 input-field p-2 rounded text-sm"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Role (e.g. Writer)"
+                        value={collaborator.role}
+                        onChange={(e) => updateCollaborator(collaborator.id, 'role', e.target.value)}
+                        className="w-24 input-field p-2 rounded text-sm"
+                      />
+                      <input
+                        type="number"
+                        placeholder="Split %"
+                        value={collaborator.split}
+                        onChange={(e) => updateCollaborator(collaborator.id, 'split', e.target.value)}
+                        className="w-16 input-field p-2 rounded text-sm"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeCollaborator(collaborator.id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Custom Clauses / Provisions</label>
+                <textarea 
+                  name="customTerms" 
+                  rows={3}
+                  onChange={handleFormChange} 
+                  className="input-field w-full p-3 rounded resize-none text-sm" 
+                  placeholder="Enter any specific terms or modifications..."
+                />
+              </div>
+
               <div className="flex gap-4">
                 <button type="button" onClick={() => setStep(1)} className="px-6 py-3 bg-theme-tertiary rounded">
                   Back
@@ -106,30 +386,29 @@ export default function Generator() {
         )}
 
         {step === 3 && (
-          <div className="text-center">
-            <div className="card p-8 rounded-xl mb-6">
-              <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">
-                ✓
-              </div>
-              <h2 className="text-xl font-bold mb-2">Agreement Generated!</h2>
-              <p className="text-theme-muted mb-6">
-                {agreementTypes.find(t => t.id === selectedType)?.name} for "{formData.workTitle}"
-              </p>
-              <div className="text-left bg-theme-tertiary p-4 rounded-lg text-sm font-mono mb-6 max-h-64 overflow-y-auto">
-                <p className="text-accent mb-2">// AGREEMENT PREVIEW</p>
-                <p>Type: {agreementTypes.find(t => t.id === selectedType)?.name}</p>
-                <p>Party A: {formData.partyA}</p>
-                <p>Party B: {formData.partyB}</p>
-                <p>Work: {formData.workTitle}</p>
-                <p>Date: {formData.date || new Date().toLocaleDateString()}</p>
-              </div>
-              <p className="text-xs text-theme-muted mb-4">
-                PDF generation available in full version
-              </p>
+          <div>
+            <div className="card p-8 rounded-xl">
+              {isGenerating ? (
+                <div className="text-center py-12">
+                  <div className="animate-pulse text-accent font-medium">Finalizing legal language...</div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-bold">Agreement Generated!</h2>
+                    <button className="btn-primary px-4 py-2 rounded">Download PDF</button>
+                  </div>
+                  <div className="bg-white text-gray-800 p-8 rounded-lg font-serif text-sm max-h-96 overflow-y-auto">
+                    <div dangerouslySetInnerHTML={{ __html: generatedContent }} />
+                  </div>
+                  <div className="mt-6 text-center">
+                    <button onClick={handleReset} className="text-accent hover:underline">
+                      Create Another Agreement
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
-            <button onClick={handleReset} className="text-accent hover:underline">
-              Create Another Agreement
-            </button>
           </div>
         )}
       </main>
