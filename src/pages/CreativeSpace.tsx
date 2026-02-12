@@ -3,7 +3,7 @@ import { useAuth } from "../hooks/use-auth";
 import { Link } from "wouter";
 import { useUpload } from "../hooks/use-upload";
 import Header from "../components/Header";
-import PremiumEmbed from "../components/PremiumEmbed";
+// import PremiumEmbed from "../components/PremiumEmbed";
 
 interface Note {
   id: number;
@@ -272,7 +272,20 @@ export default function CreativeSpace() {
       url.match(/\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i);
 
     if (isSocial) {
-      return <PremiumEmbed url={url} />;
+      // return <PremiumEmbed url={url} />;
+      return (
+        <a
+          href={url}
+          target="_blank"
+          rel="noreferrer"
+          className="block p-4 rounded-xl bg-theme-tertiary/20 border border-white/5 hover:border-accent/30 transition-colors mb-4"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-theme-muted truncate mr-2">{url}</span>
+            <span className="text-accent">→</span>
+          </div>
+        </a>
+      );
     }
 
     // Default: show link
