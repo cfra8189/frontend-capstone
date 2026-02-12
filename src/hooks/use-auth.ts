@@ -13,6 +13,29 @@ interface User {
 }
 
 async function fetchUser(): Promise<User | null> {
+  // Dev override: allow forcing a local/dev user with ?devAuth=1 or localStorage 'devAuth' === '1'
+  const isBrowser = typeof window !== "undefined";
+  const devAuth = isBrowser && (
+    new URLSearchParams(window.location.search).get("devAuth") === "1" ||
+    window.localStorage.getItem("devAuth") === "1"
+  );
+
+  if (devAuth) {
+    // Return a lightweight fake user so UI can be previewed without backend auth
+    return {
+      id: "dev-user",
+      email: "dev@example.com",
+      firstName: "Dev",
+      lastName: "User",
+      profileImageUrl: null,
+      role: "artist",
+      businessName: null,
+      displayName: "Dev User",
+      boxCode: "DEV",
+      authType: "oauth",
+    } as User;
+  }
+
   const response = await fetch("/api/auth/user", {
     credentials: "include",
   });
