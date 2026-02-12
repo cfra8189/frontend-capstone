@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative Space | WayfinderOS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'JetBrains Mono', monospace; }
+        body { background: #0a0a0a; }
+        .accent { color: #c3f53c; }
+        .btn-primary { background: #22c55e; }
+        .btn-primary:hover { background: #16a34a; }
+        .input-field { background: #111; border: 1px solid #333; }
+        .input-field:focus { border-color: #c3f53c; outline: none; }
+        .card { background: #111; border: 1px solid #222; }
+        .card:hover { border-color: #333; }
+        .category-idea { border-left: 3px solid #c3f53c; }
+        .category-lyrics { border-left: 3px solid #a855f7; }
+        .category-inspiration { border-left: 3px solid #f59e0b; }
+        .category-audio { border-left: 3px solid #22c55e; }
+        .category-visual { border-left: 3px solid #3b82f6; }
+        .category-journal { border-left: 3px solid #ec4899; }
+        .cat-btn.active { background: #222; border-color: #c3f53c; }
+        .pinned { background: #1a1a0a; }
+    </style>
+</head>
+<body class="text-white min-h-screen">
+    <div id="auth-redirect" class="hidden min-h-screen flex items-center justify-center">
+        <div class="text-center">
+            <p class="text-gray-400 mb-4">Please sign in to access your Creative Space</p>
+            <a href="/dashboard.html" class="btn-primary px-6 py-3 rounded text-black font-bold">Sign In</a>
+        </div>
+    </div>
+
+    <div id="main-content" class="hidden">
+        <header class="border-b border-gray-800 p-4">
+            <div class="max-w-6xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-[#c3f53c] rounded flex items-center justify-center text-black font-bold text-sm">W</div>
+                    <span class="accent font-bold">CREATIVE SPACE</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span id="user-name" class="text-gray-400 text-sm"></span>
+                    <a href="/dashboard.html" class="text-gray-500 hover:text-white text-sm">Dashboard</a>
+                    <a href="/generator.html" class="text-gray-500 hover:text-white text-sm">Agreements</a>
+                    <a href="/" class="text-gray-500 hover:text-white text-sm">Terminal</a>
+                </div>
+            </div>
+        </header>
+
+        <main class="max-w-6xl mx-auto p-6">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-2xl font-bold">Your Private Space</h1>
+                    <p class="text-gray-500 text-sm">Capture ideas, lyrics, inspiration - just for you</p>
+                </div>
+                <button onclick="openNewNote()" class="btn-primary px-4 py-2 rounded text-black font-bold text-sm">
+                    + NEW NOTE
+                </button>
+            </div>
+
+            <div class="flex gap-2 mb-6 flex-wrap">
+                <button onclick="filterNotes('all')" class="cat-btn active px-3 py-2 rounded text-sm border border-gray-700" data-cat="all">All</button>
+                <button onclick="filterNotes('idea')" class="cat-btn px-3 py-2 rounded text-sm border border-gray-700" data-cat="idea">Ideas</button>
+                <button onclick="filterNotes('lyrics')" class="cat-btn px-3 py-2 rounded text-sm border border-gray-700" data-cat="lyrics">Lyrics</button>
+                <button onclick="filterNotes('inspiration')" class="cat-btn px-3 py-2 rounded text-sm border border-gray-700" data-cat="inspiration">Inspiration</button>
+                <button onclick="filterNotes('audio')" class="cat-btn px-3 py-2 rounded text-sm border border-gray-700" data-cat="audio">Audio</button>
+                <button onclick="filterNotes('visual')" class="cat-btn px-3 py-2 rounded text-sm border border-gray-700" data-cat="visual">Visual</button>
+                <button onclick="filterNotes('journal')" class="cat-btn px-3 py-2 rounded text-sm border border-gray-700" data-cat="journal">Journal</button>
+            </div>
+
+            <div id="notes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <p class="text-gray-500 col-span-full text-center py-12">No notes yet. Start capturing your ideas!</p>
+            </div>
+        </main>
+    </div>
+
+    <div id="note-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-6 z-50">
+        <div class="card p-6 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modal-title" class="text-lg font-bold">New Note</h3>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-white text-xl">&times;</button>
+            </div>
+            <form id="note-form" class="space-y-4">
+                <input type="hidden" id="note-id">
+                <div>
+                    <label class="block text-sm accent mb-1">Title</label>
+                    <input type="text" id="note-title" placeholder="Give it a name..." class="input-field w-full p-3 rounded">
+                </div>
+                <div>
+                    <label class="block text-sm accent mb-1">Category</label>
+                    <select id="note-category" class="input-field w-full p-3 rounded">
+                        <option value="idea">Idea</option>
+                        <option value="lyrics">Lyrics</option>
+                        <option value="inspiration">Inspiration</option>
+                        <option value="audio">Audio</option>
+                        <option value="visual">Visual</option>
+                        <option value="journal">Journal</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm accent mb-1">Content</label>
+                    <textarea id="note-content" placeholder="Write your thoughts, lyrics, ideas..." class="input-field w-full p-3 rounded" rows="8"></textarea>
+                </div>
+                <div class="border-t border-gray-700 pt-4">
+                    <label class="block text-sm accent mb-2">Media Links</label>
+                    <p class="text-gray-500 text-xs mb-3">Add links to images, audio, video from anywhere (Pinterest, Instagram, SoundCloud, YouTube, etc.)</p>
+                    <div id="media-links-container" class="space-y-2">
+                    </div>
+                    <button type="button" onclick="addMediaLink()" class="text-sm text-[#c3f53c] hover:underline mt-2">+ Add Link</button>
+                </div>
+                <div>
+                    <label class="block text-sm accent mb-1">Tags</label>
+                    <input type="text" id="note-tags" placeholder="Separate with commas (e.g., melody, summer, remix)" class="input-field w-full p-3 rounded">
+                </div>
+                <div class="flex items-center gap-3">
+                    <input type="checkbox" id="note-pinned" class="w-4 h-4">
+                    <label for="note-pinned" class="text-sm text-gray-400">Pin to top</label>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="btn-primary flex-1 py-3 rounded text-black font-bold">SAVE NOTE</button>
+                    <button type="button" id="delete-note-btn" onclick="deleteNoteHandler()" class="hidden bg-red-900 hover:bg-red-800 px-4 py-3 rounded text-red-300">Delete</button>
+                    <button type="button" onclick="closeModal()" class="bg-gray-700 px-6 py-3 rounded">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="creative.js"></script>
+</body>
+</html>
