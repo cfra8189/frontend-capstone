@@ -67,6 +67,7 @@ interface Collaborator {
 
 export default function Generator() {
   const [step, setStep] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const [formData, setFormData] = useState<Record<string, string | number>>({});
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
@@ -205,8 +206,22 @@ export default function Generator() {
         {step === 1 && (
           <div>
             <h2 className="text-2xl font-bold mb-4">Select Agreement Template</h2>
+            
+            {/* Search Bar */}
+            <div className="mb-6">
+              <input
+                type="text"
+                placeholder="Search templates (e.g. 'Split Sheet', 'NDA')..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="input-field w-full p-4 rounded-lg bg-theme-tertiary border border-theme text-theme-primary focus:border-accent outline-none transition-colors"
+              />
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Object.entries(templateData).map(([id, template]) => (
+              {Object.entries(templateData)
+                .filter(([_, t]) => t.title.toLowerCase().includes(searchQuery.toLowerCase()) || t.terms.toLowerCase().includes(searchQuery.toLowerCase()))
+                .map(([id, template]) => (
                 <div
                   key={id}
                   onClick={() => handleSelect(id)}
