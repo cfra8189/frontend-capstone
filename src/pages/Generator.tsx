@@ -29,7 +29,7 @@ const templateData = {
   'buyout-addendum': { 
     title: 'EXCLUSIVE RIGHTS BUYOUT ADDENDUM', 
     idPrefix: 'LIC-BO', 
-    fields: ['buyoutAmount', 'originalDate'], 
+    fields: ['buyoutAmount', 'originalAgreementDate'], 
     terms: 'Complete transfer of all rights, title, and interest including publishing and master royalties for a buyout fee of $[buyoutAmount].' 
   },
   'split-sheet': { 
@@ -73,6 +73,9 @@ export default function Generator() {
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [generatedContent, setGeneratedContent] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [savedDocumentId, setSavedDocumentId] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   function handleSelect(templateId: string) {
     setSelectedTemplate(templateId);
@@ -101,7 +104,7 @@ export default function Generator() {
 
   function updateCollaborator(id: string, field: keyof Collaborator, value: string) {
     setCollaborators(collaborators.map(c => 
-      c.id === id ? { ...c, [field]: value } : c
+      c.id === id ? { ...c, [field]: field === 'split' ? value.replace(/[^0-9]/g, '') : value } : c
     ));
   }
 
@@ -179,6 +182,58 @@ export default function Generator() {
     setFormData({});
     setCollaborators([]);
     setGeneratedContent("");
+  }
+
+  function handleDownloadPDF() {
+    if (!generatedContent) return;
+    const w = window.open("", "_blank", "noopener,noreferrer");
+    if (!w) return;
+    w.document.write(`<!doctype html><html><head><meta charset=\"utf-8\"><title>Agreement</title><style>body{font-family:serif;padding:20px;color:#111} .agreement-document{max-width:800px;margin:0 auto}</style></head><body>${generatedContent}</body></html>`);
+    w.document.close();
+    w.focus();
+    w.print();
+  }
+
+  function handleDownloadHTML() {
+    if (!generatedContent) return;
+    const blob = new Blob([`<!doctype html><html><head><meta charset=\"utf-8\"><title>Agreement</title></head><body>${generatedContent}</body></html>`], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${(template?.idPrefix || 'AGREEMENT')}-${Date.now()}.html`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  async function saveAgreement() {
+    if (!generatedContent) return;
+    setIsSaving(true);
+    setSaveError(null);
+
+    const payload = {
+      title: `${template?.title || 'Agreement'} - ${formData.trackTitle || 'Untitled'}`,
+      templateId: selectedTemplate,
+      html: generatedContent,
+      metadata: { formData },
+      collaborators
+    };
+
+    try {
+      const resp = await fetch("/api/documents", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data?.message || "Save failed");
+      setSavedDocumentId(data.document?.id || null);
+    } catch (err: any) {
+      setSaveError(err.message || "Save failed");
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   const template = templateData[selectedTemplate as keyof typeof templateData];
@@ -468,7 +523,7 @@ export default function Generator() {
                         />
                       </div>
                     )}
-                    {template.fields.includes('originalDate') && (
+                    {template.fields.includes('originalAgreementDate') && (
                       <div>
                         <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Original Agreement Date</label>
                         <input 
@@ -564,11 +619,29 @@ export default function Generator() {
                 <>
                   <div className="flex justify-between items-center mb-6">
                     <h2 className="text-xl font-bold">Agreement Generated!</h2>
-                    <button className="btn-primary px-4 py-2 rounded">Download PDF</button>
+                    <div className="flex gap-2 items-center">
+                      <button onClick={handleDownloadPDF} className="btn-primary px-4 py-2 rounded">Download / Print</button>
+                      <button onClick={handleDownloadHTML} className="px-4 py-2 rounded border border-theme-tertiary text-theme-secondary">Save HTML</button>
+                      <button onClick={saveAgreement} disabled={isSaving || !!savedDocumentId} className={`px-4 py-2 rounded ${isSaving || savedDocumentId ? 'bg-theme-tertiary text-theme-muted' : 'bg-theme-accent text-white'}`}>
+                        {isSaving ? 'Saving…' : savedDocumentId ? 'Saved' : 'Save to Box'}
+                      </button>
+                    </div>
                   </div>
                   <div className="bg-white text-gray-800 p-8 rounded-lg font-serif text-sm max-h-96 overflow-y-auto">
                     <div dangerouslySetInnerHTML={{ __html: generatedContent }} />
                   </div>
+
+                  {saveError && (
+                    <div className="mt-4 text-red-500 text-sm">Error saving document: {saveError}</div>
+                  )}
+
+                  {savedDocumentId && (
+                    <div className="mt-4 text-sm">
+                      <strong className="text-theme-secondary">Saved to Box</strong>
+                      <span className="ml-2 text-theme-muted">(ID: {savedDocumentId})</span>
+                    </div>
+                  )}
+
                   <div className="mt-6 text-center">
                     <button onClick={handleReset} className="text-accent hover:underline">
                       Create Another Agreement
