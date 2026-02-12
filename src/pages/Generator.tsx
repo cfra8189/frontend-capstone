@@ -24,7 +24,7 @@ const templateData = {
     title: 'EXCLUSIVE LICENSE AGREEMENT', 
     idPrefix: 'LIC-EX', 
     fields: ['exclusiveFee', 'masterShare'], 
-    terms: 'Transfer of exclusive rights. Producer shall cease further licensing of the track. Fee: $[exclusiveFee]. Master Royalty Share: [masterShare]%.' 
+    terms: 'Transfer of exclusive rights. Producer shall cease further licensing of track. Fee: $[exclusiveFee]. Master Royalty Share: [masterShare]%.' 
   },
   'buyout-addendum': { 
     title: 'EXCLUSIVE RIGHTS BUYOUT ADDENDUM', 
@@ -36,7 +36,7 @@ const templateData = {
     title: 'SONGWRITER SPLIT SHEET', 
     idPrefix: 'SS', 
     fields: [], 
-    terms: 'Official registration of songwriting and publishing percentages for the track [Track Title].' 
+    terms: 'Official registration of songwriting and publishing percentages for track [Track Title].' 
   },
   'producer-agreement': { 
     title: 'PRODUCER SERVICE AGREEMENT', 
@@ -54,7 +54,7 @@ const templateData = {
     title: 'CUSTOM MUSIC AGREEMENT', 
     idPrefix: 'CUST', 
     fields: ['exclusiveFee', 'masterShare'], 
-    terms: 'Custom agreement for the track [Track Title].' 
+    terms: 'Custom agreement for track [Track Title].' 
   }
 };
 
@@ -124,7 +124,18 @@ export default function Generator() {
           <p><strong>Producer/Company:</strong> ${formData.producerName || 'TBD'}</p>
           <p><strong>Artist/Client:</strong> ${formData.artistName}</p>
           <p><strong>Track:</strong> ${formData.trackTitle}</p>
+          <p><strong>Project:</strong> ${formData.projectName || 'N/A'}</p>
           <p><strong>Effective Date:</strong> ${formData.effectiveDate || 'TBD'}</p>
+          <p><strong>Delivery Date:</strong> ${formData.deliveryDate || 'N/A'}</p>
+          <p><strong>BPM:</strong> ${formData.bpm || 'N/A'}</p>
+          <p><strong>Key:</strong> ${formData.key || 'N/A'}</p>
+          <p><strong>Genre:</strong> ${formData.genre || 'N/A'}</p>
+          <p><strong>Producer Address:</strong> ${formData.producerAddress || 'N/A'}</p>
+          <p><strong>Artist Address:</strong> ${formData.artistAddress || 'N/A'}</p>
+          <p><strong>Producer Email:</strong> ${formData.producerEmail || 'N/A'}</p>
+          <p><strong>Artist Email:</strong> ${formData.artistEmail || 'N/A'}</p>
+          <p><strong>Producer Phone:</strong> ${formData.producerPhone || 'N/A'}</p>
+          <p><strong>Artist Phone:</strong> ${formData.artistPhone || 'N/A'}</p>
           
           ${collaborators.length > 0 ? `
           <h3>Parties/Splits:</h3>
