@@ -68,7 +68,7 @@ interface Collaborator {
 export default function Generator() {
   const [step, setStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState("");
-  const [formData, setFormData] = useState<Record<string, string>>({});
+  const [formData, setFormData] = useState<Record<string, string | number>>({});
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [generatedContent, setGeneratedContent] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -78,8 +78,10 @@ export default function Generator() {
     setStep(2);
   }
 
-  function handleFormChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  function handleFormChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
+    const target = e.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+    const value = target.type === 'number' ? Number(target.value) : target.value;
+    setFormData({ ...formData, [target.name]: value });
   }
 
   function addCollaborator() {
@@ -238,7 +240,7 @@ export default function Generator() {
                     required 
                     onChange={handleFormChange} 
                     className="input-field w-full p-3 rounded" 
-                    placeholder="Legal Name"
+                    placeholder="Legal Name or Company Name"
                   />
                 </div>
                 <div>
@@ -248,19 +250,159 @@ export default function Generator() {
                     required 
                     onChange={handleFormChange} 
                     className="input-field w-full p-3 rounded" 
-                    placeholder="Legal Name"
+                    placeholder="Legal Name or Artist Name"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Effective Date</label>
+                <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Project/Album Name</label>
                 <input 
-                  name="effectiveDate" 
-                  type="date" 
+                  name="projectName" 
                   onChange={handleFormChange} 
                   className="input-field w-full p-3 rounded" 
+                  placeholder="e.g. Midnight Sessions EP"
                 />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Effective Date *</label>
+                  <input 
+                    name="effectiveDate" 
+                    type="date" 
+                    required
+                    onChange={handleFormChange} 
+                    className="input-field w-full p-3 rounded" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Delivery Date</label>
+                  <input 
+                    name="deliveryDate" 
+                    type="date" 
+                    onChange={handleFormChange} 
+                    className="input-field w-full p-3 rounded" 
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">BPM</label>
+                  <input 
+                    name="bpm" 
+                    type="number" 
+                    onChange={handleFormChange} 
+                    className="input-field w-full p-3 rounded" 
+                    placeholder="120"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Key</label>
+                  <select 
+                    name="key" 
+                    onChange={handleFormChange} 
+                    className="input-field w-full p-3 rounded"
+                  >
+                    <option value="">Select Key</option>
+                    <option value="C">C Major</option>
+                    <option value="C#">C# Major</option>
+                    <option value="D">D Major</option>
+                    <option value="D#">D# Major</option>
+                    <option value="E">E Major</option>
+                    <option value="F">F Major</option>
+                    <option value="F#">F# Major</option>
+                    <option value="G">G Major</option>
+                    <option value="G#">G# Major</option>
+                    <option value="A">A Major</option>
+                    <option value="A#">A# Major</option>
+                    <option value="B">B Major</option>
+                    <option value="Cm">C Minor</option>
+                    <option value="Dm">D Minor</option>
+                    <option value="Em">E Minor</option>
+                    <option value="Fm">F Minor</option>
+                    <option value="Gm">G Minor</option>
+                    <option value="Am">A Minor</option>
+                    <option value="Bm">B Minor</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Genre</label>
+                  <input 
+                    name="genre" 
+                    onChange={handleFormChange} 
+                    className="input-field w-full p-3 rounded" 
+                    placeholder="e.g. Hip Hop, R&B, Pop"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Producer Address</label>
+                  <input 
+                    name="producerAddress" 
+                    onChange={handleFormChange} 
+                    className="input-field w-full p-3 rounded" 
+                    placeholder="Full Legal Address"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Artist Address</label>
+                  <input 
+                    name="artistAddress" 
+                    onChange={handleFormChange} 
+                    className="input-field w-full p-3 rounded" 
+                    placeholder="Full Legal Address"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Producer Email</label>
+                  <input 
+                    name="producerEmail" 
+                    type="email"
+                    onChange={handleFormChange} 
+                    className="input-field w-full p-3 rounded" 
+                    placeholder="producer@example.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Artist Email</label>
+                  <input 
+                    name="artistEmail" 
+                    type="email"
+                    onChange={handleFormChange} 
+                    className="input-field w-full p-3 rounded" 
+                    placeholder="artist@example.com"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Producer Phone</label>
+                  <input 
+                    name="producerPhone" 
+                    type="tel"
+                    onChange={handleFormChange} 
+                    className="input-field w-full p-3 rounded" 
+                    placeholder="+1 (555) 123-4567"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Artist Phone</label>
+                  <input 
+                    name="artistPhone" 
+                    type="tel"
+                    onChange={handleFormChange} 
+                    className="input-field w-full p-3 rounded" 
+                    placeholder="+1 (555) 123-4567"
+                  />
+                </div>
               </div>
 
               {showAdditionalFields && (
