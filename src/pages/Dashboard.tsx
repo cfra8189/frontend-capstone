@@ -2,17 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/use-auth";
 import { Link } from "wouter";
 import Header from "../components/Header";
-
-interface Project {
-  id: number;
-  title: string;
-  type: string;
-  status: string;
-  description: string | null;
-  metadata: any;
-  created_at: string;
-  updated_at: string;
-}
+import { Project } from "../types/Project";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -170,6 +160,9 @@ export default function Dashboard() {
                     <div>
                       <p className="font-bold text-sm sm:text-base">{project.title}</p>
                       <p className="text-xs text-theme-muted">{project.type}</p>
+                      <p className="text-xs text-theme-accent font-mono">
+                        📁 {project.rootFolder}/{project.folderPath.split('/')[1]}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 ml-auto">
