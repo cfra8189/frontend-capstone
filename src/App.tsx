@@ -1,5 +1,7 @@
+import { useState, useEffect } from "react";
 import { useAuth } from "./hooks/use-auth";
 import { Route, Switch, useLocation } from "wouter";
+import BiosBoot from "./components/BiosBoot";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 import CreativeSpace from "./pages/CreativeSpace";
@@ -20,6 +22,25 @@ import BackgroundGif from "./components/BackgroundGif";
 function App() {
   const { user, isLoading, isAuthenticated } = useAuth();
   const [location] = useLocation();
+  const [biosPassed, setBiosPassed] = useState(false);
+
+  useEffect(() => {
+    const passed = sessionStorage.getItem("bios_passed");
+    if (passed === "true") {
+      setBiosPassed(true);
+    }
+  }, []);
+
+  if (!biosPassed) {
+    return (
+      <BiosBoot
+        onComplete={() => {
+          sessionStorage.setItem("bios_passed", "true");
+          setBiosPassed(true);
+        }}
+      />
+    );
+  }
 
   if (location === "/admin") {
     return (
@@ -102,23 +123,23 @@ function App() {
     <>
       <BackgroundGif />
       <Switch>
-      <Route path="/" component={Dashboard} />
-      <Route path="/creative" component={CreativeSpace} />
-      <Route path="/project/:id" component={ProjectDetails} />
-      <Route path="/generator" component={Generator} />
-      <Route path="/submissions" component={SubmissionGenerator} />
-      <Route path="/epk" component={EPKEditor} />
-      <Route path="/settings" component={Settings} />
-      <Route path="/studio" component={StudioDashboard} />
-      <Route>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">404</h1>
-            <p className="text-gray-500">Page not found</p>
+        <Route path="/" component={Dashboard} />
+        <Route path="/creative" component={CreativeSpace} />
+        <Route path="/project/:id" component={ProjectDetails} />
+        <Route path="/generator" component={Generator} />
+        <Route path="/submissions" component={SubmissionGenerator} />
+        <Route path="/epk" component={EPKEditor} />
+        <Route path="/settings" component={Settings} />
+        <Route path="/studio" component={StudioDashboard} />
+        <Route>
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold mb-4">404</h1>
+              <p className="text-gray-500">Page not found</p>
+            </div>
           </div>
-        </div>
-      </Route>
-    </Switch>
+        </Route>
+      </Switch>
     </>
   );
 }
