@@ -220,7 +220,7 @@ export default function SubmissionGenerator() {
       } else {
         const sharePerWriter = Math.floor(100 / writers.length);
         writers.forEach((writer, i) => {
-          const nameParts = writer.trim().split(" ");
+          const nameParts = (writer || '').trim().split(" ");
           const firstName = nameParts[0] || "";
           const lastName = nameParts.slice(1).join(" ") || "";
           rows.push([
@@ -320,7 +320,7 @@ export default function SubmissionGenerator() {
             }
             const sharePerWriter = Math.floor(100 / writers.length);
             return writers.map(w => {
-              const parts = w.trim().split(" ");
+              const parts = (w || '').trim().split(" ");
               return [p.title, parts[0] || "-", parts.slice(1).join(" ") || "-", String(sharePerWriter), p.metadata?.isrc || "-", user?.displayName || "-"];
             });
           })
