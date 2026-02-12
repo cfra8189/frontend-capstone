@@ -31,10 +31,7 @@ export default function Header({ showNav = true }: HeaderProps) {
     { type: "page", title: "Dashboard", subtitle: "Home", href: "/" },
     { type: "page", title: "Creative Space", subtitle: "Notes & inspiration", href: "/creative" },
     { type: "page", title: "Agreements", subtitle: "Generate contracts", href: "/generator" },
-    { type: "page", title: "Submissions", subtitle: "Export for platforms", href: "/submissions" },
-    { type: "page", title: "EPK", subtitle: "Electronic Press Kit", href: "/epk" },
-    { type: "page", title: "Settings", subtitle: "Account settings", href: "/settings" },
-    { type: "page", title: "Documentation", subtitle: "IP & copyright guide (docs)", href: "/docs" },
+    { type: "page", title: "Saved Agreements", subtitle: "Your saved contracts", href: "/documents" },
     { type: "page", title: "Community", subtitle: "Shared content", href: "/community" },
   ];
 
@@ -127,11 +124,13 @@ export default function Header({ showNav = true }: HeaderProps) {
   const navLinks = isStudio ? [
     { href: "/", label: "Dashboard" },
     { href: "/studio", label: "Studio" },
+    { href: "/documents", label: "Documents" },
     { href: "/submissions", label: "Submissions" },
     { href: "/settings", label: "Settings" },
   ] : [
     { href: "/", label: "Dashboard" },
     { href: "/creative", label: "Creative" },
+    { href: "/documents", label: "Documents" },
     { href: "/submissions", label: "Submissions" },
     { href: "/epk", label: "EPK" },
     { href: "/settings", label: "Settings" },

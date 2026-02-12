@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import CreativeSpace from "./pages/CreativeSpace";
 import ProjectDetails from "./pages/ProjectDetails";
 import Generator from "./pages/Generator";
+import Documents from "./pages/Documents";
 import Admin from "./pages/Admin";
 import Settings from "./pages/Settings";
 import Community from "./pages/Community";
@@ -127,6 +128,7 @@ function App() {
         <Route path="/creative" component={CreativeSpace} />
         <Route path="/project/:id" component={ProjectDetails} />
         <Route path="/generator" component={Generator} />
+        <Route path="/documents" component={Documents} />
         <Route path="/submissions" component={SubmissionGenerator} />
         <Route path="/epk" component={EPKEditor} />
         <Route path="/settings" component={Settings} />
