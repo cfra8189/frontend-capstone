@@ -1,0 +1,32 @@
+DELETE THESE FILES FROM /public/ FOLDER:
+
+❌ DELETE (conflict with React app):
+- admin.html
+- admin.js
+- creative.html
+- creative.js
+- dashboard.html
+- dashboard.js
+- project-details.html
+- project-details.js
+
+✅ KEEP (needed for React app):
+- BOX_Master_Document.md
+- app.js
+- background_gif/ (folder)
+- box-logo.png
+- data.json
+- favicon.png
+- index.html (React entry point)
+- ltl-logo.png
+- styles.css
+- terminal.css
+- terminal.js
+
+AFTER DELETING:
+1. Run: npm run build
+2. Run: git add -A
+3. Run: git commit -m "Remove conflicting HTML files"
+4. Run: git push
+
+This will stop Vite from copying old HTML files to dist/ and your comprehensive Generator will appear!
