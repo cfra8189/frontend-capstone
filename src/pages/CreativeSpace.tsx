@@ -508,6 +508,21 @@ export default function CreativeSpace() {
           </div>
         </div>
       )}
+
+      {/* Footer Links */}
+      <div className="mt-12 pt-8 border-t border-theme-tertiary">
+        <div className="flex justify-center gap-8 text-sm">
+          <a href="/docs" className="text-theme-secondary hover:text-accent transition-colors">
+            Documentation
+          </a>
+          <a href="/generator" className="text-theme-secondary hover:text-accent transition-colors">
+            Agreements
+          </a>
+          <a href="/community" className="text-theme-secondary hover:text-accent transition-colors">
+            Community
+          </a>
+        </div>
+      </div>
     </div>
   );
 }
