@@ -1,0 +1,35 @@
+# Render deployment template (fill secret values in Render dashboard)
+
+services:
+  - type: static
+    name: thebox-frontend
+    root: frontend
+    env: static
+    buildCommand: npm ci && npm run build
+    publishPath: dist
+    # Set VITE_BACKEND_URL to your backend's public URL (example: https://thebox-backend.onrender.com)
+    env:
+      VITE_BACKEND_URL: "https://your-backend.onrender.com"
+
+  - type: web
+    name: thebox-backend
+    root: backend
+    env: node
+    plan: starter
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    # The following env keys should be provided as secure environment variables in Render
+    env:
+      MONGODB_URI: ""
+      SESSION_SECRET: ""
+      GOOGLE_CLIENT_ID: ""
+      GOOGLE_CLIENT_SECRET: ""
+      GOOGLE_CALLBACK_URL: ""
+      GITHUB_CLIENT_ID: ""
+      GITHUB_CLIENT_SECRET: ""
+      GITHUB_CALLBACK_URL: ""
+      PUBLIC_OBJECT_SEARCH_PATHS: ""
+      PRIVATE_OBJECT_DIR: ""
+      PLATFORM_CONNECTORS_HOSTNAME: ""
+      PLATFORM_IDENTITY: ""
+      PLATFORM_WEB_RENEWAL: ""
