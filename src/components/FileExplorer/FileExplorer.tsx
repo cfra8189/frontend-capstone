@@ -210,40 +210,23 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                     style={{ zIndex: 9999, pointerEvents: 'none' }}
                 >
                     {activeProject ? (
-                        <div className="
-                            relative w-64 p-3 rounded-lg 
-                            bg-theme-secondary/90 backdrop-blur-xl 
-                            border border-accent shadow-[0_0_30px_-5px_var(--accent)]
-                            cursor-grabbing scale-105 -rotate-2 origin-center 
-                            transition-all duration-200 ease-out
-                            group pointer-events-none z-[9999]
-                            overflow-hidden ring-1 ring-white/10
-                        ">
-                            {/* Decorative corner accents */}
-                            <div className="absolute top-0 left-0 w-2 h-2 border-l-2 border-t-2 border-accent" />
-                            <div className="absolute top-0 right-0 w-2 h-2 border-r-2 border-t-2 border-accent" />
-                            <div className="absolute bottom-0 left-0 w-2 h-2 border-l-2 border-b-2 border-accent" />
-                            <div className="absolute bottom-0 right-0 w-2 h-2 border-r-2 border-b-2 border-accent" />
-
-                            <div className="flex items-center gap-3 relative z-10">
-                                <div className="w-10 h-10 bg-accent/20 flex items-center justify-center rounded-md border border-accent/30 text-accent">
-                                    <FileJson size={18} />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                    <h3 className="font-bold text-theme-primary text-xs truncate uppercase tracking-wider mb-0.5">{activeProject.title}</h3>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[9px] font-mono text-accent bg-accent/10 px-1.5 py-0.5 rounded-sm uppercase tracking-widest border border-accent/20">
-                                            MOVING
-                                        </span>
-                                        <span className="text-[9px] text-theme-muted truncate uppercase tracking-wider opacity-70">
-                                            {activeProject.type}
-                                        </span>
-                                    </div>
+                        <div className="bg-theme-secondary p-4 rounded-sm border border-theme-primary shadow-2xl w-64 cursor-grabbing scale-105">
+                            <div className="flex items-start justify-between mb-3">
+                                <div className="p-2 border border-theme-primary bg-theme-primary text-theme-primary rounded-sm">
+                                    <FileJson size={24} className="text-theme-secondary" />
                                 </div>
                             </div>
 
-                            {/* Scanning line effect */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12 animate-shimmer" />
+                            <h3 className="text-xs font-bold font-mono text-theme-primary truncate mb-2 mt-2 uppercase tracking-wide">
+                                {activeProject.title}
+                            </h3>
+                            <div className="flex items-center gap-2 text-[10px] font-mono text-theme-muted">
+                                <span className={`
+                                  px-1 py-0.5 border border-theme-primary bg-theme-primary text-theme-primary transition-colors uppercase
+                                `}>
+                                    {activeProject.status || 'development'}
+                                </span>
+                            </div>
                         </div>
                     ) : null}
                 </DragOverlay>,

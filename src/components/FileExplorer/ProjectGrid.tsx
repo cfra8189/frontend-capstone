@@ -46,7 +46,7 @@ const ProjectCard: React.FC<{
     const style = transform ? {
         transform: CSS.Translate.toString(transform),
         zIndex: isDragging ? 50 : showMenu ? 40 : 1, // Ensure menu allows z-index to work
-        opacity: isDragging ? 0.5 : 1,
+        opacity: isDragging ? 0 : 1,
     } : undefined;
 
     const getIcon = () => {

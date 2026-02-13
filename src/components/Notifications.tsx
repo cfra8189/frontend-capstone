@@ -24,15 +24,15 @@ export const Notifications: React.FC<NotificationsProps> = ({ notifications, onR
   }, [notifications, onRemove]);
 
   return (
-    <div className="fixed top-4 right-4 z-50 space-y-2">
+    <div className="fixed bottom-4 right-4 z-50 space-y-2">
       {notifications.map(notification => (
         <div
           key={notification.id}
           className={`p-4 rounded-sm border max-w-sm shadow-2xl font-mono uppercase tracking-wider text-xs ${notification.type === 'success'
-              ? 'bg-theme-secondary text-theme-primary border-theme-primary'
-              : notification.type === 'error'
-                ? 'bg-black text-white border-white'
-                : 'bg-theme-secondary text-theme-muted border-theme-muted'
+            ? 'bg-theme-secondary/90 backdrop-blur-md text-theme-primary border-theme-primary'
+            : notification.type === 'error'
+              ? 'bg-black/90 backdrop-blur-md text-white border-white'
+              : 'bg-theme-secondary/90 backdrop-blur-md text-theme-muted border-theme-muted'
             }`}
         >
           <div className="flex items-center justify-between">
