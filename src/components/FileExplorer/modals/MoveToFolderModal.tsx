@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useFolderContext } from '../../../context/FolderContext';
-import { Search, Folder as FolderIcon, X } from 'lucide-react';
+import { X, Folder as FolderIcon, ChevronRight, Check, Search, MinusCircle } from 'lucide-react';
 import { useNotifications } from '../../Notifications';
 
 interface MoveToFolderModalProps {
@@ -114,7 +114,24 @@ export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({
                 </div>
 
                 {/* Folder List */}
-                <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                <div className="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                    {/* Option to move to root/remove from folder */}
+                    {currentFolderId && (
+                        <button
+                            onClick={() => handleMove('root', 'Main Dashboard')}
+                            disabled={moving}
+                            className="w-full text-left px-4 py-3 rounded-lg border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 transition-all group flex items-center gap-3 mb-2"
+                        >
+                            <div className="w-8 h-8 rounded bg-red-500/20 flex items-center justify-center text-red-500 group-hover:scale-110 transition-transform">
+                                <MinusCircle size={14} />
+                            </div>
+                            <div>
+                                <div className="font-bold text-red-400 text-xs uppercase tracking-wider">Remove from Folder</div>
+                                <div className="text-[10px] text-red-400/70 uppercase tracking-widest">Move to Main Dashboard</div>
+                            </div>
+                        </button>
+                    )}
+
                     {filteredFolders.length === 0 ? (
                         <div className="p-4 text-center">
                             <p className="text-xs text-theme-muted uppercase">

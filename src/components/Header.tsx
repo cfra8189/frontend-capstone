@@ -142,7 +142,7 @@ export default function Header({ showNav = true }: HeaderProps) {
 
   return (
     <header className="border-b border-theme p-3 sm:p-4 relative">
-      <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
+      <div className="w-full flex items-center justify-between gap-4 px-2 sm:px-6">
         <Link href="/">
           <div className="flex items-center gap-2 sm:gap-4 cursor-pointer">
             <LogoGif className="w-6 h-6 sm:w-8 sm:h-8" />
