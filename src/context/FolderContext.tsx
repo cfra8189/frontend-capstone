@@ -9,10 +9,11 @@ interface FolderContextType {
   loading: boolean;
   error: string | null;
   selectFolder: (folderId?: string) => void;
-  createFolder: (parentId?: string) => void;
+  createFolder: (parentId?: string, name?: string) => Promise<Folder | void>;
   renameFolder: (folder: Folder, newName: string) => void;
   deleteFolder: (folder: Folder) => void;
   refreshFolders: () => void;
+  moveProject: (projectId: string, folderId: string) => Promise<void>;
   ensureYearFolder: () => Promise<Folder>;
 }
 
@@ -30,22 +31,22 @@ export function FolderProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       setError(null);
       console.log('Loading folders...');
-      
+
       const [foldersData, treeData] = await Promise.all([
         folderService.getFolders(),
         folderService.getFolderTree()
       ]);
-      
+
       console.log('Folders loaded:', foldersData);
       console.log('Tree loaded:', treeData);
-      
+
       setFolders(foldersData);
       setFolderTree(treeData);
-      
+
       // Auto-select current year folder
       const currentYear = new Date().getFullYear().toString();
       const yearFolder = foldersData.find(f => f.type === 'year' && f.name === currentYear);
-      if (yearFolder) {
+      if (yearFolder && !selectedFolderId) {
         setSelectedFolderId(yearFolder.id);
       }
     } catch (err) {
@@ -63,20 +64,22 @@ export function FolderProvider({ children }: { children: ReactNode }) {
     setSelectedFolderId(folderId);
   };
 
-  const createFolder = async (parentId?: string) => {
+  const createFolder = async (parentId?: string, name?: string): Promise<Folder | undefined> => {
     try {
       console.log('Creating folder with parentId:', parentId);
-      
+
       const parentFolder = folders.find(f => f.id === parentId);
       const folderType = parentFolder?.type === 'root' ? 'year' : 'custom';
-      
-      let folderName = '';
-      if (folderType === 'year') {
-        folderName = new Date().getFullYear().toString();
-      } else {
-        const promptResult = window.prompt('Enter folder name:', 'New Folder');
-        if (!promptResult || !promptResult.trim()) return;
-        folderName = promptResult;
+
+      let folderName = name || '';
+      if (!folderName) {
+        if (folderType === 'year') {
+          folderName = new Date().getFullYear().toString();
+        } else {
+          const promptResult = window.prompt('Enter folder name:', 'New Folder');
+          if (!promptResult || !promptResult.trim()) return;
+          folderName = promptResult;
+        }
       }
 
       console.log('Creating folder:', { name: folderName.trim(), parentId, type: folderType });
@@ -90,9 +93,11 @@ export function FolderProvider({ children }: { children: ReactNode }) {
 
       console.log('Folder created:', newFolder);
       await loadFolders();
+      return newFolder;
     } catch (err) {
       console.error('Error creating folder:', err);
       setError(err instanceof Error ? err.message : 'Failed to create folder');
+      throw err;
     }
   };
 
@@ -113,12 +118,22 @@ export function FolderProvider({ children }: { children: ReactNode }) {
     try {
       await folderService.deleteFolder(folder.id);
       await loadFolders();
-      
+
       if (selectedFolderId === folder.id) {
         setSelectedFolderId(undefined);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete folder');
+    }
+  };
+
+  const moveProject = async (projectId: string, folderId: string) => {
+    try {
+      await folderService.moveProjectToFolder(projectId, folderId);
+      // We don't need to reload folders, but the consumer should reload projects
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to move project');
+      throw err;
     }
   };
 
@@ -147,6 +162,7 @@ export function FolderProvider({ children }: { children: ReactNode }) {
     createFolder,
     renameFolder,
     deleteFolder,
+    moveProject,
     refreshFolders,
     ensureYearFolder,
   };

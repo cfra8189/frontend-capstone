@@ -2,21 +2,21 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/use-auth";
 import { Link } from "wouter";
 import Header from "../components/Header";
-import FolderTree from "../components/FolderTree";
+import { FileExplorer } from "../components/FileExplorer/FileExplorer";
 import { FolderProvider, useFolderContext } from "../context/FolderContext";
 import { Project } from "../types/Project";
 
 function DashboardContent() {
   const { user } = useAuth();
-  const { 
-    folders, 
-    folderTree, 
-    selectedFolderId, 
-    selectFolder, 
-    createFolder, 
-    renameFolder, 
+  const {
+    folders,
+    folderTree,
+    selectedFolderId,
+    selectFolder,
+    createFolder,
+    renameFolder,
     deleteFolder,
-    loading: folderLoading 
+    loading: folderLoading
   } = useFolderContext();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,10 +31,10 @@ function DashboardContent() {
   async function loadProjects() {
     try {
       setLoading(true);
-      const url = selectedFolderId 
+      const url = selectedFolderId
         ? `/api/projects?folderId=${selectedFolderId}`
         : "/api/projects";
-      
+
       const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
@@ -51,7 +51,7 @@ function DashboardContent() {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
-    
+
     const projectData = {
       title: formData.get("title") as string,
       type: formData.get("type") as string,
@@ -95,8 +95,8 @@ function DashboardContent() {
     }
   }
 
-  const filteredProjects = filter === "all" 
-    ? projects 
+  const filteredProjects = filter === "all"
+    ? projects
     : projects.filter(p => p.status === filter);
 
   const stats = {
@@ -107,145 +107,22 @@ function DashboardContent() {
   };
 
   return (
-    <div className="min-h-screen bg-theme-primary">
+    <div className="min-h-screen bg-[#141414] text-zinc-300 font-sans">
       <Header />
 
-      <main className="max-w-6xl mx-auto p-4 sm:p-6">
-        <div className="flex gap-6">
-          {/* Folder Tree Sidebar */}
-          <div className="w-80 flex-shrink-0 border-r border-theme-tertiary">
-            <div className="p-4">
-              <h2 className="text-lg font-bold mb-4">Folders</h2>
-            </div>
-            
-            {folderLoading ? (
-              <div className="text-center text-theme-muted py-4">
-                <div className="animate-pulse">Loading folders...</div>
-              </div>
-            ) : (
-              <FolderTree
-                folders={folderTree.folders}
-                selectedFolderId={selectedFolderId}
-                onFolderSelect={(folder) => selectFolder(folder.id)}
-                onFolderCreate={createFolder}
-                onFolderRename={(folder) => {
-                  const newName = prompt('Enter new name:', folder.name);
-                  if (newName && newName.trim() && newName !== folder.name) {
-                    renameFolder(folder, newName.trim());
-                  }
-                }}
-                onFolderDelete={deleteFolder}
-              />
-            )}
-          </div>
-
-          {/* Main Content */}
-          <div className="flex-1 min-h-0">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold">
-                  {selectedFolderId 
-                    ? `Projects in ${folders.find(f => f.id === selectedFolderId)?.name || 'Folder'}`
-                    : 'Your Projects'
-                  }
-                </h1>
-                <p className="text-sm sm:text-base text-theme-secondary">Track your creative work from concept to publication</p>
-              </div>
-              <div className="flex gap-3 w-full sm:w-auto">
-                <button
-                  onClick={() => createFolder()}
-                  className="btn-primary font-bold px-4 sm:px-6 py-2 sm:py-3 rounded text-sm sm:text-base flex-1 sm:flex-none"
-                >
-                  + New Folder
-                </button>
-                <button
-                  onClick={() => { setEditingProject(null); setShowModal(true); }}
-                  className="btn-primary font-bold px-4 sm:px-6 py-2 sm:py-3 rounded text-sm sm:text-base flex-1 sm:flex-none"
-                >
-                  + New Project
-                </button>
-              </div>
-            </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-6 sm:mb-8">
-          <div className="card p-3 sm:p-4 rounded-xl text-center">
-            <p className="text-2xl sm:text-3xl font-bold text-accent">{stats.total}</p>
-            <p className="text-xs text-theme-muted">Total</p>
-          </div>
-          <div className="card p-3 sm:p-4 rounded-xl text-center">
-            <p className="text-2xl sm:text-3xl font-bold text-theme-secondary">{stats.concept}</p>
-            <p className="text-xs text-theme-muted">Concept</p>
-          </div>
-          <div className="card p-3 sm:p-4 rounded-xl text-center">
-            <p className="text-2xl sm:text-3xl font-bold text-blue-500">{stats.development}</p>
-            <p className="text-xs text-theme-muted">Development</p>
-          </div>
-          <div className="card p-3 sm:p-4 rounded-xl text-center">
-            <p className="text-2xl sm:text-3xl font-bold text-green-500">{stats.published}</p>
-            <p className="text-xs text-theme-muted">Published</p>
-          </div>
-        </div>
-
-        <div className="flex gap-2 mb-4 sm:mb-6 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
-          {["all", "concept", "development", "review", "published"].map(status => (
-            <button
-              key={status}
-              onClick={() => setFilter(status)}
-              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded text-xs sm:text-sm whitespace-nowrap ${filter === status ? "btn-primary" : "bg-theme-tertiary text-theme-secondary"}`}
-            >
-              {status.charAt(0).toUpperCase() + status.slice(1)}
-            </button>
-          ))}
-        </div>
-
-        {loading ? (
-          <div className="text-center py-12 text-theme-muted">Loading...</div>
-        ) : filteredProjects.length === 0 ? (
-          <div className="text-center py-12 text-theme-muted">
-            No projects yet. Create your first one!
-          </div>
-        ) : (
-          <div className="space-y-2 sm:space-y-3">
-            {filteredProjects.map(project => (
-              <div
-                key={project.id}
-                className="card p-3 sm:p-4 rounded-xl hover:border-theme cursor-pointer"
-                onClick={() => { setEditingProject(project); setShowModal(true); }}
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
-                  <div className="flex items-center gap-2 sm:gap-4">
-                    <span className={`status-${project.status} px-2 py-1 rounded text-xs uppercase`}>
-                      {project.status}
-                    </span>
-                    <div>
-                      <p className="font-bold text-sm sm:text-base">{project.title}</p>
-                      <p className="text-xs text-theme-muted">{project.type}</p>
-
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 ml-auto">
-                    <Link
-                      href={`/project/${project.id}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="text-theme-muted hover:text-accent text-xs sm:text-sm"
-                    >
-                      Details
-                    </Link>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); deleteProject(project.id); }}
-                      className="text-theme-muted hover:text-red-400 text-xs sm:text-sm"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-          </div>
-        </div>
+      <main className="h-[calc(100vh-64px)] overflow-hidden">
+        <FileExplorer
+          projects={filteredProjects}
+          loading={loading || folderLoading}
+          onProjectEdit={(project) => {
+            setEditingProject(project);
+            setShowModal(true);
+          }}
+          onProjectDelete={deleteProject}
+        />
       </main>
+
+      {/* Project Create/Edit Modal */}
 
       {/* Project Create/Edit Modal */}
       {showModal && (

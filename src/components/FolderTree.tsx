@@ -1,6 +1,100 @@
 import React, { useState } from 'react';
 import { Folder } from '../types/folder';
 
+/* Add CSS for file explorer styling */
+const style = document.createElement('style');
+style.textContent = `
+  .folder-tree {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    user-select: none;
+  }
+
+  .folder-row {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-colors 0.15s ease;
+  }
+
+  .folder-row:hover {
+    background-color: rgba(59, 130, 246, 0.1);
+  }
+
+  .folder-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+
+  .folder-name.selected {
+    background-color: rgb(59, 130, 246);
+    color: white;
+  }
+
+  .expand-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 2px;
+  }
+
+  .expand-icon:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .folder-actions {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+  }
+
+  .action-button {
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+
+  .action-button:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .action-button.delete {
+    color: #ef4444;
+  }
+
+  .action-button.delete:hover {
+    color: #dc2626;
+  }
+
+  .folder-children {
+    margin-left: 20px;
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+  }
+`;
+
+if (!document.head.querySelector('style[data-folder-tree]')) {
+  document.head.appendChild(style);
+}
+
 interface FolderTreeProps {
   folders: Folder[];
   selectedFolderId?: string;
@@ -63,70 +157,57 @@ const FolderTree: React.FC<FolderTreeProps> = ({
     const isSelected = selectedFolderId === folder.id;
     const isEditing = editingFolder === folder.id;
     const hasChildren = folder.children && folder.children.length > 0;
-    const canEdit = folder.type === 'custom'; // Only allow editing custom folders
+    const canEdit = folder.type === 'custom';
 
     return (
-      <div key={folder.id} className="select-none">
-        <div
-          className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors ${
-            isSelected ? 'bg-accent text-accent-contrast' : 'hover:bg-theme-tertiary'
-          }`}
-          style={{ paddingLeft: `${level * 20}px` }}
+      <div className="folder-row">
+        {/* Expand/Collapse */}
+        {hasChildren && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleExpand(folder.id);
+            }}
+            className="expand-icon"
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+              <path d={`M${isExpanded ? '6 2l6 6' : '4 2l4 6'}M2 6h8`} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </button>
+        )}
+
+        {/* Folder Icon and Name */}
+        <div 
+          className={`folder-name ${isSelected ? 'selected' : ''}`}
           onClick={() => onFolderSelect(folder)}
         >
-          {/* Expand/Collapse Icon */}
-          {hasChildren && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleExpand(folder.id);
-              }}
-              className="w-4 h-4 flex items-center justify-center text-theme-muted hover:text-theme-primary transition-transform"
-              style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)' }}
-            >
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-              >
-                <path
-                  d="M3 6 L9 6"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </button>
-          )}
-
-          {/* Folder Icon */}
-          <div className="w-4 h-4 flex items-center justify-center">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
             {folder.type === 'root' && (
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                <path d="M2 3h5l1 1h6a1 1 0 011 1v7a1 1 0 01-1 1H2a1 1 0 01-1-1V4a1 1 0 011-1z"/>
-              </svg>
+              <path d="M2 3h5l1 1h6a1 1 0 011 1v7a1 1 0 01-1 1H2a1 1 0 01-1-1V4a1 1 0 011-1z"/>
             )}
             {folder.type === 'year' && (
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                <path d="M14 2H2a1 1 0 00-1 1v10a1 1 0 001 1h12a1 1 0 001-1V3a1 1 0 00-1-1zM2 4h12v8H2V4z"/>
-              </svg>
+              <path d="M14 2H6a2 2 0 00-2h8a2 2 0 002 2v8a2 2 0 002 2H6a2 2 0 002-2z"/>
             )}
             {folder.type === 'custom' && (
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                <path d="M3 2h4l1 1h5a1 1 0 011 1v8a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z"/>
-              </svg>
+              <path d="M3 2l4 2v8M2 6h8a1 1 0 001 1v7a1 1 0 01-1 1H2a1 1 0 01-1-1V4a1 1 0 011-1z"/>
             )}
-          </div>
-
-          {/* Folder Name */}
+          </svg>
           {isEditing ? (
             <input
               type="text"
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
-              onBlur={() => saveEdit(folder)}
+              onBlur={() => {
+                  if (editName.trim() && editName !== folder.name) {
+                    onFolderRename?.(folder, editName.trim());
+                    cancelEdit();
+                  }
+                }}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') saveEdit(folder);
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  saveEdit(folder);
+                }
                 if (e.key === 'Escape') cancelEdit();
               }}
               onClick={(e) => e.stopPropagation()}
@@ -136,44 +217,40 @@ const FolderTree: React.FC<FolderTreeProps> = ({
           ) : (
             <span className="flex-1 text-sm truncate">{folder.name}</span>
           )}
+        </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-1 opacity-0 hover:opacity-100 transition-opacity">
-            {canEdit && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  startEditing(folder);
-                }}
-                className="w-6 h-6 flex items-center justify-center text-theme-muted hover:text-accent"
-                title="Rename folder"
-              >
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
-                  <path d="M8.5 1L11 3.5L4 10.5L1 11L1.5 8L8.5 1zM7.5 2.5L2.5 7.5L2 9L3.5 8.5L8.5 3.5L7.5 2.5z"/>
-                </svg>
-              </button>
-            )}
-            
-            {folder.type === 'custom' && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onFolderDelete?.(folder);
-                }}
-                className="w-6 h-6 flex items-center justify-center text-theme-muted hover:text-red-400"
-                title="Delete folder"
-              >
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
-                  <path d="M3 3h1v7a1 1 0 001 1h3a1 1 0 001-1V3h1M4 3V2a1 1 0 011-1h2a1 1 0 011 1v1M2 3h8"/>
-                </svg>
-              </button>
-            )}
-          </div>
+        {/* Actions */}
+        <div className="folder-actions">
+          {canEdit && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                startEditing(folder);
+              }}
+              className="action-button"
+              title="Rename folder"
+            >
+              ✏️
+            </button>
+          )}
+          
+          {folder.type === 'custom' && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onFolderDelete?.(folder);
+              }}
+              className="action-button delete"
+              title="Delete folder"
+            >
+              🗑️
+            </button>
+          )}
         </div>
 
         {/* Children */}
         {isExpanded && hasChildren && (
-          <div className="folder-children ml-4">
+          <div className="folder-children">
             {folder.children!.map(child => (
               <FolderTree
                 key={child.id}
