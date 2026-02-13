@@ -52,12 +52,12 @@ const FolderItem: React.FC<{
             <div ref={setNodeRef}>
                 <div
                     className={`
-           flex items-center gap-2 px-2 py-1.5 cursor-pointer transition-all text-xs font-mono tracking-wide mb-[1px]
+           flex items-center gap-2 px-3 py-2 cursor-pointer transition-all text-xs font-mono tracking-wide mb-[2px] rounded-sm
            ${isSelected
-                            ? 'bg-theme-primary text-theme-primary border border-theme-primary shadow-sm'
+                            ? 'bg-theme-primary text-theme-primary border border-theme-primary shadow-md'
                             : 'text-theme-muted hover:bg-theme-tertiary hover:text-theme-primary hover:border-theme border border-transparent'
                         }
-           ${isOver ? 'ring-1 ring-theme-primary bg-theme-tertiary scale-[1.02] shadow-lg z-10' : ''}
+           ${isOver ? 'ring-2 ring-theme-primary bg-theme-primary text-theme-primary scale-[1.05] shadow-2xl z-20 relative' : ''}
          `}
                     style={{ paddingLeft: `${level * 12 + 8}px` }}
                     onClick={() => onSelect(folder.id)}

@@ -20,6 +20,7 @@ import { Sidebar } from './Sidebar';
 import { useFolderContext } from '../../context/FolderContext';
 import { Project } from '../../types/folder';
 import { CreateFolderModal } from './modals/CreateFolderModal';
+import { MoveToFolderModal } from './modals/MoveToFolderModal';
 
 interface FileExplorerProps {
     projects: Project[];
@@ -37,6 +38,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     const { moveProject, selectedFolderId, folders, deleteFolder } = useFolderContext();
     const [activeId, setActiveId] = useState<string | null>(null);
     const [showCreateFolder, setShowCreateFolder] = useState(false);
+    const [movingProject, setMovingProject] = useState<Project | null>(null);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -89,6 +91,12 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                 parentId={selectedFolderId}
             />
 
+            <MoveToFolderModal
+                isOpen={movingProject !== null}
+                onClose={() => setMovingProject(null)}
+                project={movingProject}
+            />
+
             <div className="flex h-[calc(100vh-140px)] bg-theme-secondary text-theme-primary overflow-hidden rounded-lg border border-theme shadow-2xl">
                 <Sidebar
                     className="w-64 flex-shrink-0"
@@ -129,6 +137,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                             loading={loading}
                             onEdit={onProjectEdit}
                             onDelete={onProjectDelete}
+                            onMoveProject={(p) => setMovingProject(p)}
                         />
                     </div>
                 </div>
@@ -136,7 +145,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
 
             <DragOverlay dropAnimation={{ sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0.4' } } }) }}>
                 {activeProject ? (
-                    <div className="bg-theme-secondary p-3 rounded-sm border border-theme-primary shadow-2xl opacity-90 cursor-grabbing w-56 scale-95 origin-center transition-transform ring-1 ring-theme-primary/30 font-mono">
+                    <div className="bg-theme-secondary p-3 rounded-sm border border-theme-primary shadow-2xl opacity-90 cursor-grabbing w-56 scale-95 origin-center transition-transform ring-1 ring-theme-primary/30 font-mono pointer-events-none">
                         <div className="flex items-center gap-3">
                             <div className="w-8 h-8 bg-theme-tertiary flex items-center justify-center rounded-sm border border-theme text-theme-primary">
                                 <FileText size={16} />

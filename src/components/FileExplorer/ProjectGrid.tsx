@@ -10,13 +10,15 @@ interface ProjectGridProps {
     loading: boolean;
     onEdit: (project: Project) => void;
     onDelete: (id: string) => void;
+    onMoveProject: (project: Project) => void;
 }
 
 const ProjectCard: React.FC<{
     project: Project;
     onEdit: (p: Project) => void;
     onDelete: (id: string) => void;
-}> = ({ project, onEdit, onDelete }) => {
+    onMoveProject: (project: Project) => void;
+}> = ({ project, onEdit, onDelete, onMoveProject }) => {
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
         id: `project-${project.id}`,
         data: { type: 'project', id: project.id, folderId: project.folderId }
@@ -106,6 +108,15 @@ const ProjectCard: React.FC<{
                             >
                                 <Edit2 size={10} /> Edit
                             </button>
+                            <button
+                                onClick={() => {
+                                    setShowMenu(false);
+                                    onMoveProject(project);
+                                }}
+                                className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-theme-tertiary text-theme-secondary hover:text-theme-primary transition-colors text-left"
+                            >
+                                <ExternalLink size={10} /> Move To
+                            </button>
                             <div className="h-px bg-theme mx-2 my-1"></div>
                             <button
                                 onClick={() => {
@@ -121,7 +132,11 @@ const ProjectCard: React.FC<{
                 </div>
             </div>
 
-            <h3 className="text-xs font-bold font-mono text-theme-secondary group-hover:text-theme-primary truncate mb-2 mt-2 uppercase tracking-wide">{project.title}</h3>
+            <h3 className="text-xs font-bold font-mono text-theme-secondary group-hover:text-theme-primary truncate mb-2 mt-2 uppercase tracking-wide">
+                <Link href={`/project/${project.id}`} className="hover:underline">
+                    {project.title}
+                </Link>
+            </h3>
             <div className="flex items-center gap-2 text-[10px] font-mono text-theme-muted">
                 <span className={`
           px-1 py-0.5 border border-theme group-hover:border-theme-primary group-hover:bg-theme-primary group-hover:text-theme-primary transition-colors uppercase
@@ -132,14 +147,11 @@ const ProjectCard: React.FC<{
                 </span>
                 <span className="truncate opacity-50">{new Date(project.updatedAt).toLocaleDateString()}</span>
             </div>
-
-            {/* This Link overlay causes issues with the menu click if not careful with z-index, but we stopped propagation on the menu button and menu itself */}
-            <Link href={`/project/${project.id}`} className="absolute inset-0 z-0" onClick={e => e.stopPropagation()} />
         </div>
     );
 };
 
-export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, loading, onEdit, onDelete }) => {
+export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, loading, onEdit, onDelete, onMoveProject }) => {
     if (loading) {
         return (
             <div className="flex-1 flex items-center justify-center text-zinc-500">
@@ -166,6 +178,7 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, loading, onE
                     project={project}
                     onEdit={onEdit}
                     onDelete={onDelete}
+                    onMoveProject={onMoveProject}
                 />
             ))}
         </div>
