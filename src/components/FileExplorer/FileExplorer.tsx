@@ -66,20 +66,29 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     );
 
     const handleDragStart = (event: DragStartEvent) => {
-        console.log('Drag Start:', event.active.id);
-        const project = projects.find(p => p.id === event.active.id);
+        const activeId = event.active.id as string;
+        const projectId = activeId.replace('project-', '');
+
+        console.log('Drag Start:', activeId, '->', projectId);
+        const project = projects.find(p => p.id === projectId);
+
         if (project) {
             console.log('Found active project:', project.title);
         } else {
-            console.log('Could not find project with ID:', event.active.id);
+            console.log('Could not find project with ID:', projectId);
         }
-        setActiveId(event.active.id as string);
+        setActiveId(projectId);
     };
 
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
+        // Strip 'project-' to get the real ID
+        const activeIdRaw = active.id as string;
+        const projectId = activeIdRaw.replace('project-', '');
+
         console.log('Drag End Event:', JSON.stringify({
-            activeId: active.id,
+            activeIdRaw,
+            projectId,
             overId: over?.id,
             overData: over?.data?.current
         }, null, 2));
@@ -88,7 +97,6 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
 
         if (!over) return;
 
-        const projectId = active.id as string;
         const project = projects.find(p => p.id === projectId);
 
         if (!project) return;
