@@ -9,7 +9,7 @@ interface FolderContextType {
   loading: boolean;
   error: string | null;
   selectFolder: (folderId?: string) => void;
-  createFolder: (parentId?: string, name?: string, type?: 'custom' | 'year', year?: number) => void;
+  createFolder: (parentId?: string) => void;
   renameFolder: (folder: Folder, newName: string) => void;
   deleteFolder: (folder: Folder) => void;
   refreshFolders: () => void;
@@ -57,31 +57,28 @@ export function FolderProvider({ children }: { children: ReactNode }) {
     setSelectedFolderId(folderId);
   };
 
-  const createFolder = async (parentId?: string, name?: string, type?: 'custom' | 'year', year?: number) => {
+  const createFolder = async (parentId?: string) => {
     try {
       const parentFolder = folders.find(f => f.id === parentId);
-      const folderType = type || (parentFolder?.type === 'root' ? 'year' : 'custom');
+      const folderType = parentFolder?.type === 'root' ? 'year' : 'custom';
       
-      let folderName = name || '';
-      if (!folderName) {
-        if (folderType === 'year') {
-          folderName = new Date().getFullYear().toString();
-        } else {
-          folderName = 'New Folder';
-        }
+      let folderName = '';
+      if (folderType === 'year') {
+        folderName = new Date().getFullYear().toString();
+      } else {
+        const promptResult = window.prompt('Enter folder name:', 'New Folder');
+        if (!promptResult || !promptResult.trim()) return;
+        folderName = promptResult;
       }
-
-      if (!folderName.trim()) return;
 
       const newFolder = await folderService.createFolder({
         name: folderName.trim(),
         parentId,
         type: folderType,
-        year: year || (folderType === 'year' ? new Date().getFullYear() : undefined)
+        year: folderType === 'year' ? new Date().getFullYear() : undefined,
       });
 
       await loadFolders();
-      setSelectedFolderId(newFolder.id);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create folder');
     }
