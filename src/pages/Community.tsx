@@ -127,7 +127,7 @@ export default function Community() {
     
     if (url.includes("youtube.com") || url.includes("youtu.be")) {
       const videoId = url.includes("youtu.be") 
-        ? (url || '').split("/").pop() 
+        ? url.split("/").pop() 
         : new URLSearchParams(new URL(url).search).get("v");
       if (videoId) {
         return (

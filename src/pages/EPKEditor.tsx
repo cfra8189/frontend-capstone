@@ -257,7 +257,7 @@ export default function EPKEditor() {
                     className="input-field w-full p-3 rounded h-24"
                     placeholder="[Artist Name] is a [genre] artist from [location]..."
                   />
-                  <p className="text-xs text-theme-muted mt-1">{(epk.shortBio || '').split(/\s+/).filter(Boolean).length} words</p>
+                  <p className="text-xs text-theme-muted mt-1">{epk.shortBio.split(/\s+/).filter(Boolean).length} words</p>
                 </div>
 
                 <div>
@@ -270,7 +270,7 @@ export default function EPKEditor() {
                     className="input-field w-full p-3 rounded h-36"
                     placeholder="Expand on your story, influences, and recent work..."
                   />
-                  <p className="text-xs text-theme-muted mt-1">{(epk.mediumBio || '').split(/\s+/).filter(Boolean).length} words</p>
+                  <p className="text-xs text-theme-muted mt-1">{epk.mediumBio.split(/\s+/).filter(Boolean).length} words</p>
                 </div>
 
                 <div>
