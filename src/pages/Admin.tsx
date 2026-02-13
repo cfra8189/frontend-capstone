@@ -55,7 +55,9 @@ export default function Admin() {
 
   async function checkAuth() {
     try {
-      const res = await fetch("/api/admin/check");
+      const res = await fetch("/api/admin/check", {
+        credentials: "include",
+      });
       if (res.ok) {
         setIsAuthenticated(true);
         loadData();
@@ -74,6 +76,7 @@ export default function Admin() {
       const res = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ password }),
       });
       if (res.ok) {
@@ -88,7 +91,10 @@ export default function Admin() {
   }
 
   async function handleLogout() {
-    await fetch("/api/admin/logout", { method: "POST" });
+    await fetch("/api/admin/logout", {
+      method: "POST",
+      credentials: "include",
+    });
     setIsAuthenticated(false);
     setUsers([]);
     setProjects([]);
@@ -98,10 +104,10 @@ export default function Admin() {
   async function loadData() {
     try {
       const [usersRes, projectsRes, statsRes, submissionsRes] = await Promise.all([
-        fetch("/api/admin/users"),
-        fetch("/api/admin/projects"),
-        fetch("/api/admin/stats"),
-        fetch("/api/admin/submissions"),
+        fetch("/api/admin/users", { credentials: "include" }),
+        fetch("/api/admin/projects", { credentials: "include" }),
+        fetch("/api/admin/stats", { credentials: "include" }),
+        fetch("/api/admin/submissions", { credentials: "include" }),
       ]);
       if (usersRes.ok) setUsers(await usersRes.json());
       if (projectsRes.ok) setProjects(await projectsRes.json());
@@ -120,6 +126,7 @@ export default function Admin() {
       const res = await fetch(`/api/admin/submissions/${id}/review`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ status, adminNotes }),
       });
       if (res.ok) {
