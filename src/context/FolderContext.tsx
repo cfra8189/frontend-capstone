@@ -127,9 +127,14 @@ export function FolderProvider({ children }: { children: ReactNode }) {
 
   const moveProject = async (projectId: string, folderId: string) => {
     try {
+      console.log('Moving project:', projectId, 'to folder:', folderId);
       await folderService.moveProjectToFolder(projectId, folderId);
+      console.log('Project moved successfully');
+      // Show success message
+      setError(null);
       // We don't need to reload folders, but the consumer should reload projects
     } catch (err) {
+      console.error('Error moving project:', err);
       setError(err instanceof Error ? err.message : 'Failed to move project');
       throw err;
     }

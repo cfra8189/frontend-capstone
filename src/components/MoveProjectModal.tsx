@@ -28,16 +28,33 @@ export default function MoveProjectModal({
     (folder.name.toLowerCase().includes(searchQuery.toLowerCase()) || searchQuery === '')
   );
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isMoving, setIsMoving] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!selectedFolderId) {
-      alert('Please select a destination folder');
+      setFeedback({ type: 'error', message: 'Please select a destination folder' });
       return;
     }
 
-    onMoveProject(projectId, selectedFolderId);
-    handleClose();
+    setIsMoving(true);
+    setFeedback(null);
+
+    try {
+      await onMoveProject(projectId, selectedFolderId);
+      setFeedback({ type: 'success', message: `Project moved successfully to "${folders.find(f => f.id === selectedFolderId)?.name}"` });
+      
+      // Close modal after success
+      setTimeout(() => {
+        handleClose();
+      }, 1000);
+    } catch (error) {
+      setFeedback({ type: 'error', message: 'Failed to move project. Please try again.' });
+    } finally {
+      setIsMoving(false);
+    }
   };
 
   const handleClose = () => {
@@ -68,6 +85,17 @@ export default function MoveProjectModal({
             Moving: <span className="text-theme-primary font-bold">{projectName}</span>
           </p>
         </div>
+
+        {/* Feedback Message */}
+        {feedback && (
+          <div className={`mb-4 p-3 rounded-lg ${
+            feedback.type === 'success' 
+              ? 'bg-green-500/20 border border-green-500/50 text-green-400' 
+              : 'bg-red-500/20 border border-red-500/50 text-red-400'
+          }`}>
+            <p className="text-sm">{feedback.message}</p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -140,9 +168,10 @@ export default function MoveProjectModal({
             </button>
             <button
               type="submit"
-              className="flex-1 btn-primary font-bold py-2 rounded"
+              disabled={isMoving}
+              className="flex-1 btn-primary font-bold py-2 rounded disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Move Project
+              {isMoving ? 'Moving...' : 'Move Project'}
             </button>
           </div>
         </form>

@@ -25,6 +25,7 @@ import { Project, Folder } from '../../types/folder';
 import { CreateFolderModal } from './modals/CreateFolderModal';
 import { MoveToFolderModal } from './modals/MoveToFolderModal';
 import CreativeSpaceContent from '../Creative/CreativeSpaceContent';
+import { useNotifications, Notifications } from '../Notifications';
 
 interface FileExplorerProps {
     projects: Project[];
@@ -42,6 +43,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     onRefresh
 }) => {
     const { moveProject, selectedFolderId, folders, deleteFolder } = useFolderContext();
+    const { success, error, notifications, removeNotification } = useNotifications();
     const [activeId, setActiveId] = useState<string | null>(null);
     const [showCreateFolder, setShowCreateFolder] = useState(false);
     const [movingProjects, setMovingProjects] = useState<Project[]>([]);
@@ -78,10 +80,13 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
 
             if (folderId && projectId && folderId !== active.data.current?.folderId) {
                 try {
+                    console.log('Moving project via drag & drop:', projectId, 'to folder:', folderId);
                     await moveProject(projectId, folderId);
+                    success(`Project moved successfully to "${folders.find(f => f.id === folderId)?.name || 'folder'}"`);
                     onRefresh();
-                } catch (error) {
-                    console.error("Failed to move project", error);
+                } catch (err) {
+                    console.error("Failed to move project", err);
+                    error(err instanceof Error ? err.message : 'Failed to move project. Please try again.');
                 }
             }
         }
@@ -109,9 +114,20 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                     setMovingProjects([]);
                     setTargetFolder(null);
                 }}
-                projects={movingProjects.length > 0 ? movingProjects : projects}
-                targetFolder={targetFolder}
-                onSuccess={onRefresh}
+                project={movingProjects.length > 0 ? movingProjects[0] : null}
+                onMoveProject={async (projectId: string, folderId: string) => {
+                    try {
+                        await moveProject(projectId, folderId);
+                        onRefresh();
+                        setMovingProjects([]);
+                        setTargetFolder(null);
+                    } catch (error) {
+                        console.error("Failed to move project", error);
+                        throw error;
+                    }
+                }}
+                currentFolderId={selectedFolderId}
+                folders={folders}
             />
 
             <div className="bg-theme-secondary/20 backdrop-blur-2xl text-theme-primary rounded-lg border border-theme/30 shadow-2xl relative z-10 transition-all duration-500 flex flex-col h-[calc(100vh-140px)] overflow-hidden">
@@ -208,6 +224,12 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                     </div>
                 ) : null}
             </DragOverlay>
+
+            {/* Notifications */}
+            <Notifications 
+                notifications={notifications} 
+                onRemove={removeNotification} 
+            />
         </DndContext>
     );
 };
