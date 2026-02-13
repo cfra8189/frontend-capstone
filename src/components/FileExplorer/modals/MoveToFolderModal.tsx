@@ -1,25 +1,23 @@
 import React, { useState } from 'react';
 import { useFolderContext } from '../../../context/FolderContext';
 import { Project, Folder } from '../../../types/folder';
-import { Search, Folder as FolderIcon, X, CheckSquare, Square } from 'lucide-react';
-import { useNotification } from '../../../context/NotificationContext';
+import { Search, Folder as FolderIcon, X } from 'lucide-react';
 
 interface MoveToFolderModalProps {
     isOpen: boolean;
     onClose: () => void;
-    projects: Project[];
-    targetFolder?: Folder | null;
-    onSuccess: () => void;
+    project: Project | null;
+    onMoveProject: (projectId: string, folderId: string) => Promise<void>;
+    currentFolderId?: string;
+    folders: Folder[];
 }
 
-export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({ isOpen, onClose, projects, targetFolder, onSuccess }) => {
-    const { folderTree, moveProject, folders: allFolders } = useFolderContext();
-    const { showNotification } = useNotification();
+export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({ isOpen, onClose, project, onMoveProject, currentFolderId, folders }) => {
+    const { folderTree } = useFolderContext();
     const [searchTerm, setSearchTerm] = useState('');
     const [moving, setMoving] = useState(false);
-    const [selectedProjectIds, setSelectedProjectIds] = useState<Set<string>>(new Set());
 
-    if (!isOpen) return null;
+    if (!isOpen || !project) return null;
 
     const flattenedFolders: Folder[] = [];
     const flatten = (folders: Folder[]) => {
@@ -31,37 +29,19 @@ export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({ isOpen, on
     flatten(folderTree.folders);
 
     const filteredFolders = flattenedFolders.filter(f =>
-        f.name.toLowerCase().includes(searchTerm.toLowerCase())
+        f.name.toLowerCase().includes(searchTerm.toLowerCase()) && f.id !== currentFolderId
     );
 
     const handleMove = async (folderId: string) => {
         try {
             setMoving(true);
-            const idsToMove = selectedProjectIds.size > 0
-                ? Array.from(selectedProjectIds)
-                : (projects.length === 1 ? [projects[0].id] : []);
-
-            if (idsToMove.length === 0) return;
-
-            await Promise.all(idsToMove.map(id => moveProject(id, folderId)));
-            showNotification('success', `Moved ${idsToMove.length} project(s)`);
-            onSuccess();
+            await onMoveProject(project.id, folderId);
             onClose();
         } catch (error) {
-            console.error("Failed to move projects", error);
-            showNotification('error', 'Failed to move projects');
+            console.error("Failed to move project", error);
         } finally {
             setMoving(false);
         }
-    };
-
-    const toggleProject = (projectId: string) => {
-        setSelectedProjectIds(prev => {
-            const next = new Set(prev);
-            if (next.has(projectId)) next.delete(projectId);
-            else next.add(projectId);
-            return next;
-        });
     };
 
     return (
@@ -77,7 +57,7 @@ export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({ isOpen, on
                     <div className="flex flex-col">
                         <span className="text-[10px] font-bold text-theme-muted uppercase tracking-[0.2em]">FILE_OPERATIONS</span>
                         <h3 className="text-sm font-bold text-theme-primary uppercase tracking-widest">
-                            {targetFolder ? `ADD_TO_${targetFolder.name.toUpperCase()}` : 'MOVE_PROJECTS'}
+                            MOVE_PROJECT
                         </h3>
                     </div>
                     <button onClick={onClose} className="text-theme-muted hover:text-theme-primary transition-colors p-1">
@@ -86,38 +66,26 @@ export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({ isOpen, on
                 </div>
 
                 <div className="flex-1 flex overflow-hidden">
-                    {/* Project Selection Side */}
+                    {/* Project Info Side */}
                     <div className="w-1/2 border-r border-theme flex flex-col">
                         <div className="p-3 border-b border-theme bg-theme-primary/10">
-                            <p className="text-[10px] text-theme-muted uppercase tracking-widest mb-2">SELECT_PROJECTS</p>
-                            <div className="flex justify-between items-center">
-                                <span className="text-[9px] text-theme-primary font-mono">{selectedProjectIds.size || projects.length} SELECTED</span>
-                                <button
-                                    onClick={() => setSelectedProjectIds(selectedProjectIds.size === projects.length ? new Set() : new Set(projects.map(p => p.id)))}
-                                    className="text-[9px] text-accent hover:underline uppercase tracking-tighter"
-                                >
-                                    {selectedProjectIds.size === projects.length ? 'DESELECT_ALL' : 'SELECT_ALL'}
-                                </button>
-                            </div>
+                            <p className="text-[10px] text-theme-muted uppercase tracking-widest mb-2">PROJECT_INFO</p>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-2 space-y-1">
-                            {projects.map(project => (
-                                <button
-                                    key={project.id}
-                                    onClick={() => toggleProject(project.id)}
-                                    className="w-full flex items-center gap-2 p-2 hover:bg-theme-tertiary text-left transition-all rounded-sm group border border-transparent hover:border-theme/30"
-                                >
-                                    {selectedProjectIds.has(project.id) ? (
-                                        <CheckSquare size={14} className="text-accent" />
-                                    ) : (
-                                        <Square size={14} className="text-theme-muted" />
-                                    )}
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-[11px] font-bold text-theme-primary truncate uppercase">{project.title}</p>
-                                        <p className="text-[8px] text-theme-muted uppercase">{project.type}</p>
-                                    </div>
-                                </button>
-                            ))}
+                        <div className="flex-1 overflow-y-auto p-4">
+                            <div className="space-y-2">
+                                <div>
+                                    <p className="text-[8px] text-theme-muted uppercase tracking-widest">Title</p>
+                                    <p className="text-sm font-bold text-theme-primary uppercase">{project.title}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[8px] text-theme-muted uppercase tracking-widest">Type</p>
+                                    <p className="text-xs text-theme-secondary uppercase">{project.type}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[8px] text-theme-muted uppercase tracking-widest">Status</p>
+                                    <p className="text-xs text-theme-secondary uppercase">{project.status}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -137,33 +105,19 @@ export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({ isOpen, on
                             </div>
                         </div>
                         <div className="flex-1 overflow-y-auto p-2 space-y-1">
-                            {targetFolder ? (
+                            {filteredFolders.map(folder => (
                                 <button
-                                    onClick={() => handleMove(targetFolder.id)}
-                                    disabled={moving || (selectedProjectIds.size === 0 && projects.length > 1)}
-                                    className="w-full flex items-center gap-3 p-3 bg-accent/10 border border-accent hover:bg-accent/20 text-left transition-all rounded-sm group disabled:opacity-50 disabled:cursor-not-allowed"
+                                    key={folder.id}
+                                    onClick={() => handleMove(folder.id)}
+                                    disabled={moving}
+                                    className="w-full flex items-center gap-3 p-2 hover:bg-theme-tertiary text-left transition-all border border-transparent hover:border-theme rounded-sm group disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    <FolderIcon size={16} className="text-accent" />
+                                    <FolderIcon size={14} className="text-theme-muted group-hover:text-theme-primary" />
                                     <div className="flex-1">
-                                        <p className="text-xs font-bold text-accent uppercase tracking-wide">CONFIRM_ADD_TO_{targetFolder.name}</p>
-                                        <p className="text-[8px] text-accent/70 uppercase">CLICK_TO_FINALIZE</p>
+                                        <p className="text-[11px] font-bold text-theme-primary uppercase truncate">{folder.name}</p>
                                     </div>
                                 </button>
-                            ) : (
-                                filteredFolders.map(folder => (
-                                    <button
-                                        key={folder.id}
-                                        onClick={() => handleMove(folder.id)}
-                                        disabled={moving}
-                                        className="w-full flex items-center gap-3 p-2 hover:bg-theme-tertiary text-left transition-all border border-transparent hover:border-theme rounded-sm group"
-                                    >
-                                        <FolderIcon size={14} className="text-theme-muted group-hover:text-theme-primary" />
-                                        <div className="flex-1">
-                                            <p className="text-[11px] font-bold text-theme-primary uppercase truncate">{folder.name}</p>
-                                        </div>
-                                    </button>
-                                ))
-                            )}
+                            ))}
                         </div>
                     </div>
                 </div>
