@@ -12,7 +12,6 @@ interface FolderContextType {
   createFolder: (parentId?: string, name?: string, type?: 'custom' | 'year', year?: number) => void;
   renameFolder: (folder: Folder, newName: string) => void;
   deleteFolder: (folder: Folder) => void;
-  moveProjectToFolder: (projectId: string, folderId: string) => void;
   refreshFolders: () => void;
   ensureYearFolder: () => Promise<Folder>;
 }
@@ -139,7 +138,6 @@ export function FolderProvider({ children }: { children: ReactNode }) {
     createFolder,
     renameFolder,
     deleteFolder,
-    moveProjectToFolder,
     refreshFolders,
     ensureYearFolder,
   };
