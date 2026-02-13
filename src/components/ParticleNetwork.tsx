@@ -90,9 +90,11 @@ const ParticleNetwork: React.FC<ParticleNetworkProps> = ({ opacity = 0.3 }) => {
 
 
                 // Draw particle
+                const particleColor = getComputedStyle(document.documentElement).getPropertyValue('--particle-color').trim() || '255, 255, 255';
+
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                ctx.fillStyle = `rgba(${particleColor}, 0.7)`;
                 ctx.fill();
 
                 // Draw connections
@@ -104,7 +106,7 @@ const ParticleNetwork: React.FC<ParticleNetworkProps> = ({ opacity = 0.3 }) => {
 
                     if (dist2 < 120) {
                         ctx.beginPath();
-                        ctx.strokeStyle = `rgba(255, 255, 255, ${1 - dist2 / 120})`;
+                        ctx.strokeStyle = `rgba(${particleColor}, ${1 - dist2 / 120})`;
                         ctx.lineWidth = 0.5;
                         ctx.moveTo(p.x, p.y);
                         ctx.lineTo(p2.x, p2.y);

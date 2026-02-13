@@ -111,7 +111,10 @@ function DashboardContent() {
   const [showCreateFolder, setShowCreateFolder] = useState(false);
 
   return (
-    <div className="min-h-screen bg-theme-primary text-theme-secondary font-sans selection:bg-theme-primary selection:text-theme-primary">
+    <div className="min-h-screen bg-theme-primary text-theme-secondary font-sans selection:bg-theme-primary selection:text-theme-primary relative overflow-hidden">
+      {/* CRT Scanline Overlay */}
+      <div className="fixed inset-0 pointer-events-none z-[100] opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
+
       <Header />
 
       <CreateFolderModal
@@ -124,15 +127,19 @@ function DashboardContent() {
         {/* Retro Toolbar & Stats */}
         <div className="border-b border-theme bg-theme-secondary p-4 flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-xl font-bold font-mono tracking-tight text-theme-primary">
-                {selectedFolderId
-                  ? `> ${folders.find(f => f.id === selectedFolderId)?.name || 'unk'}`
-                  : '> root'}
-              </h1>
-              <p className="text-xs text-theme-muted font-mono mt-1">
-                {filteredProjects.length} ITEM(S) LISTED
-              </p>
+            <div className="flex items-center gap-3">
+              <div className="w-1 h-8 bg-theme-primary animate-pulse" />
+              <div>
+                <h1 className="text-xl font-bold font-mono tracking-tight text-theme-primary flex items-center gap-2">
+                  <span className="opacity-50">/</span>
+                  {selectedFolderId
+                    ? folders.find(f => f.id === selectedFolderId)?.name || 'unk'
+                    : 'ROOT_VAULT'}
+                </h1>
+                <p className="text-[10px] text-theme-muted font-mono mt-0.5 tracking-widest uppercase">
+                  {filteredProjects.length} objects_found // status: synced
+                </p>
+              </div>
             </div>
 
             <div className="flex gap-2">

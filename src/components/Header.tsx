@@ -72,7 +72,7 @@ export default function Header({ showNav = true }: HeaderProps) {
             p.title.toLowerCase().includes(query) ||
             p.type?.toLowerCase().includes(query)
           ).slice(0, 5);
-          
+
           projects.forEach((p: any) => {
             results.push({
               type: "project",
@@ -120,7 +120,7 @@ export default function Header({ showNav = true }: HeaderProps) {
   }
 
   const isStudio = user?.role === "studio";
-  
+
   const navLinks = isStudio ? [
     { href: "/", label: "Dashboard" },
     { href: "/studio", label: "Studio" },
@@ -145,10 +145,16 @@ export default function Header({ showNav = true }: HeaderProps) {
     <header className="border-b border-theme p-3 sm:p-4 relative">
       <div className="max-w-6xl mx-auto flex items-center justify-between gap-2">
         <Link href="/">
-          <div className="flex items-center gap-2 sm:gap-3 cursor-pointer">
-            {/* Use a small animated GIF for the logo (falls back to static PNG) */}
+          <div className="flex items-center gap-2 sm:gap-4 cursor-pointer">
             <LogoGif className="w-6 h-6 sm:w-8 sm:h-8" />
-            <span className="text-lg sm:text-xl brand-font tracking-wider text-theme-primary">BOX</span>
+            <div className="flex flex-col">
+              <span className="text-lg sm:text-xl brand-font tracking-widest text-theme-primary leading-none">BOX</span>
+              {user && (
+                <span className="text-[8px] font-mono text-theme-muted uppercase tracking-[0.2em] mt-0.5">
+                  ID: {user.boxCode || 'GUEST-000000'} // <span className="text-green-500 animate-pulse">VAULT_ACTIVE</span>
+                </span>
+              )}
+            </div>
           </div>
         </Link>
 
@@ -203,11 +209,10 @@ export default function Header({ showNav = true }: HeaderProps) {
                       onClick={() => handleResultClick(result)}
                       className="w-full text-left px-3 py-2 hover:bg-theme-tertiary transition-colors flex items-center gap-3"
                     >
-                      <span className={`text-xs px-1.5 py-0.5 rounded ${
-                        result.type === "project" ? "bg-accent text-accent-contrast" :
-                        result.type === "note" ? "bg-theme-tertiary text-theme-muted" :
-                        "bg-theme-primary text-theme-secondary"
-                      }`}>
+                      <span className={`text-xs px-1.5 py-0.5 rounded ${result.type === "project" ? "bg-accent text-accent-contrast" :
+                          result.type === "note" ? "bg-theme-tertiary text-theme-muted" :
+                            "bg-theme-primary text-theme-secondary"
+                        }`}>
                         {result.type === "project" ? "PRJ" : result.type === "note" ? "NOTE" : "PAGE"}
                       </span>
                       <div className="flex-1 min-w-0">
@@ -268,7 +273,7 @@ export default function Header({ showNav = true }: HeaderProps) {
           <nav className="flex flex-col p-4 space-y-3">
             {navLinks.map(link => (
               <Link key={link.href} href={link.href}>
-                <span 
+                <span
                   onClick={() => setMenuOpen(false)}
                   className={`block text-sm cursor-pointer py-2 px-3 rounded ${isActive(link.href) ? "bg-theme-tertiary text-theme-primary font-bold" : "text-theme-secondary hover:text-theme-primary hover:bg-theme-tertiary"}`}
                 >
@@ -283,8 +288,8 @@ export default function Header({ showNav = true }: HeaderProps) {
                 )}
                 <span className="text-sm text-theme-secondary">{user?.firstName || user?.displayName || user?.email}</span>
               </div>
-              <a 
-                href="/api/logout" 
+              <a
+                href="/api/logout"
                 className="block text-sm text-red-400 hover:text-red-300 px-3 py-2"
                 onClick={() => setMenuOpen(false)}
               >
