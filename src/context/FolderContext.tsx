@@ -76,9 +76,7 @@ export function FolderProvider({ children }: { children: ReactNode }) {
         if (folderType === 'year') {
           folderName = new Date().getFullYear().toString();
         } else {
-          const promptResult = window.prompt('Enter folder name:', 'New Folder');
-          if (!promptResult || !promptResult.trim()) return;
-          folderName = promptResult;
+          throw new Error('Folder name is required');
         }
       }
 

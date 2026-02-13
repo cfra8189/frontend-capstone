@@ -64,14 +64,14 @@ const ProjectCard: React.FC<{
             {...listeners}
             {...attributes}
             className={`
-        group relative border border-[#333] hover:border-white hover:bg-black p-4 
-        transition-all cursor-grab active:cursor-grabbing bg-[#1e1e1e]
-        ${isDragging ? 'ring-2 ring-white shadow-xl opacity-50 grayscale' : ''}
+        group relative border border-theme hover:border-theme-primary hover:bg-theme-secondary p-4 
+        transition-all cursor-grab active:cursor-grabbing bg-theme-tertiary
+        ${isDragging ? 'ring-2 ring-theme-primary shadow-xl opacity-50 grayscale' : ''}
       `}
             onClick={() => onEdit(project)}
         >
             <div className="flex items-start justify-between mb-3">
-                <div className="p-2 border border-[#333] group-hover:border-white group-hover:bg-white group-hover:text-black transition-colors rounded-sm">
+                <div className="p-2 border border-theme group-hover:border-theme-primary group-hover:bg-theme-primary group-hover:text-theme-primary transition-colors rounded-sm">
                     {getIcon()}
                 </div>
                 <div className="opacity-0 group-hover:opacity-100 flex gap-2 relative">
@@ -80,7 +80,7 @@ const ProjectCard: React.FC<{
                             e.stopPropagation();
                             setShowMenu(!showMenu);
                         }}
-                        className="p-1.5 hover:bg-white hover:text-black rounded-sm text-zinc-500 transition-colors border border-transparent hover:border-black relative z-10"
+                        className="p-1.5 hover:bg-theme-primary hover:text-theme-primary rounded-sm text-theme-muted transition-colors border border-transparent hover:border-theme-primary relative z-10"
                     >
                         <MoreVertical size={14} />
                     </button>
@@ -88,12 +88,12 @@ const ProjectCard: React.FC<{
                     {showMenu && (
                         <div
                             ref={menuRef}
-                            className="absolute right-0 top-8 bg-[#1e1e1e] border border-[#333] shadow-xl rounded-sm z-50 w-32 flex flex-col pointer-events-auto"
+                            className="absolute right-0 top-8 bg-theme-secondary border border-theme shadow-xl rounded-sm z-50 w-32 flex flex-col pointer-events-auto"
                             onClick={(e) => e.stopPropagation()}
                             style={{ cursor: 'default' }}
                         >
                             <Link href={`/project/${project.id}`}>
-                                <a className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-[#2e2e2e] text-zinc-300 hover:text-white transition-colors">
+                                <a className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-theme-tertiary text-theme-secondary hover:text-theme-primary transition-colors">
                                     <ExternalLink size={10} /> Open
                                 </a>
                             </Link>
@@ -102,11 +102,11 @@ const ProjectCard: React.FC<{
                                     setShowMenu(false);
                                     onEdit(project);
                                 }}
-                                className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-[#2e2e2e] text-zinc-300 hover:text-white transition-colors text-left"
+                                className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-theme-tertiary text-theme-secondary hover:text-theme-primary transition-colors text-left"
                             >
                                 <Edit2 size={10} /> Edit
                             </button>
-                            <div className="h-px bg-[#333] mx-2 my-1"></div>
+                            <div className="h-px bg-theme mx-2 my-1"></div>
                             <button
                                 onClick={() => {
                                     setShowMenu(false);
@@ -121,14 +121,14 @@ const ProjectCard: React.FC<{
                 </div>
             </div>
 
-            <h3 className="text-xs font-bold font-mono text-zinc-300 group-hover:text-white truncate mb-2 mt-2 uppercase tracking-wide">{project.title}</h3>
-            <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-500">
+            <h3 className="text-xs font-bold font-mono text-theme-secondary group-hover:text-theme-primary truncate mb-2 mt-2 uppercase tracking-wide">{project.title}</h3>
+            <div className="flex items-center gap-2 text-[10px] font-mono text-theme-muted">
                 <span className={`
-          px-1 py-0.5 border border-[#333] group-hover:border-white group-hover:bg-white group-hover:text-black transition-colors uppercase
+          px-1 py-0.5 border border-theme group-hover:border-theme-primary group-hover:bg-theme-primary group-hover:text-theme-primary transition-colors uppercase
           ${project.status === 'published' ? 'text-green-400' :
-                        project.status === 'development' ? 'text-blue-400' : 'text-zinc-500'}
+                        project.status === 'development' ? 'text-blue-400' : 'text-theme-muted'}
         `}>
-                    {project.status.substring(0, 3)}
+                    {project.status}
                 </span>
                 <span className="truncate opacity-50">{new Date(project.updatedAt).toLocaleDateString()}</span>
             </div>

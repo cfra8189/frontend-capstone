@@ -137,9 +137,15 @@ export default function Documents() {
     <div className="min-h-screen bg-theme-primary">
       <Header />
       <main className="max-w-6xl mx-auto p-6">
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Saved Agreements</h1>
-          <p className="text-sm text-theme-muted">All agreements you've saved to The Box</p>
+        <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between border-b border-theme pb-6 gap-4">
+          <div>
+            <h1 className="text-3xl font-bold uppercase tracking-[0.2em] text-theme-primary mb-2">Vault // Documents</h1>
+            <p className="text-[10px] font-mono font-bold text-theme-muted uppercase tracking-widest">ARCHIVED LEGAL AGREEMENTS & CONTRACTS</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+            <span className="text-[9px] font-mono text-theme-muted uppercase tracking-tighter">System synchronized</span>
+          </div>
         </div>
 
         {!isAuthenticated && (
@@ -158,39 +164,50 @@ export default function Documents() {
                   <div className="text-theme-muted">No saved agreements yet. Generate one in the <a className="text-accent" href="/generator">Agreement Generator</a>.</div>
                 )}
 
-                <div className="mb-4">
-                  <div className="flex items-center gap-2">
-                    <input value={query} onChange={(e) => { setQuery(e.target.value); setPage(1); }} placeholder="Search saved agreements..." className="input-field p-2 rounded flex-1" />
-                    <div className="text-sm text-theme-muted">{total} results</div>
+                <div className="mb-8 p-4 bg-theme-primary border border-theme shadow-inner">
+                  <div className="flex items-center gap-3">
+                    <div className="text-theme-muted"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg></div>
+                    <input
+                      value={query}
+                      onChange={(e) => { setQuery(e.target.value); setPage(1); }}
+                      placeholder="SEARCH VAULT..."
+                      className="bg-transparent border-none text-sm text-theme-primary placeholder:text-theme-muted/30 focus:outline-none flex-1 uppercase font-mono tracking-tight"
+                    />
+                    <div className="text-[10px] font-mono font-bold text-theme-muted uppercase bg-theme-secondary px-2 py-1 border border-theme">{total} RECORDS</div>
                   </div>
                 </div>
 
-                <div className="space-y-3 mt-4">
+                <div className="space-y-4 mt-6">
                   {docs.map((d) => (
-                    <div key={d.id} className="p-4 rounded border border-theme-tertiary flex items-center justify-between gap-4">
-                      <div>
-                        <div className="font-bold">{d.title}</div>
-                        <div className="text-xs text-theme-muted">{d.templateId || 'Custom'} • {new Date(d.createdAt).toLocaleString()}</div>
+                    <div key={d.id} className="p-5 bg-theme-primary border border-theme hover:border-theme-primary/50 transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 group shadow-sm hover:shadow-md">
+                      <div className="min-w-0 pr-4">
+                        <div className="font-bold text-sm tracking-wide text-theme-primary mb-1 uppercase truncate">{d.title}</div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-[9px] font-mono font-bold text-theme-muted uppercase tracking-widest bg-theme-secondary px-1.5 py-0.5 border border-theme">{d.templateId || 'CUSTOM'}</span>
+                          <span className="text-[9px] font-mono text-zinc-500 uppercase">{new Date(d.createdAt).toLocaleDateString()} // {new Date(d.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
                       </div>
-                      <div className="flex gap-2 items-center">
-                        <button onClick={() => openDoc(d.id)} className="px-3 py-2 rounded border border-theme-tertiary text-theme-secondary">View</button>
-                        <a href={`/api/documents/${d.id}`} className="px-3 py-2 rounded bg-theme-accent text-white" target="_blank" rel="noreferrer">Open</a>
-                        <button onClick={() => startRename(d.id, d.title)} className="px-3 py-2 rounded border border-theme-tertiary text-theme-secondary">Rename</button>
-                        <button onClick={() => confirmDelete(d.id)} className="px-3 py-2 rounded border border-red-500 text-red-500">Delete</button>
+                      <div className="flex flex-wrap gap-2 items-center">
+                        <button onClick={() => openDoc(d.id)} className="text-[9px] font-bold px-3 py-1.5 bg-theme-secondary border border-theme text-theme-primary hover:bg-theme-primary transition-all uppercase tracking-widest">[VIEW]</button>
+                        <a href={`/api/documents/${d.id}`} className="text-[9px] font-bold px-3 py-1.5 bg-white text-black border border-white hover:bg-transparent hover:text-white transition-all uppercase tracking-widest" target="_blank" rel="noreferrer">OPEN</a>
+                        <button onClick={() => startRename(d.id, d.title)} className="text-[9px] font-bold px-3 py-1.5 border border-theme text-theme-muted hover:text-theme-primary hover:border-theme-primary transition-all uppercase tracking-widest">RENAME</button>
+                        <button onClick={() => confirmDelete(d.id)} className="text-[9px] font-bold px-3 py-1.5 border border-red-500/30 text-red-500/50 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all uppercase tracking-widest">EJECT</button>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-6 flex items-center justify-between">
-                  <div className="text-sm text-theme-muted">Page {page} of {totalPages}</div>
-                  <div className="flex gap-2">
-                    <button onClick={() => gotoPage(1)} disabled={page===1} className="px-3 py-1 rounded border border-theme-tertiary">First</button>
-                    <button onClick={() => gotoPage(page-1)} disabled={page===1} className="px-3 py-1 rounded border border-theme-tertiary">Prev</button>
-                    <button onClick={() => gotoPage(page+1)} disabled={page===totalPages} className="px-3 py-1 rounded border border-theme-tertiary">Next</button>
-                    <button onClick={() => gotoPage(totalPages)} disabled={page===totalPages} className="px-3 py-1 rounded border border-theme-tertiary">Last</button>
+                {totalPages > 1 && (
+                  <div className="mt-10 flex items-center justify-between border-t border-theme pt-8">
+                    <div className="text-[10px] font-mono font-bold text-theme-muted uppercase tracking-widest">INDEX: {page} OF {totalPages}</div>
+                    <div className="flex gap-1.5">
+                      <button onClick={() => gotoPage(1)} disabled={page === 1} className="text-[9px] font-bold px-2 py-1 bg-theme-secondary border border-theme text-theme-muted disabled:opacity-20 hover:border-theme-primary transition-all uppercase">Start</button>
+                      <button onClick={() => gotoPage(page - 1)} disabled={page === 1} className="text-[9px] font-bold px-2 py-1 bg-theme-secondary border border-theme text-theme-muted disabled:opacity-20 hover:border-theme-primary transition-all uppercase">Prev</button>
+                      <button onClick={() => gotoPage(page + 1)} disabled={page === totalPages} className="text-[9px] font-bold px-2 py-1 bg-theme-secondary border border-theme text-theme-muted disabled:opacity-20 hover:border-theme-primary transition-all uppercase">Next</button>
+                      <button onClick={() => gotoPage(totalPages)} disabled={page === totalPages} className="text-[9px] font-bold px-2 py-1 bg-theme-secondary border border-theme text-theme-muted disabled:opacity-20 hover:border-theme-primary transition-all uppercase">End</button>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {renamingId && (
                   <div className="mt-4 p-4 rounded border border-theme-tertiary">

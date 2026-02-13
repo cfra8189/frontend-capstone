@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
     DndContext,
     DragOverlay,
-    closestCorners,
+    closestCenter,
     KeyboardSensor,
     PointerSensor,
     useSensor,
@@ -10,7 +10,6 @@ import {
     DragStartEvent,
     DragEndEvent,
     useDroppable,
-    pointerWithin,
     defaultDropAnimationSideEffects,
 } from '@dnd-kit/core';
 import {
@@ -85,25 +84,22 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     return (
         <DndContext
             sensors={sensors}
-            collisionDetection={pointerWithin}
+            collisionDetection={closestCenter}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
-            <div className="flex h-[calc(100vh-64px)] bg-[#1e1e1e] text-zinc-300 overflow-hidden rounded-lg border border-[#333]">
+            <div className="flex h-[calc(100vh-64px)] bg-theme-secondary text-theme-primary overflow-hidden rounded-lg border border-theme">
                 <Sidebar
                     className="w-64 flex-shrink-0"
                     onDeleteFolder={(folder) => deleteFolder(folder)}
-                    onRenameFolder={(folder) => {
-                        const newName = prompt("Rename folder:", folder.name);
-                        if (newName) renameFolder(folder, newName);
-                    }}
+                    onRenameFolder={() => { }} // Sidebar handles its own renaming state now
                 />
 
-                <div className="flex-1 flex flex-col min-w-0 bg-[#1e1e1e]">
-                    <div className="border-b border-[#333] p-3 flex items-center justify-between">
+                <div className="flex-1 flex flex-col min-w-0 bg-theme-primary">
+                    <div className="border-b border-theme p-3 flex items-center justify-between bg-theme-secondary">
                         <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-zinc-400">
-                                {selectedFolderId ? folders.find(f => f.id === selectedFolderId)?.name || 'Folder' : 'All Projects'}
+                            <span className="text-[10px] font-mono font-bold text-theme-muted uppercase tracking-widest">
+                                {selectedFolderId ? folders.find(f => f.id === selectedFolderId)?.name || 'Folder' : 'ROOT'}
                             </span>
                         </div>
                     </div>
@@ -117,14 +113,21 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                 </div>
             </div>
 
-            <DragOverlay dropAnimation={{ sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0.5' } } }) }}>
+            <DragOverlay dropAnimation={{ sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0.4' } } }) }}>
                 {activeProject ? (
-                    <div className="bg-[#1e1e1e] p-3 rounded border border-gray-700 shadow-xl opacity-80 cursor-grabbing w-48">
-                        <div className="flex items-center gap-2">
-                            <FileText size={16} className="text-gray-400" />
-                            <span className="text-sm text-gray-200 truncate">
-                                {activeProject.title}
-                            </span>
+                    <div className="bg-theme-secondary p-3 rounded-sm border border-theme-primary shadow-2xl opacity-90 cursor-grabbing w-56 scale-95 origin-center transition-transform ring-1 ring-theme-primary/30">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 bg-theme-tertiary flex items-center justify-center rounded-sm border border-theme text-theme-primary">
+                                <FileText size={16} />
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                                <span className="text-xs font-bold text-theme-primary truncate uppercase tracking-tight">
+                                    {activeProject.title}
+                                </span>
+                                <span className="text-[9px] font-mono text-theme-muted uppercase tracking-widest">
+                                    DRAGGING ITEM
+                                </span>
+                            </div>
                         </div>
                     </div>
                 ) : null}

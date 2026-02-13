@@ -5,36 +5,63 @@ import CollaborationModal from "../components/CollaborationModal";
 import { useCollaborationContext } from "../context/CollaborationContext";
 import { useAuth } from "../hooks/use-auth";
 
-const templateData = {
+interface Template {
+  id: string;
+  title: string;
+  idPrefix: string;
+  type: string;
+  terms: string;
+  labels: { producer: string; artist: string };
+}
+
+const templateData: Record<string, Template> = {
   'split-sheet': {
+    id: 'split-sheet',
     title: 'SONGWRITER SPLIT SHEET',
     idPrefix: 'SS',
     type: 'split',
+    labels: { producer: 'PRODUCER', artist: 'ARTIST' },
     terms: 'Official registration of songwriting and publishing percentages.'
   },
   'nda': {
+    id: 'nda',
     title: 'NON-DISCLOSURE AGREEMENT',
     idPrefix: 'NDA',
     type: 'nda',
+    labels: { producer: 'DISCLOSER', artist: 'RECIPIENT' },
     terms: 'Agreement to maintain strict confidentiality regarding unreleased materials.'
   },
   'basic-ne': {
+    id: 'basic-ne',
     title: 'BASIC NON-EXCLUSIVE LICENSE',
     idPrefix: 'LIC-B',
     type: 'license',
+    labels: { producer: 'LICENSOR', artist: 'LICENSEE' },
     terms: 'Grant of non-exclusive rights for limited digital streaming.'
   },
   'exclusive': {
+    id: 'exclusive',
     title: 'EXCLUSIVE LICENSE AGREEMENT',
     idPrefix: 'LIC-EX',
     type: 'license',
+    labels: { producer: 'LICENSOR', artist: 'LICENSEE' },
     terms: 'Transfer of exclusive rights. Producer ceases further licensing.'
   },
   'work-for-hire': {
+    id: 'work-for-hire',
     title: 'WORK FOR HIRE AGREEMENT',
     idPrefix: 'WFH',
     type: 'service',
+    labels: { producer: 'PRODUCER', artist: 'ARTIST' },
     terms: 'Producer/Musician provides services as a work-for-hire.'
+  },
+  'master-license': {
+    id: 'master-license',
+    title: 'MASTER USE LICENSE',
+    idPrefix: 'LIC-M',
+    type: 'master',
+    labels: { producer: 'LICENSOR', artist: 'LICENSEE' },
+    terms: 'Licensor grants Licensee the non-exclusive right to use the master recording of the Track for the permitted use, subject to buyout fee and royalty share.'
   }
 };
 
@@ -54,14 +81,13 @@ interface Collaborator {
 export default function Generator() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
-  const { pendingCollaborations } = useCollaborationContext();
-
   const [selectedTemplate, setSelectedTemplate] = useState("split-sheet");
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [generatedContent, setGeneratedContent] = useState("");
   const [isViewMode, setIsViewMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDrafting, setIsDrafting] = useState(false);
   const [savedDocumentId, setSavedDocumentId] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [showCollaborationModal, setShowCollaborationModal] = useState(false);
@@ -78,20 +104,18 @@ export default function Generator() {
       }));
 
       // Add user as first collaborator if list is empty
-      if (collaborators.length === 0) {
-        setCollaborators([{
-          id: Date.now().toString(),
-          name: (user.businessName || `${user.firstName} ${user.lastName}`.trim()) || "",
-          role: "Producer",
-          split: "50",
-          pro: "",
-          ipi: "",
-          publisher: "",
-          email: user.email,
-          phone: "",
-          address: ""
-        }]);
-      }
+      setCollaborators([{
+        id: Date.now().toString(),
+        name: (user.businessName || `${user.firstName} ${user.lastName}`.trim()) || "",
+        role: "Producer",
+        split: "50",
+        pro: "",
+        ipi: "",
+        publisher: "",
+        email: user.email || undefined,
+        phone: "",
+        address: ""
+      }]);
     }
   }, [user]);
 
@@ -137,9 +161,36 @@ export default function Generator() {
     setCollaborators(prev => prev.filter(c => c.id !== id));
   };
 
+  const draftAgreementWithAI = async () => {
+    setIsDrafting(true);
+    try {
+      const template = templateData[selectedTemplate];
+      const res = await fetch("/api/ai/draft-agreement", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          templateTitle: template.title,
+          terms: template.terms,
+          formData,
+          collaborators
+        })
+      });
+      if (!res.ok) throw new Error("AI Draft failed");
+      const data = await res.json();
+      setGeneratedContent(data.draft);
+      setIsViewMode(true);
+    } catch (error) {
+      console.error("AI Draft error:", error);
+      alert("AI Drafting failed. Falling back to standard template.");
+      generateAgreement(new Event('submit') as any);
+    } finally {
+      setIsDrafting(false);
+    }
+  };
+
   const generateAgreement = (e: React.FormEvent) => {
     e.preventDefault();
-    const template = templateData[selectedTemplate as keyof typeof templateData];
+    const template = templateData[selectedTemplate];
 
     // Formatting helpers
     const dateStr = new Date().toLocaleDateString();
@@ -167,8 +218,8 @@ export default function Generator() {
       `;
     } else {
       content += `
-          <div><strong>PRODUCER:</strong> ${formData.producerName || '_________________'}</div>
-          <div><strong>CLIENT/ARTIST:</strong> ${formData.artistName || '_________________'}</div>
+          <div><strong>${template.labels.producer.toUpperCase()}:</strong> ${formData.producerName || '_________________'}</div>
+          <div><strong>${template.labels.artist.toUpperCase()}:</strong> ${formData.artistName || '_________________'}</div>
       `;
     }
     content += `</div></div>`;
@@ -228,7 +279,7 @@ export default function Generator() {
         </div>
       `;
     } else {
-      // Standard License / WFH
+      // Standard License / WFH / Master
       content += `
         <h3 style="background: #000; color: #fff; padding: 5px; font-size: 14px; text-transform: uppercase;">Agreement Terms</h3>
         <p style="line-height: 1.6; font-size: 12px; margin-bottom: 20px;">
@@ -237,8 +288,13 @@ export default function Generator() {
 
         <div style="margin-bottom: 20px; border: 1px solid #ccc; padding: 10px;">
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px;">
-            <div><strong>FEE:</strong> ${formData.fee || 'N/A'}</div>
-            <div><strong>ROYALTY:</strong> ${formData.royalty || '0'}%</div>
+            ${template.id === 'master-license' ? `
+              <div><strong>BUYOUT FEE:</strong> ${formData.buyoutFee || 'N/A'}</div>
+              <div><strong>MASTER SHARE:</strong> ${formData.masterShare || '0'}%</div>
+            ` : `
+              <div><strong>FEE:</strong> ${formData.fee || 'N/A'}</div>
+              <div><strong>ROYALTY:</strong> ${formData.royalty || '0'}%</div>
+            `}
             <div><strong>JURISDICTION:</strong> ${formData.jurisdiction || 'New York, NY'}</div>
             <div><strong>DELIVERY DATE:</strong> ${formData.deliveryDate || 'Upon Payment'}</div>
           </div>
@@ -258,7 +314,7 @@ export default function Generator() {
         <p style="font-size: 11px; margin-bottom: 30px;">By signing below, each party acknowledges and agrees to the terms set forth above.</p>
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
-          ${template.type === 'split' ?
+          ${['split', 'master'].includes(template.type) ?
         collaborators.map(c => `
               <div style="margin-bottom: 30px;">
                 <div style="border-bottom: 1px solid #000; height: 30px;"></div>
@@ -269,13 +325,13 @@ export default function Generator() {
         : `
               <div style="margin-bottom: 30px;">
                 <div style="border-bottom: 1px solid #000; height: 30px;"></div>
-                <p style="font-size: 11px; margin-top: 5px;">PRODUCER: ${formData.producerName}</p>
+                <p style="font-size: 11px; margin-top: 5px;">${template.labels.producer.toUpperCase()}: ${formData.producerName}</p>
                 <p style="font-size: 10px;">${formData.producerAddress || ''}</p>
                 <p style="font-size: 11px;">DATE: ___________</p>
               </div>
               <div style="margin-bottom: 30px;">
                 <div style="border-bottom: 1px solid #000; height: 30px;"></div>
-                <p style="font-size: 11px; margin-top: 5px;">CLIENT: ${formData.artistName}</p>
+                <p style="font-size: 11px; margin-top: 5px;">${template.labels.artist.toUpperCase()}: ${formData.artistName}</p>
                 <p style="font-size: 10px;">${formData.artistAddress || ''}</p>
                 <p style="font-size: 11px;">DATE: ___________</p>
               </div>
@@ -294,7 +350,7 @@ export default function Generator() {
     setSaveError(null);
 
     try {
-      const template = templateData[selectedTemplate as keyof typeof templateData];
+      const template = templateData[selectedTemplate];
       const title = `${template.title} - ${formData.trackTitle || 'Untitled'}`;
 
       const res = await fetch("/api/documents", {
@@ -322,121 +378,166 @@ export default function Generator() {
     }
   };
 
+  const template = templateData[selectedTemplate];
+
   return (
-    <div className="min-h-screen bg-[#141414] text-white font-mono flex flex-col">
+    <div className="min-h-screen bg-theme-primary text-theme-primary font-mono flex flex-col">
       <Header />
 
       <main className="flex-1 max-w-5xl mx-auto w-full p-6">
         <div className="flex justify-between items-end mb-8 border-b border-[#333] pb-4">
           <div>
-            <h1 className="text-2xl font-bold uppercase tracking-wider mb-2">Agreement Generator</h1>
-            <p className="text-zinc-500 text-xs">SYSTEM 1.0 // LEGAL DOCUMENTS</p>
+            <h1 className="text-2xl font-bold uppercase tracking-wider mb-2 text-theme-primary">Agreement Generator</h1>
+            <p className="text-theme-muted text-xs font-bold tracking-[0.2em]">SYSTEM 1.0 // LEGAL DOCUMENTS</p>
           </div>
           {isViewMode && (
             <button
               onClick={() => setIsViewMode(false)}
-              className="text-xs hover:bg-white hover:text-black px-3 py-1 border border-transparent hover:border-white transition-all uppercase"
+              className="text-[10px] font-bold hover:bg-theme-primary hover:text-theme-primary px-3 py-1.5 border border-theme hover:border-theme-primary transition-all uppercase tracking-widest"
             >
-              ← Back to Editor
+              [← EDITOR]
             </button>
           )}
         </div>
 
         {!isViewMode ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Sidebar Controls */}
             <div className="lg:col-span-1 space-y-6">
-              <div className="bg-[#1e1e1e] border border-[#333] p-4">
-                <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Document Type</label>
+              <div className="bg-[#1e1e1e] border border-[#333] p-4 shadow-sm">
+                <label className="block text-[10px] font-bold text-theme-muted uppercase mb-3 tracking-widest font-mono">Document Type</label>
                 <select
                   value={selectedTemplate}
                   onChange={handleTemplateChange}
-                  className="w-full bg-black border border-[#333] text-white p-2 text-sm focus:border-white focus:outline-none uppercase"
+                  className="w-full bg-theme-primary border border-theme text-theme-primary p-2 text-sm focus:border-theme-primary focus:outline-none uppercase font-mono tracking-tight"
                 >
                   {Object.entries(templateData).map(([key, t]) => (
                     <option key={key} value={key}>{t.title}</option>
                   ))}
                 </select>
                 <div className="mt-4 text-xs text-zinc-400 border-t border-[#333] pt-2">
-                  {templateData[selectedTemplate as keyof typeof templateData].terms}
+                  {template.terms}
                 </div>
               </div>
 
-              <div className="bg-[#1e1e1e] border border-[#333] p-4">
-                <h3 className="text-xs font-bold text-zinc-500 uppercase mb-4">Core Info</h3>
+              <div className="bg-theme-secondary border border-theme p-4 shadow-sm">
+                <h3 className="text-[10px] font-bold text-theme-muted uppercase mb-4 tracking-widest font-mono">Core Info</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-[10px] uppercase text-zinc-500 mb-1">Effective Date</label>
+                    <label className="block text-[10px] uppercase text-theme-muted mb-1 font-bold tracking-widest">Effective Date</label>
                     <input
                       type="date"
                       name="effectiveDate"
                       value={formData.effectiveDate || ''}
                       onChange={handleFormChange}
-                      className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none text-white placeholder-zinc-700"
+                      className="w-full bg-theme-primary border border-theme px-2 py-1.5 text-sm focus:border-theme-primary outline-none text-theme-primary placeholder-theme-muted font-mono"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] uppercase text-zinc-500 mb-1">Track Title</label>
+                    <label className="block text-[10px] uppercase text-theme-muted mb-1 font-bold tracking-widest">Track Title</label>
                     <input
                       type="text"
                       name="trackTitle"
                       placeholder="ENTER TITLE..."
                       value={formData.trackTitle || ''}
                       onChange={handleFormChange}
-                      className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none text-white placeholder-zinc-700 uppercase"
+                      className="w-full bg-theme-primary border border-theme px-2 py-1.5 text-sm focus:border-theme-primary outline-none text-theme-primary placeholder:text-theme-muted/30 uppercase font-mono"
                     />
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Main Form Area */}
-            <div className="lg:col-span-2 bg-[#1e1e1e] border border-[#333] p-6">
+            <div className="lg:col-span-2 bg-theme-secondary border border-theme p-6 shadow-sm">
               <form onSubmit={generateAgreement} className="space-y-6">
+                {selectedTemplate === 'nda' && (
+                  <div className="bg-black border border-[#333] p-4">
+                    <label className="block text-[10px] uppercase text-zinc-500 mb-2">Confidential Material Description</label>
+                    <textarea
+                      name="description"
+                      onChange={handleFormChange}
+                      placeholder="Describe what is being protected (e.g. 'Unreleased beat pack vol. 1')..."
+                      className="w-full bg-[#1e1e1e] border border-[#333] p-2 text-sm focus:border-white outline-none h-32"
+                    />
+                  </div>
+                )}
 
-                {/* Dynamic Fields based on Type */}
-                {selectedTemplate === 'split-sheet' && (
-                  <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[10px] uppercase text-zinc-500 mb-1">Studio Name/Location</label>
-                        <input
-                          name="studioName"
-                          placeholder="STUDIO A..."
-                          onChange={handleFormChange}
-                          className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none"
-                        />
+                        <label className="block text-[10px] uppercase text-theme-muted mb-1 font-bold tracking-widest">{template.labels.producer}</label>
+                        <input name="producerName" placeholder="NAME / CO." value={formData.producerName || ''} onChange={handleFormChange} className="w-full bg-theme-primary border border-theme px-2 py-1.5 text-sm focus:border-theme-primary outline-none text-theme-primary placeholder-theme-muted/30 uppercase font-mono mb-2" />
+                        <input name="producerAddress" placeholder="ADDRESS / LOCATION" onChange={handleFormChange} value={formData.producerAddress || ''} className="w-full bg-theme-primary border border-theme px-2 py-1.5 text-sm focus:border-theme-primary outline-none text-theme-primary placeholder-theme-muted/30 uppercase font-mono" />
                       </div>
                       <div>
-                        <label className="block text-[10px] uppercase text-zinc-500 mb-1">Recording Artist(s)</label>
-                        <input
-                          name="artistName"
-                          placeholder="ARTIST NAME..."
-                          onChange={handleFormChange}
-                          className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none"
-                        />
+                        <label className="block text-[10px] uppercase text-theme-muted mb-1 font-bold tracking-widest">{template.labels.artist}</label>
+                        <input name="artistName" placeholder="NAME / CO." onChange={handleFormChange} value={formData.artistName || ''} className="w-full bg-theme-primary border border-theme px-2 py-1.5 text-sm focus:border-theme-primary outline-none text-theme-primary placeholder-theme-muted/30 uppercase font-mono mb-2" />
+                        <input name="artistAddress" placeholder="ADDRESS / LOCATION" onChange={handleFormChange} value={formData.artistAddress || ''} className="w-full bg-theme-primary border border-theme px-2 py-1.5 text-sm focus:border-theme-primary outline-none text-theme-primary placeholder-theme-muted/30 uppercase font-mono" />
                       </div>
                     </div>
+                  </div>
 
-                    <div className="border border-[#333] p-4 bg-black">
-                      <div className="flex justify-between items-center mb-4 border-b border-[#333] pb-2">
-                        <h3 className="text-xs font-bold uppercase">Collaborators</h3>
-                        <button type="button" onClick={addCollaborator} className="text-[10px] border border-[#333] px-2 py-1 hover:bg-white hover:text-black uppercase">
-                          + Add Party
+                  <div className="space-y-4 bg-theme-primary border border-theme p-4 shadow-inner">
+                    <h3 className="text-[10px] font-bold text-theme-muted uppercase mb-4 tracking-widest font-mono">Dynamic Terms</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      {template.id === 'master-license' ? (
+                        <>
+                          <div>
+                            <label className="block text-[10px] uppercase text-theme-muted mb-1">Buyout Fee</label>
+                            <input name="buyoutFee" placeholder="$0.00" onChange={handleFormChange} className="w-full bg-transparent border-b border-theme text-sm focus:border-theme-primary outline-none text-theme-primary px-1" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] uppercase text-theme-muted mb-1">Master Share %</label>
+                            <input name="masterShare" placeholder="100%" onChange={handleFormChange} className="w-full bg-transparent border-b border-theme text-sm focus:border-theme-primary outline-none text-theme-primary px-1" />
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div>
+                            <label className="block text-[10px] uppercase text-theme-muted mb-1">Base Fee</label>
+                            <input name="fee" placeholder="$0.00" onChange={handleFormChange} className="w-full bg-transparent border-b border-theme text-sm focus:border-theme-primary outline-none text-theme-primary px-1" />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] uppercase text-theme-muted mb-1">Royalty %</label>
+                            <input name="royalty" placeholder="0%" onChange={handleFormChange} className="w-full bg-transparent border-b border-theme text-sm focus:border-theme-primary outline-none text-theme-primary px-1" />
+                          </div>
+                        </>
+                      )}
+                      <div className="col-span-2">
+                        <label className="block text-[10px] uppercase text-theme-muted mb-1">Jurisdiction</label>
+                        <input name="jurisdiction" placeholder="NY, USA" onChange={handleFormChange} className="w-full bg-transparent border-b border-theme text-sm focus:border-theme-primary outline-none text-theme-primary px-1" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {['split', 'master'].includes(template.type) && (
+                  <div className="space-y-6">
+                    <div className="border border-theme-primary/20 bg-theme-secondary/50 p-4 rounded-sm">
+                      <p className="text-[10px] font-mono text-theme-muted text-center uppercase tracking-widest italic opacity-50">
+                        Section: Rights & Revenue Distribution // Collaborator Matrix
+                      </p>
+                    </div>
+
+                    <div className="border border-theme p-4 bg-theme-primary shadow-inner">
+                      <div className="flex justify-between items-center mb-4 border-b border-theme pb-2">
+                        <h3 className="text-[10px] font-bold uppercase tracking-widest text-theme-muted">Collaborators</h3>
+                        <button type="button" onClick={addCollaborator} className="text-[9px] font-bold border border-theme px-2 py-1 hover:bg-theme-primary hover:text-theme-primary transition-all uppercase tracking-wider">
+                          + ADD PARTY
                         </button>
                       </div>
                       <div className="space-y-4">
-                        {collaborators.map((c, idx) => (
-                          <div key={c.id} className="space-y-2 border-b border-[#333] pb-4 last:border-0">
+                        {collaborators.map((c) => (
+                          <div key={c.id} className="space-y-2 border-b border-theme pb-4 last:border-0">
                             <div className="grid grid-cols-12 gap-2 text-xs items-start">
                               <div className="col-span-12 md:col-span-4">
-                                <input placeholder="Full Name" value={c.name} onChange={e => updateCollaborator(c.id, 'name', e.target.value)} className="w-full bg-transparent border-b border-[#333] focus:border-white outline-none py-1" />
+                                <input placeholder="Full Name" value={c.name} onChange={e => updateCollaborator(c.id, 'name', e.target.value)} className="w-full bg-transparent border-b border-theme focus:border-theme-primary outline-none py-1 text-theme-primary uppercase font-bold" />
                               </div>
                               <div className="col-span-6 md:col-span-3">
-                                <input placeholder="Role" value={c.role} onChange={e => updateCollaborator(c.id, 'role', e.target.value)} className="w-full bg-transparent border-b border-[#333] focus:border-white outline-none py-1" />
+                                <input placeholder="Role" value={c.role} onChange={e => updateCollaborator(c.id, 'role', e.target.value)} className="w-full bg-transparent border-b border-theme focus:border-theme-primary outline-none py-1 text-theme-muted uppercase" />
                               </div>
                               <div className="col-span-4 md:col-span-2">
-                                <input placeholder="Share %" value={c.split} onChange={e => updateCollaborator(c.id, 'split', e.target.value)} className="w-full bg-transparent border-b border-[#333] focus:border-white outline-none py-1" />
+                                <input placeholder="Share %" value={c.split} onChange={e => updateCollaborator(c.id, 'split', e.target.value)} className="w-full bg-transparent border-b border-theme focus:border-theme-primary outline-none py-1 text-theme-primary font-mono" />
                               </div>
                               <div className="col-span-2 md:col-span-1 flex justify-end">
                                 <button type="button" onClick={() => removeCollaborator(c.id)} className="text-zinc-500 hover:text-red-500">×</button>
@@ -456,72 +557,23 @@ export default function Generator() {
                         ))}
                       </div>
                     </div>
-
-                    <div className="flex items-start gap-2">
-                      <input type="checkbox" name="hasSamples" onChange={handleFormChange} id="hasSamples" className="mt-1" />
-                      <div className="flex-1">
-                        <label htmlFor="hasSamples" className="text-xs uppercase font-bold">Contains Samples?</label>
-                        {formData.hasSamples && (
-                          <textarea
-                            name="sampleDetails"
-                            onChange={handleFormChange}
-                            placeholder="Describe original artist and song title..."
-                            className="w-full mt-2 bg-black border border-[#333] p-2 text-xs focus:border-white outline-none h-20"
-                          />
-                        )}
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {selectedTemplate === 'nda' && (
-                  <div className="bg-black border border-[#333] p-4">
-                    <label className="block text-[10px] uppercase text-zinc-500 mb-2">Confidential Material Description</label>
-                    <textarea
-                      name="description"
-                      onChange={handleFormChange}
-                      placeholder="Describe what is being protected (e.g. 'Unreleased beat pack vol. 1')..."
-                      className="w-full bg-[#1e1e1e] border border-[#333] p-2 text-sm focus:border-white outline-none h-32"
-                    />
                   </div>
                 )}
 
-                {/* Generic Fields for other types */}
-                {!['split-sheet', 'nda'].includes(selectedTemplate) && (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-[10px] uppercase text-zinc-500 mb-1">Producer Details</label>
-                        <input name="producerName" placeholder="Name" value={formData.producerName || ''} onChange={handleFormChange} className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none mb-1" />
-                        <input name="producerAddress" placeholder="Address" onChange={handleFormChange} className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none" />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] uppercase text-zinc-500 mb-1">Client/Artist Details</label>
-                        <input name="artistName" placeholder="Name" onChange={handleFormChange} className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none mb-1" />
-                        <input name="artistAddress" placeholder="Address" onChange={handleFormChange} className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none" />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <label className="block text-[10px] uppercase text-zinc-500 mb-1">Fee ($)</label>
-                        <input name="fee" type="number" placeholder="0.00" onChange={handleFormChange} className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none" />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] uppercase text-zinc-500 mb-1">Royalty (%)</label>
-                        <input name="royalty" type="number" placeholder="50" onChange={handleFormChange} className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none" />
-                      </div>
-                      <div>
-                        <label className="block text-[10px] uppercase text-zinc-500 mb-1">Jurisdiction</label>
-                        <input name="jurisdiction" placeholder="NY, USA" onChange={handleFormChange} className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none" />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="pt-4 border-t border-[#333]">
-                  <button type="submit" className="w-full bg-white text-black font-bold py-3 uppercase tracking-widest hover:bg-zinc-200 transition-colors">
-                    Generate Document
+                <div className="pt-4 border-t border-theme flex gap-4">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-theme-primary text-theme-primary font-bold py-3 uppercase tracking-widest hover:bg-theme-secondary transition-colors border border-theme"
+                  >
+                    Build Static Document
+                  </button>
+                  <button
+                    type="button"
+                    onClick={draftAgreementWithAI}
+                    disabled={isDrafting}
+                    className="flex-1 bg-white text-black font-bold py-3 uppercase tracking-widest hover:bg-zinc-200 transition-colors disabled:opacity-50"
+                  >
+                    {isDrafting ? 'DRAFTING...' : 'AI DRAFT (PRO)'}
                   </button>
                 </div>
               </form>
@@ -578,7 +630,7 @@ export default function Generator() {
         onClose={() => setShowCollaborationModal(false)}
         agreementId={currentAgreementId || undefined}
         itemType="agreement"
-        itemName={`${templateData[selectedTemplate as keyof typeof templateData].title} - ${formData.trackTitle || 'Untitled'}`}
+        itemName={template ? `${template.title} - ${formData.trackTitle || 'Untitled'}` : 'Untitled Agreement'}
       />
     </div>
   );

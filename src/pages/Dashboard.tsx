@@ -5,6 +5,8 @@ import Header from "../components/Header";
 import { FileExplorer } from "../components/FileExplorer/FileExplorer";
 import { FolderProvider, useFolderContext } from "../context/FolderContext";
 import { Project } from "../types/folder";
+import { Plus, Folder as FolderIcon, Search, Bell, Settings, Filter, Layers, FolderPlus } from 'lucide-react';
+import { CreateFolderModal } from '../components/FileExplorer/modals/CreateFolderModal';
 
 function DashboardContent() {
   const { user } = useAuth();
@@ -106,35 +108,43 @@ function DashboardContent() {
     published: projects.filter(p => p.status === "published").length,
   };
 
+  const [showCreateFolder, setShowCreateFolder] = useState(false);
+
   return (
-    <div className="min-h-screen bg-[#141414] text-zinc-300 font-sans selection:bg-white selection:text-black">
+    <div className="min-h-screen bg-theme-primary text-theme-secondary font-sans selection:bg-theme-primary selection:text-theme-primary">
       <Header />
+
+      <CreateFolderModal
+        isOpen={showCreateFolder}
+        onClose={() => setShowCreateFolder(false)}
+        parentId={selectedFolderId}
+      />
 
       <main className="h-[calc(100vh-64px)] overflow-hidden flex flex-col">
         {/* Retro Toolbar & Stats */}
-        <div className="border-b border-[#333] bg-[#1e1e1e] p-4 flex flex-col gap-4">
+        <div className="border-b border-theme bg-theme-secondary p-4 flex flex-col gap-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-xl font-bold font-mono tracking-tight text-white">
+              <h1 className="text-xl font-bold font-mono tracking-tight text-theme-primary">
                 {selectedFolderId
                   ? `> ${folders.find(f => f.id === selectedFolderId)?.name || 'unk'}`
                   : '> root'}
               </h1>
-              <p className="text-xs text-zinc-500 font-mono mt-1">
+              <p className="text-xs text-theme-muted font-mono mt-1">
                 {filteredProjects.length} ITEM(S) LISTED
               </p>
             </div>
 
             <div className="flex gap-2">
               <button
-                onClick={() => createFolder()}
-                className="px-3 py-1.5 border border-[#333] hover:bg-white hover:text-black hover:border-white transition-colors text-xs font-mono uppercase tracking-wider flex items-center gap-2"
+                onClick={() => setShowCreateFolder(true)}
+                className="px-3 py-1.5 border border-theme hover:bg-theme-primary hover:text-theme-primary hover:border-theme-primary transition-colors text-xs font-mono uppercase tracking-wider flex items-center gap-2"
               >
                 [+] FOLDER
               </button>
               <button
                 onClick={() => { setEditingProject(null); setShowModal(true); }}
-                className="px-3 py-1.5 bg-white text-black border border-white hover:bg-zinc-200 transition-colors text-xs font-bold font-mono uppercase tracking-wider flex items-center gap-2"
+                className="px-3 py-1.5 bg-theme-primary text-theme-primary border border-theme-primary hover:bg-theme-tertiary transition-colors text-xs font-bold font-mono uppercase tracking-wider flex items-center gap-2"
               >
                 [+] PROJECT
               </button>
@@ -143,7 +153,7 @@ function DashboardContent() {
 
           <div className="flex items-center justify-between gap-4 overflow-x-auto pb-2 sm:pb-0">
             {/* Filter Tabs - Retro Style */}
-            <div className="flex border border-[#333] rounded-sm bg-black p-0.5">
+            <div className="flex border border-theme rounded-sm bg-theme-primary p-0.5">
               {["all", "concept", "development", "review", "published"].map(status => (
                 <button
                   key={status}
@@ -151,8 +161,8 @@ function DashboardContent() {
                   className={`
                     px-3 py-1 text-[10px] uppercase font-mono tracking-wider transition-all
                     ${filter === status
-                      ? "bg-white text-black font-bold"
-                      : "text-zinc-500 hover:text-white hover:bg-white/10"
+                      ? "bg-theme-primary text-theme-primary font-bold"
+                      : "text-theme-muted hover:text-theme-primary hover:bg-theme-tertiary"
                     }
                   `}
                 >
@@ -162,9 +172,9 @@ function DashboardContent() {
             </div>
 
             {/* Mini Stats - Retro Style */}
-            <div className="flex gap-4 text-[10px] font-mono text-zinc-500 hidden sm:flex">
+            <div className="flex gap-4 text-[10px] font-mono text-theme-muted hidden sm:flex">
               <span className="flex items-center gap-1">
-                TOTAL: <span className="text-white">{stats.total}</span>
+                TOTAL: <span className="text-theme-primary">{stats.total}</span>
               </span>
               <span className="flex items-center gap-1">
                 DEV: <span className="text-blue-400">{stats.development}</span>
@@ -188,8 +198,6 @@ function DashboardContent() {
           />
         </div>
       </main>
-
-      {/* Project Create/Edit Modal */}
 
       {/* Project Create/Edit Modal */}
       {showModal && (

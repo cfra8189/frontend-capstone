@@ -26,37 +26,57 @@
 
 :root,
 :root.dark {
-  --bg-primary: #0a0a0a;
-  --bg-secondary: #141414;
-  --bg-tertiary: #1f1f1f;
+  --bg-primary: #050505;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary: #111111;
   --text-primary: #ffffff;
   --text-secondary: #a0a0a0;
-  --text-muted: #666666;
-  --border-color: #333333;
+  --text-muted: #555555;
+  --border-color: #222222;
   --accent: #ffffff;
   --accent-contrast: #000000;
-  --card-shadow: 4px 4px 0 rgba(0,0,0,0.9);
-  --card-shadow-hover: 6px 6px 0 rgba(0,0,0,0.95);
+  --card-shadow: 0 4px 20px rgba(0,0,0,0.8);
+  --card-shadow-hover: 0 8px 30px rgba(0,0,0,0.9);
 }
 
 :root.light {
-  --bg-primary: #c0c0c0;
-  --bg-secondary: #d0d0d0;
-  --bg-tertiary: #e0e0e0;
+  --bg-primary: #fcfcfc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f5f5f5;
   --text-primary: #000000;
-  --text-secondary: #333333;
-  --text-muted: #666666;
-  --border-color: #000000;
+  --text-secondary: #444444;
+  --text-muted: #999999;
+  --border-color: #e5e5e5;
   --accent: #000000;
   --accent-contrast: #ffffff;
-  --card-shadow: 4px 4px 0 rgba(0,0,0,0.9);
-  --card-shadow-hover: 6px 6px 0 rgba(0,0,0,0.95);
+  --card-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  --card-shadow-hover: 0 8px 30px rgba(0,0,0,0.1);
 }
 
 body {
   background: var(--bg-primary);
   color: var(--text-primary);
   transition: background-color 0.3s, color 0.3s;
+}
+
+/* Premium Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 10px;
+  transition: background 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
 }
 
 .bg-theme-primary { background: var(--bg-primary); }

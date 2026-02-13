@@ -8,10 +8,11 @@ import {
     FolderOpen,
     Plus,
     Trash2,
-    Edit2,
-    Monitor
+    Monitor,
+    Edit2
 } from 'lucide-react';
 import { useDroppable } from '@dnd-kit/core';
+import { RenameModal } from './modals/RenameModal';
 
 interface SidebarProps {
     className?: string;
@@ -51,13 +52,13 @@ const FolderItem: React.FC<{
             <div ref={setNodeRef}>
                 <div
                     className={`
-          flex items-center gap-2 px-2 py-1 cursor-pointer transition-all text-xs font-mono tracking-wide
-          ${isSelected
-                            ? 'bg-white text-black'
-                            : 'text-zinc-400 hover:bg-white hover:text-black'
+           flex items-center gap-2 px-2 py-1.5 cursor-pointer transition-all text-xs font-mono tracking-wide mb-[1px]
+           ${isSelected
+                            ? 'bg-theme-primary text-theme-primary border border-theme-primary shadow-sm'
+                            : 'text-theme-muted hover:bg-theme-tertiary hover:text-theme-primary hover:border-theme border border-transparent'
                         }
-          ${isOver ? 'ring-1 ring-white bg-zinc-800' : ''}
-        `}
+           ${isOver ? 'ring-1 ring-theme-primary bg-theme-tertiary scale-[1.02] shadow-lg z-10' : ''}
+         `}
                     style={{ paddingLeft: `${level * 12 + 8}px` }}
                     onClick={() => onSelect(folder.id)}
                 >
@@ -79,13 +80,13 @@ const FolderItem: React.FC<{
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100">
                             <button
                                 onClick={(e) => { e.stopPropagation(); onRename(folder); }}
-                                className="p-1 hover:bg-black hover:text-white rounded-sm"
+                                className="p-1 hover:bg-theme-tertiary hover:text-theme-primary rounded-sm"
                             >
                                 <Edit2 size={10} />
                             </button>
                             <button
                                 onClick={(e) => { e.stopPropagation(); onDelete(folder); }}
-                                className="p-1 hover:bg-black hover:text-white rounded-sm"
+                                className="p-1 hover:bg-theme-tertiary hover:text-red-500 rounded-sm"
                             >
                                 <Trash2 size={10} />
                             </button>
@@ -127,7 +128,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ className, onRenameFolder, onD
                         level={level}
                         isSelected={selectedFolderId === folder.id}
                         onSelect={selectFolder}
-                        onRename={onRenameFolder}
+                        onRename={(f) => setRenamingFolder(f)}
                         onDelete={onDeleteFolder}
                         expanded={isExpanded}
                         toggleExpand={toggleExpand}
@@ -139,9 +140,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ className, onRenameFolder, onD
         });
     };
 
+    const [renamingFolder, setRenamingFolder] = useState<Folder | null>(null);
+
     return (
-        <div className="flex flex-col h-full bg-[#1e1e1e] border-r border-[#333] font-mono">
-            <div className="p-3 border-b border-[#333] flex items-center justify-between text-zinc-500">
+        <div className="flex flex-col h-full bg-theme-secondary border-r border-theme font-mono">
+            <RenameModal
+                isOpen={renamingFolder !== null}
+                onClose={() => setRenamingFolder(null)}
+                folder={renamingFolder}
+            />
+            <div className="p-3 border-b border-theme flex items-center justify-between text-theme-muted">
                 <span className="text-[10px] font-bold uppercase tracking-widest">FILESYSTEM</span>
             </div>
 
@@ -150,8 +158,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ className, onRenameFolder, onD
                     className={`
             flex items-center gap-2 px-2 py-1 cursor-pointer transition-all text-xs font-mono tracking-wide mb-2 border border-transparent
             ${!selectedFolderId
-                            ? 'bg-white text-black border-white'
-                            : 'text-zinc-400 hover:bg-white hover:text-black hover:border-white'
+                            ? 'bg-theme-primary text-accent border-accent'
+                            : 'text-theme-secondary hover:bg-theme-tertiary hover:text-theme-primary hover:border-theme'
                         }
           `}
                     onClick={() => selectFolder(undefined)}
