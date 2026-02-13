@@ -115,17 +115,8 @@ function DashboardContent() {
           {/* Folder Tree Sidebar */}
           <div className="w-64 flex-shrink-0">
             <div className="card p-4 rounded-xl">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center mb-4">
                 <h2 className="text-lg font-bold">Folders</h2>
-                <button
-                  onClick={() => createFolder()}
-                  className="w-6 h-6 flex items-center justify-center text-theme-muted hover:text-accent"
-                  title="Create folder"
-                >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                    <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                  </svg>
-                </button>
               </div>
               
               {folderLoading ? (
@@ -162,12 +153,20 @@ function DashboardContent() {
                 </h1>
                 <p className="text-sm sm:text-base text-theme-secondary">Track your creative work from concept to publication</p>
               </div>
-              <button
-                onClick={() => { setEditingProject(null); setShowModal(true); }}
-                className="btn-primary font-bold px-4 sm:px-6 py-2 sm:py-3 rounded text-sm sm:text-base w-full sm:w-auto"
-              >
-                + New Project
-              </button>
+              <div className="flex gap-3 w-full sm:w-auto">
+                <button
+                  onClick={() => createFolder()}
+                  className="btn-primary font-bold px-4 sm:px-6 py-2 sm:py-3 rounded text-sm sm:text-base flex-1 sm:flex-none"
+                >
+                  + New Folder
+                </button>
+                <button
+                  onClick={() => { setEditingProject(null); setShowModal(true); }}
+                  className="btn-primary font-bold px-4 sm:px-6 py-2 sm:py-3 rounded text-sm sm:text-base flex-1 sm:flex-none"
+                >
+                  + New Project
+                </button>
+              </div>
             </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-6 sm:mb-8">
