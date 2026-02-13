@@ -210,22 +210,17 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                     style={{ zIndex: 9999, pointerEvents: 'none' }}
                 >
                     {activeProject ? (
-                        <div className="bg-theme-secondary p-4 rounded-sm border border-theme-primary shadow-2xl w-64 cursor-grabbing scale-105">
-                            <div className="flex items-start justify-between mb-3">
-                                <div className="p-2 border border-theme-primary bg-theme-primary text-theme-primary rounded-sm">
-                                    <FileJson size={24} className="text-theme-secondary" />
-                                </div>
+                        <div className="bg-theme-secondary flex items-center gap-3 p-3 rounded-md border border-theme-primary shadow-2xl cursor-grabbing pointer-events-none">
+                            <div className="p-1.5 bg-theme-primary text-theme-secondary rounded-sm">
+                                <FileJson size={16} />
                             </div>
-
-                            <h3 className="text-xs font-bold font-mono text-theme-primary truncate mb-2 mt-2 uppercase tracking-wide">
-                                {activeProject.title}
-                            </h3>
-                            <div className="flex items-center gap-2 text-[10px] font-mono text-theme-muted">
-                                <span className={`
-                                  px-1 py-0.5 border border-theme-primary bg-theme-primary text-theme-primary transition-colors uppercase
-                                `}>
-                                    {activeProject.status || 'development'}
-                                </span>
+                            <div className="min-w-0">
+                                <h3 className="text-xs font-bold font-mono text-theme-primary truncate uppercase tracking-wide max-w-[150px]">
+                                    {activeProject.title}
+                                </h3>
+                                <p className="text-[9px] text-theme-muted font-mono uppercase tracking-wider">
+                                    {activeProject.status || 'concept'}
+                                </p>
                             </div>
                         </div>
                     ) : null}
