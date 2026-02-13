@@ -23,46 +23,7 @@ import BackgroundGif from "./components/BackgroundGif";
 function App() {
   const { user, isLoading, isAuthenticated } = useAuth();
   const [location] = useLocation();
-  const [biosPassed, setBiosPassed] = useState<boolean>(() => {
-    // Allow temporary bypass for testing via (in priority order):
-    //  - URL param `?skipBios=1` or `?skipBios=true`
-    //  - sessionStorage 'bios_passed' (existing behavior)
-    //  - localStorage 'skipBios' (persisted dev override)
-    try {
-      if (typeof window === "undefined") return false;
-      const params = new URLSearchParams(window.location.search);
-      if (params.get("skipBios") === "1" || params.get("skipBios") === "true") return true;
-      if (sessionStorage.getItem("bios_passed") === "true") return true;
-      if (localStorage.getItem("skipBios") === "1") return true;
-      return false;
-    } catch (err) {
-      return false;
-    }
-  });
 
-  useEffect(() => {
-    // If the user is authenticated after an OAuth round-trip, assume the
-    // initial BIOS sequence should be considered completed so it doesn't
-    // re-appear after external redirects.
-    if (isAuthenticated && !biosPassed) {
-      try { sessionStorage.setItem("bios_passed", "true"); } catch (e) {}
-      setBiosPassed(true);
-    }
-  }, [isAuthenticated, biosPassed]);
-
-  // Only show BIOS when the initial auth check has finished. This
-  // prevents a BIOS flash while the app is verifying an OAuth session
-  // after a provider redirect (the auth round-trip sets `isLoading` true).
-  if (!biosPassed && !isLoading) {
-    return (
-      <BiosBoot
-        onComplete={() => {
-          sessionStorage.setItem("bios_passed", "true");
-          setBiosPassed(true);
-        }}
-      />
-    );
-  }
 
   if (location === "/admin") {
     return (
