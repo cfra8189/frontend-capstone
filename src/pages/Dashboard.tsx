@@ -5,6 +5,7 @@ import { FolderProvider, useFolderContext } from "../context/FolderContext";
 import { Project } from "../types/folder";
 import { FileExplorer } from "../components/FileExplorer/FileExplorer";
 import GlobalEffects from "../components/GlobalEffects";
+import PageTransition from "../components/PageTransition";
 
 function DashboardContent() {
   const { user } = useAuth();
@@ -89,107 +90,109 @@ function DashboardContent() {
     : projects.filter(p => p.status === filter);
 
   return (
-    <div className="min-h-screen bg-theme-primary text-theme-secondary font-mono relative flex flex-col overflow-hidden">
-      <GlobalEffects opacity={0.12} />
+    <PageTransition>
+      <div className="min-h-screen bg-theme-primary text-theme-secondary font-mono relative flex flex-col overflow-hidden">
+        <GlobalEffects opacity={0.12} />
 
-      {/* CRT Scanline Overlay */}
-      <div className="fixed inset-0 pointer-events-none z-[100] opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
+        {/* CRT Scanline Overlay */}
+        <div className="fixed inset-0 pointer-events-none z-[100] opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
 
-      <Header />
+        <Header />
 
-      <main className="flex-1 p-4 lg:p-10 overflow-hidden relative z-10">
-        <FileExplorer
-          projects={filteredProjects}
-          loading={loading || folderLoading}
-          onProjectEdit={(project) => {
-            setEditingProject(project);
-            setShowModal(true);
-          }}
-          onProjectDelete={deleteProject}
-          onRefresh={loadProjects}
-        />
-      </main>
+        <main className="flex-1 p-4 lg:p-10 overflow-hidden relative z-10">
+          <FileExplorer
+            projects={filteredProjects}
+            loading={loading || folderLoading}
+            onProjectEdit={(project) => {
+              setEditingProject(project);
+              setShowModal(true);
+            }}
+            onProjectDelete={deleteProject}
+            onRefresh={loadProjects}
+          />
+        </main>
 
-      {/* Project Modal */}
-      {showModal && (
-        <div
-          className="fixed inset-0 bg-black/40 flex items-center justify-center p-6 z-[300] backdrop-blur-3xl"
-          onClick={() => setShowModal(false)}
-        >
+        {/* Project Modal */}
+        {showModal && (
           <div
-            className="bg-theme-secondary/80 border border-theme p-6 max-w-lg w-full shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-md"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 bg-black/40 flex items-center justify-center p-6 z-[300] backdrop-blur-3xl"
+            onClick={() => setShowModal(false)}
           >
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-bold text-theme-primary uppercase tracking-widest">
-                {editingProject ? "Update Project" : "Initialize New Project"}
-              </h3>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-theme-muted hover:text-theme-primary text-xl"
-              >
-                &times;
-              </button>
+            <div
+              className="bg-theme-secondary/80 border border-theme p-6 max-w-lg w-full shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-bold text-theme-primary uppercase tracking-widest">
+                  {editingProject ? "Update Project" : "Initialize New Project"}
+                </h3>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="text-theme-muted hover:text-theme-primary text-xl"
+                >
+                  &times;
+                </button>
+              </div>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-theme-muted mb-1 tracking-widest">Title</label>
+                  <input
+                    name="title"
+                    defaultValue={editingProject?.title}
+                    required
+                    className="w-full bg-theme-primary border border-theme p-2 text-sm text-theme-primary font-mono outline-none"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase text-theme-muted mb-1 tracking-widest">Type</label>
+                    <select
+                      name="type"
+                      defaultValue={editingProject?.type || "single"}
+                      className="w-full bg-theme-primary border border-theme p-2 text-sm text-theme-primary font-mono outline-none"
+                    >
+                      <option value="single">Single</option>
+                      <option value="ep">EP</option>
+                      <option value="album">Album</option>
+                      <option value="beat">Beat</option>
+                      <option value="sample">Sample Pack</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase text-theme-muted mb-1 tracking-widest">Status</label>
+                    <select
+                      name="status"
+                      defaultValue={editingProject?.status || "concept"}
+                      className="w-full bg-theme-primary border border-theme p-2 text-sm text-theme-primary font-mono outline-none"
+                    >
+                      <option value="concept">Concept</option>
+                      <option value="development">Development</option>
+                      <option value="review">Review</option>
+                      <option value="published">Published</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-theme-muted mb-1 tracking-widest">Description</label>
+                  <textarea
+                    name="description"
+                    defaultValue={editingProject?.description || ""}
+                    rows={3}
+                    className="w-full bg-theme-primary border border-theme p-2 text-sm text-theme-primary font-mono outline-none"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-theme-primary text-theme-primary border border-theme font-bold py-3 uppercase tracking-widest hover:bg-theme-secondary transition-all"
+                >
+                  {editingProject ? "Confirm Changes" : "Create Project"}
+                </button>
+              </form>
             </div>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-[10px] font-bold uppercase text-theme-muted mb-1 tracking-widest">Title</label>
-                <input
-                  name="title"
-                  defaultValue={editingProject?.title}
-                  required
-                  className="w-full bg-theme-primary border border-theme p-2 text-sm text-theme-primary font-mono outline-none"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[10px] font-bold uppercase text-theme-muted mb-1 tracking-widest">Type</label>
-                  <select
-                    name="type"
-                    defaultValue={editingProject?.type || "single"}
-                    className="w-full bg-theme-primary border border-theme p-2 text-sm text-theme-primary font-mono outline-none"
-                  >
-                    <option value="single">Single</option>
-                    <option value="ep">EP</option>
-                    <option value="album">Album</option>
-                    <option value="beat">Beat</option>
-                    <option value="sample">Sample Pack</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold uppercase text-theme-muted mb-1 tracking-widest">Status</label>
-                  <select
-                    name="status"
-                    defaultValue={editingProject?.status || "concept"}
-                    className="w-full bg-theme-primary border border-theme p-2 text-sm text-theme-primary font-mono outline-none"
-                  >
-                    <option value="concept">Concept</option>
-                    <option value="development">Development</option>
-                    <option value="review">Review</option>
-                    <option value="published">Published</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold uppercase text-theme-muted mb-1 tracking-widest">Description</label>
-                <textarea
-                  name="description"
-                  defaultValue={editingProject?.description || ""}
-                  rows={3}
-                  className="w-full bg-theme-primary border border-theme p-2 text-sm text-theme-primary font-mono outline-none"
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-theme-primary text-theme-primary border border-theme font-bold py-3 uppercase tracking-widest hover:bg-theme-secondary transition-all"
-              >
-                {editingProject ? "Confirm Changes" : "Create Project"}
-              </button>
-            </form>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </PageTransition>
   );
 }
 

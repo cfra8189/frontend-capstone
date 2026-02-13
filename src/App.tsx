@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "./hooks/use-auth";
 import { NotificationProvider } from "./context/NotificationContext";
 import { Route, Switch, useLocation } from "wouter";
+import { AnimatePresence } from "framer-motion";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 import CreativeSpace from "./pages/CreativeSpace";
@@ -106,25 +107,27 @@ function App() {
   return (
     <NotificationProvider>
       <GlobalEffects />
-      <Switch>
-        <Route path="/" component={Dashboard} />
-        <Route path="/creative" component={CreativeSpace} />
-        <Route path="/project/:id" component={ProjectDetails} />
-        <Route path="/generator" component={Generator} />
-        <Route path="/documents" component={Documents} />
-        <Route path="/submissions" component={SubmissionGenerator} />
-        <Route path="/epk" component={EPK} />
-        <Route path="/settings" component={Settings} />
-        <Route path="/studio" component={StudioDashboard} />
-        <Route>
-          <div className="min-h-screen flex items-center justify-center">
-            <div className="text-center">
-              <h1 className="text-2xl font-bold mb-4">404</h1>
-              <p className="text-gray-500">Page not found</p>
+      <AnimatePresence mode="wait">
+        <Switch location={location} key={location}>
+          <Route path="/" component={Dashboard} />
+          <Route path="/creative" component={CreativeSpace} />
+          <Route path="/project/:id" component={ProjectDetails} />
+          <Route path="/generator" component={Generator} />
+          <Route path="/documents" component={Documents} />
+          <Route path="/submissions" component={SubmissionGenerator} />
+          <Route path="/epk" component={EPK} />
+          <Route path="/settings" component={Settings} />
+          <Route path="/studio" component={StudioDashboard} />
+          <Route>
+            <div className="min-h-screen flex items-center justify-center">
+              <div className="text-center">
+                <h1 className="text-2xl font-bold mb-4">404</h1>
+                <p className="text-gray-500">Page not found</p>
+              </div>
             </div>
-          </div>
-        </Route>
-      </Switch>
+          </Route>
+        </Switch>
+      </AnimatePresence>
     </NotificationProvider>
   );
 }

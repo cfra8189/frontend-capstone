@@ -1,9 +1,9 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Project } from '../../types/folder';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { FileMusic, Disc, Mic2, Layers, MoreVertical, Edit2, Trash2, ExternalLink, Music, AlignLeft, Check, ChevronDown } from 'lucide-react';
+import { FileMusic, Disc, Mic2, Layers, MoreVertical, Edit2, Trash2, ExternalLink, Music, AlignLeft, Check, ChevronDown, ArrowUp, ArrowDown, GripVertical } from 'lucide-react';
 import { Link } from 'wouter';
 
 interface ProjectGridProps {
@@ -13,6 +13,9 @@ interface ProjectGridProps {
     onDelete: (id: string) => void;
     onMoveProject: (project: Project) => void;
 }
+
+type SortKey = 'title' | 'updatedAt';
+type SortOrder = 'asc' | 'desc';
 
 const ProjectRow: React.FC<{
     project: Project;
@@ -26,39 +29,45 @@ const ProjectRow: React.FC<{
     });
 
     const [showMenu, setShowMenu] = useState(false);
+    const [showStatusMenu, setShowStatusMenu] = useState(false);
     const [localStatus, setLocalStatus] = useState(project.status || 'concept');
     const [localDesc, setLocalDesc] = useState(project.description || '');
-    const menuRef = useRef<HTMLDivElement>(null);
 
-    // Close menu when clicking outside
+    const menuRef = useRef<HTMLDivElement>(null);
+    const statusMenuRef = useRef<HTMLDivElement>(null);
+
+    // Close menus when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
                 setShowMenu(false);
             }
+            if (statusMenuRef.current && !statusMenuRef.current.contains(event.target as Node)) {
+                setShowStatusMenu(false);
+            }
         };
 
-        if (showMenu) {
+        if (showMenu || showStatusMenu) {
             document.addEventListener('mousedown', handleClickOutside);
         }
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [showMenu]);
+    }, [showMenu, showStatusMenu]);
 
     const style = transform ? {
         transform: CSS.Translate.toString(transform),
-        zIndex: isDragging ? 50 : showMenu ? 40 : 1, // Ensure menu allows z-index to work
+        zIndex: isDragging ? 50 : (showMenu || showStatusMenu) ? 40 : 1,
         opacity: isDragging ? 0 : 1,
     } : undefined;
 
     const getIcon = () => {
         switch (project.type) {
-            case 'album': return <Disc size={16} className="text-purple-500" />;
-            case 'ep': return <Layers size={16} className="text-blue-500" />;
-            case 'beat': return <FileMusic size={16} className="text-theme-primary" />;
-            case 'sample': return <Mic2 size={16} className="text-yellow-500" />;
-            default: return <FileMusic size={16} className="text-theme-secondary" />;
+            case 'album': return <Disc size={14} className="text-purple-500" />;
+            case 'ep': return <Layers size={14} className="text-blue-500" />;
+            case 'beat': return <FileMusic size={14} className="text-theme-primary" />;
+            case 'sample': return <Mic2 size={14} className="text-yellow-500" />;
+            default: return <FileMusic size={14} className="text-theme-secondary" />;
         }
     };
 
@@ -69,111 +78,154 @@ const ProjectRow: React.FC<{
         demo: 'text-yellow-500'
     };
 
+    const statuses = ['concept', 'development', 'demo', 'published'];
+
     return (
         <div
             ref={setNodeRef}
             style={style}
-            {...listeners}
-            {...attributes}
             className={`
-                group relative flex items-center gap-4 p-3 
-                border-b border-theme/20 hover:bg-theme-secondary/50 
-                transition-all cursor-grab active:cursor-grabbing
+                group relative flex items-center gap-3 py-2 px-3 
+                border-b border-theme/10 hover:bg-theme-secondary/30 
+                transition-all
                 ${isDragging ? 'opacity-0' : ''}
             `}
-            // Double click to open?
-            onDoubleClick={() => onEdit(project)}
         >
+            {/* Drag Handle Column */}
+            <div
+                {...listeners}
+                {...attributes}
+                className="w-6 flex items-center justify-center cursor-grab active:cursor-grabbing text-theme-muted opacity-0 group-hover:opacity-40 hover:!opacity-100 transition-opacity"
+            >
+                <GripVertical size={14} />
+            </div>
+
             {/* Icon Column */}
-            <div className="w-8 flex justify-center text-theme-secondary group-hover:text-theme-primary transition-colors">
+            <div className="w-8 flex justify-center text-theme-muted group-hover:text-theme-primary transition-colors">
                 {getIcon()}
             </div>
 
-            {/* Title Column */}
-            <div className="flex-1 min-w-0">
-                <Link href={`/project/${project.id}`} className="hover:underline block truncate font-bold font-mono text-xs uppercase tracking-wider text-theme-primary">
+            {/* Title Column - Tightened width */}
+            <div className="w-48 min-w-0">
+                <Link href={`/project/${project.id}`} className="hover:underline block truncate font-bold font-mono text-[11px] uppercase tracking-wider text-theme-primary">
                     {project.title}
                 </Link>
             </div>
 
 
-            {/* Status Dropdown (Mock for now) */}
-            <div className="w-32 hidden sm:block relative group/status">
-                <button className={`flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest px-2 py-1 rounded-sm border border-transparent hover:border-theme/30 hover:bg-theme-primary/10 transition-all ${statusColors[localStatus] || 'text-theme-muted'}`}>
-                    <span>{localStatus}</span>
-                    <ChevronDown size={10} className="opacity-0 group-hover/status:opacity-50" />
+            {/* Status Dropdown (Functional) */}
+            <div className="w-28 hidden sm:block relative">
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setShowStatusMenu(!showStatusMenu);
+                    }}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    className={`flex items-center gap-1 text-[9px] font-mono uppercase tracking-widest px-2 py-0.5 rounded-sm border border-transparent hover:border-theme/20 hover:bg-theme-primary/5 transition-all ${statusColors[localStatus] || 'text-theme-muted'}`}
+                >
+                    <span className="truncate">{localStatus}</span>
+                    <ChevronDown size={8} className="opacity-50" />
                 </button>
+
+                {showStatusMenu && (
+                    <div
+                        ref={statusMenuRef}
+                        className="absolute left-0 top-full mt-1 bg-theme-secondary border border-theme shadow-2xl rounded-sm z-[100] w-32 flex flex-col overflow-hidden"
+                        onPointerDown={(e) => e.stopPropagation()}
+                    >
+                        {statuses.map(s => (
+                            <button
+                                key={s}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setLocalStatus(s);
+                                    setShowStatusMenu(false);
+                                }}
+                                className={`flex items-center justify-between px-3 py-1.5 text-[9px] font-mono uppercase hover:bg-theme-tertiary transition-colors ${statusColors[s]} ${localStatus === s ? 'bg-theme-primary/5' : ''}`}
+                            >
+                                {s}
+                                {localStatus === s && <Check size={8} />}
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Date Column */}
-            <div className="w-24 hidden md:block text-[10px] font-mono text-theme-muted/50 uppercase tracking-wider text-right">
+            <div className="w-20 hidden md:block text-[9px] font-mono text-theme-muted/40 uppercase tracking-wider">
                 {new Date(project.updatedAt).toLocaleDateString()}
             </div>
 
-            {/* Notes Field (Input) */}
-            <div className="w-48 hidden lg:block">
+            {/* Notes Field (Input) - Flex to fill remaining space */}
+            <div className="flex-1 hidden lg:block min-w-0">
                 <div className="relative group/notes">
                     <input
                         type="text"
                         value={localDesc}
                         onChange={(e) => setLocalDesc(e.target.value)}
                         placeholder="Add note..."
-                        className="w-full bg-transparent border-b border-transparent hover:border-theme/30 focus:border-theme-primary text-[10px] font-mono text-theme-muted focus:text-theme-primary outline-none px-1 py-0.5 transition-all placeholder:text-theme-muted/20"
-                        onKeyDown={(e) => e.stopPropagation()} // Allow typing without triggering drag sorts if any
-                        onPointerDown={(e) => e.stopPropagation()} // Prevent drag start when clicking input
+                        className="w-full bg-transparent border-b border-transparent hover:border-theme/20 focus:border-theme-primary text-[9px] font-mono text-theme-muted/60 focus:text-theme-primary outline-none px-1 py-0.5 transition-all placeholder:text-theme-muted/10"
+                        onKeyDown={(e) => e.stopPropagation()}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => e.stopPropagation()}
                     />
                 </div>
             </div>
 
             {/* Actions Column */}
-            <div className="w-10 flex justify-end relative">
+            <div className="w-8 flex justify-end relative">
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
+                        e.preventDefault();
                         setShowMenu(!showMenu);
                     }}
-                    className="p-1.5 hover:bg-theme-secondary hover:text-theme-primary rounded-sm text-theme-muted transition-colors opacity-0 group-hover:opacity-100"
+                    onPointerDown={(e) => e.stopPropagation()}
+                    className="p-1 hover:bg-theme-secondary hover:text-theme-primary rounded-sm text-theme-muted transition-colors opacity-0 group-hover:opacity-60 hover:!opacity-100"
                 >
-                    <MoreVertical size={14} />
+                    <MoreVertical size={12} />
                 </button>
 
                 {showMenu && (
                     <div
                         ref={menuRef}
-                        className="absolute right-0 top-8 bg-theme-secondary border border-theme shadow-xl rounded-sm z-50 w-32 flex flex-col pointer-events-auto"
-                        onClick={(e) => e.stopPropagation()}
-                        style={{ cursor: 'default' }}
+                        className="absolute right-0 top-full mt-1 bg-theme-secondary border border-theme shadow-2xl rounded-sm z-50 w-32 flex flex-col overflow-hidden"
+                        onPointerDown={(e) => e.stopPropagation()}
                     >
                         <Link href={`/project/${project.id}`}>
-                            <a className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-theme-tertiary text-theme-secondary hover:text-theme-primary transition-colors">
+                            <a className="flex items-center gap-2 px-3 py-2 text-[10px] hover:bg-theme-tertiary text-theme-secondary hover:text-theme-primary transition-colors uppercase font-mono tracking-wider">
                                 <ExternalLink size={10} /> Open
                             </a>
                         </Link>
                         <button
-                            onClick={() => {
+                            onClick={(e) => {
+                                e.stopPropagation();
                                 setShowMenu(false);
                                 onEdit(project);
                             }}
-                            className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-theme-tertiary text-theme-secondary hover:text-theme-primary transition-colors text-left"
+                            className="flex items-center gap-2 px-3 py-2 text-[10px] hover:bg-theme-tertiary text-theme-secondary hover:text-theme-primary transition-colors text-left uppercase font-mono tracking-wider"
                         >
                             <Edit2 size={10} /> Edit
                         </button>
                         <button
-                            onClick={() => {
+                            onClick={(e) => {
+                                e.stopPropagation();
                                 setShowMenu(false);
                                 onMoveProject(project);
                             }}
-                            className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-theme-tertiary text-theme-secondary hover:text-theme-primary transition-colors text-left"
+                            className="flex items-center gap-2 px-3 py-2 text-[10px] hover:bg-theme-tertiary text-theme-secondary hover:text-theme-primary transition-colors text-left uppercase font-mono tracking-wider"
                         >
                             <ExternalLink size={10} /> Move To
                         </button>
-                        <div className="h-px bg-theme mx-2 my-1"></div>
+                        <div className="h-px bg-theme/20 mx-2 my-1"></div>
                         <button
-                            onClick={() => {
+                            onClick={(e) => {
+                                e.stopPropagation();
                                 setShowMenu(false);
                                 onDelete(project.id);
                             }}
-                            className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-red-900/20 hover:text-red-400 text-red-500 transition-colors text-left"
+                            className="flex items-center gap-2 px-3 py-2 text-[10px] hover:bg-red-900/10 hover:text-red-400 text-red-500/80 transition-colors text-left uppercase font-mono tracking-wider"
                         >
                             <Trash2 size={10} /> Delete
                         </button>
@@ -185,10 +237,41 @@ const ProjectRow: React.FC<{
 };
 
 export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, loading, onEdit, onDelete, onMoveProject }) => {
+    const [sortKey, setSortKey] = useState<SortKey>('updatedAt');
+    const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+
+    const sortedProjects = useMemo(() => {
+        return [...projects].sort((a, b) => {
+            let valA: string | number = a[sortKey] || '';
+            let valB: string | number = b[sortKey] || '';
+
+            if (sortKey === 'updatedAt') {
+                valA = new Date(a.updatedAt).getTime();
+                valB = new Date(b.updatedAt).getTime();
+            } else {
+                valA = String(valA).toLowerCase();
+                valB = String(valB).toLowerCase();
+            }
+
+            if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+            if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }, [projects, sortKey, sortOrder]);
+
+    const handleSort = (key: SortKey) => {
+        if (sortKey === key) {
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortKey(key);
+            setSortOrder('asc');
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex-1 flex items-center justify-center text-zinc-500">
-                <div className="animate-pulse">Loading projects...</div>
+                <div className="animate-pulse font-mono uppercase tracking-[0.2em] text-[10px]">Loading vault...</div>
             </div>
         );
     }
@@ -196,30 +279,57 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, loading, onE
     if (projects.length === 0) {
         return (
             <div className="flex-1 flex flex-col items-center justify-center text-zinc-500">
-                <Layers size={48} className="mb-4 opacity-20" />
-                <p>No projects in this folder</p>
-                <p className="text-sm opacity-50 mt-2">Drag projects here or create a new one</p>
+                <Layers size={48} className="mb-4 opacity-10" />
+                <p className="font-mono uppercase tracking-widest text-[10px]">No projects found</p>
+                <p className="text-[9px] font-mono opacity-30 mt-2 uppercase tracking-tighter">Drag projects here or initiate NEW_PROJECT</p>
             </div>
         );
     }
 
     return (
-        <div className="flex flex-col w-full h-full overflow-y-auto">
+        <div className="flex flex-col w-full h-full overflow-y-auto custom-scrollbar">
             {/* Header Row */}
-            <div className="flex items-center gap-4 px-3 py-2 border-b border-theme/30 bg-theme-secondary/20 backdrop-blur-sm sticky top-0 z-20 text-[9px] font-bold font-mono uppercase tracking-[0.2em] text-theme-muted select-none">
-                <div className="w-8 flex justify-center">
-                    <AlignLeft size={12} />
+            <div className="flex items-center gap-3 px-3 py-1.5 border-b border-theme/20 bg-theme-secondary/40 backdrop-blur-md sticky top-0 z-20 text-[8px] font-bold font-mono uppercase tracking-[0.2em] text-theme-muted select-none">
+                <div className="w-6 flex justify-center opacity-30">
+                    <AlignLeft size={10} />
                 </div>
-                <div className="flex-1">NAME</div>
-                <div className="w-32 hidden sm:block">STATUS</div>
-                <div className="w-24 hidden md:block text-right">UPDATED</div>
-                <div className="w-48 hidden lg:block">NOTES</div>
-                <div className="w-10"></div>
+                <div className="w-8 flex justify-center opacity-30">
+                    <Music size={10} />
+                </div>
+
+                <div
+                    className="w-48 cursor-pointer hover:text-theme-primary transition-colors flex items-center gap-2 group"
+                    onClick={() => handleSort('title')}
+                >
+                    NAME
+                    {sortKey === 'title' ? (
+                        sortOrder === 'asc' ? <ArrowUp size={8} className="text-theme-primary" /> : <ArrowDown size={8} className="text-theme-primary" />
+                    ) : (
+                        <ArrowUp size={8} className="opacity-0 group-hover:opacity-20" />
+                    )}
+                </div>
+
+                <div className="w-28 hidden sm:block">STATUS</div>
+
+                <div
+                    className="w-20 hidden md:block cursor-pointer hover:text-theme-primary transition-colors flex items-center gap-2 group"
+                    onClick={() => handleSort('updatedAt')}
+                >
+                    UPDATED
+                    {sortKey === 'updatedAt' ? (
+                        sortOrder === 'asc' ? <ArrowUp size={8} className="text-theme-primary" /> : <ArrowDown size={8} className="text-theme-primary" />
+                    ) : (
+                        <ArrowUp size={8} className="opacity-0 group-hover:opacity-20" />
+                    )}
+                </div>
+
+                <div className="flex-1 hidden lg:block">NOTES</div>
+                <div className="w-8"></div>
             </div>
 
             {/* Project Rows */}
             <div className="flex-1 pb-10">
-                {projects.map((project) => (
+                {sortedProjects.map((project) => (
                     <ProjectRow
                         key={project.id}
                         project={project}

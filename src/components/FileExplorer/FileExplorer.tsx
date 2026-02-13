@@ -210,15 +210,15 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                     style={{ zIndex: 9999, pointerEvents: 'none' }}
                 >
                     {activeProject ? (
-                        <div className="bg-theme-secondary flex items-center gap-3 p-3 rounded-md border border-theme-primary shadow-2xl cursor-grabbing pointer-events-none">
-                            <div className="p-1.5 bg-theme-primary text-theme-secondary rounded-sm">
-                                <FileJson size={16} />
+                        <div className="bg-theme-secondary/50 flex items-center gap-2 p-2 rounded-sm border border-theme-primary/30 shadow-xl cursor-grabbing pointer-events-none w-40 backdrop-blur-sm">
+                            <div className="p-1 bg-theme-primary text-theme-secondary rounded-sm opacity-50">
+                                <FileJson size={12} />
                             </div>
                             <div className="min-w-0">
-                                <h3 className="text-xs font-bold font-mono text-theme-primary truncate uppercase tracking-wide max-w-[150px]">
+                                <h3 className="text-[10px] font-bold font-mono text-theme-primary truncate uppercase tracking-tight opacity-70">
                                     {activeProject.title}
                                 </h3>
-                                <p className="text-[9px] text-theme-muted font-mono uppercase tracking-wider">
+                                <p className="text-[8px] text-theme-muted font-mono uppercase tracking-tighter opacity-50">
                                     {activeProject.status || 'concept'}
                                 </p>
                             </div>
