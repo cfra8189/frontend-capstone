@@ -71,7 +71,7 @@ const FolderTree: React.FC<FolderTreeProps> = ({
           className={`flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-colors ${
             isSelected ? 'bg-accent text-accent-contrast' : 'hover:bg-theme-tertiary'
           }`}
-          style={{ paddingLeft: `${level * 16 + 12}px` }}
+          style={{ paddingLeft: `${level * 20}px` }}
           onClick={() => onFolderSelect(folder)}
         >
           {/* Expand/Collapse Icon */}
@@ -173,13 +173,7 @@ const FolderTree: React.FC<FolderTreeProps> = ({
 
         {/* Children */}
         {isExpanded && hasChildren && (
-          <div
-            className="overflow-hidden transition-all duration-200"
-            style={{ 
-              maxHeight: isExpanded ? '1000px' : '0',
-              opacity: isExpanded ? 1 : 0
-            }}
-          >
+          <div className="folder-children ml-4">
             {folder.children!.map(child => (
               <FolderTree
                 key={child.id}
@@ -199,8 +193,12 @@ const FolderTree: React.FC<FolderTreeProps> = ({
   };
 
   return (
-    <div className="folder-tree space-y-1">
-      {folders.map(folder => renderFolder(folder))}
+    <div className="folder-tree">
+      {folders.map(folder => (
+        <div key={folder.id} className="folder-item">
+          {renderFolder(folder)}
+        </div>
+      ))}
     </div>
   );
 };
