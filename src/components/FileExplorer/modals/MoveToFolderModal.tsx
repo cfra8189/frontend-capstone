@@ -34,10 +34,10 @@ export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({ isOpen, on
     const handleMove = async (folderId: string) => {
         try {
             setMoving(true);
-            const idsToMove = selectedProjectIds.size > 0 
+            const idsToMove = selectedProjectIds.size > 0
                 ? Array.from(selectedProjectIds)
                 : projects.map(p => p.id);
-            
+
             await Promise.all(idsToMove.map(id => moveProject(id, folderId)));
             onClose();
         } catch (error) {
@@ -57,8 +57,14 @@ export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({ isOpen, on
     };
 
     return (
-        <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-6 z-[400] backdrop-blur-md">
-            <div className="bg-theme-secondary border border-theme w-full max-w-2xl shadow-2xl rounded-sm overflow-hidden flex flex-col max-h-[80vh]">
+        <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center p-6 z-[400]"
+            onClick={onClose}
+        >
+            <div
+                className="bg-theme-secondary border border-theme w-full max-w-2xl shadow-2xl rounded-sm overflow-hidden flex flex-col max-h-[80vh]"
+                onClick={(e) => e.stopPropagation()}
+            >
                 <div className="p-4 border-b border-theme flex items-center justify-between bg-theme-tertiary">
                     <div className="flex flex-col">
                         <span className="text-[10px] font-bold text-theme-muted uppercase tracking-[0.2em]">FILE_OPERATIONS</span>
@@ -78,7 +84,7 @@ export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({ isOpen, on
                             <p className="text-[10px] text-theme-muted uppercase tracking-widest mb-2">SELECT_PROJECTS</p>
                             <div className="flex justify-between items-center">
                                 <span className="text-[9px] text-theme-primary font-mono">{selectedProjectIds.size || projects.length} SELECTED</span>
-                                <button 
+                                <button
                                     onClick={() => setSelectedProjectIds(selectedProjectIds.size === projects.length ? new Set() : new Set(projects.map(p => p.id)))}
                                     className="text-[9px] text-accent hover:underline uppercase tracking-tighter"
                                 >
@@ -126,8 +132,8 @@ export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({ isOpen, on
                             {targetFolder ? (
                                 <button
                                     onClick={() => handleMove(targetFolder.id)}
-                                    disabled={moving}
-                                    className="w-full flex items-center gap-3 p-3 bg-accent/10 border border-accent hover:bg-accent/20 text-left transition-all rounded-sm group"
+                                    disabled={moving || (selectedProjectIds.size === 0 && projects.length === 0)}
+                                    className="w-full flex items-center gap-3 p-3 bg-accent/10 border border-accent hover:bg-accent/20 text-left transition-all rounded-sm group disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <FolderIcon size={16} className="text-accent" />
                                     <div className="flex-1">

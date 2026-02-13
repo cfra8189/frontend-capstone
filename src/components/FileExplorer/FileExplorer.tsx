@@ -24,6 +24,7 @@ import { useFolderContext } from '../../context/FolderContext';
 import { Project, Folder } from '../../types/folder';
 import { CreateFolderModal } from './modals/CreateFolderModal';
 import { MoveToFolderModal } from './modals/MoveToFolderModal';
+import CreativeSpaceContent from '../Creative/CreativeSpaceContent';
 
 interface FileExplorerProps {
     projects: Project[];
@@ -43,6 +44,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     const [showCreateFolder, setShowCreateFolder] = useState(false);
     const [movingProjects, setMovingProjects] = useState<Project[]>([]);
     const [targetFolder, setTargetFolder] = useState<Folder | null>(null);
+    const [view, setView] = useState<'files' | 'creative'>('files');
 
     const { setNodeRef: setGridDropRef, isOver: isOverGrid } = useDroppable({
         id: `grid-${selectedFolderId || 'root'}`,
@@ -71,7 +73,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         if (over && active.id !== over.id) {
             const folderId = over.data.current?.id;
             const projectId = active.data.current?.id;
-            
+
             if (folderId && projectId && folderId !== active.data.current?.folderId) {
                 try {
                     await moveProject(projectId, folderId);
@@ -88,7 +90,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     return (
         <DndContext
             sensors={sensors}
-            collisionDetection={closestCenter}
+            collisionDetection={pointerWithin}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
@@ -108,57 +110,79 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                 targetFolder={targetFolder}
             />
 
-            <div className="flex h-[calc(100vh-140px)] bg-theme-secondary/20 backdrop-blur-2xl text-theme-primary overflow-hidden rounded-lg border border-theme/30 shadow-2xl relative z-10 transition-all duration-500">
-                <Sidebar
-                    className="w-64 flex-shrink-0"
-                    onDeleteFolder={(folder) => deleteFolder(folder)}
-                    onRenameFolder={() => { }} // Sidebar handles its own renaming state
-                    onAddProjects={(folder) => {
-                        setTargetFolder(folder);
-                        setMovingProjects(projects);
-                    }}
-                />
-
-                <div
-                    ref={setGridDropRef}
-                    className={`flex-1 flex flex-col min-w-0 relative transition-all duration-300 ${isOverGrid ? 'bg-theme-primary/10 ring-2 ring-inset ring-theme-primary/30' : ''}`}
-                >
-                    {/* Interior Toolbar */}
-                    <div className="border-b border-theme/20 p-3 flex items-center justify-between bg-transparent backdrop-blur-md">
-                        <div className="flex items-center gap-3">
-                            <div className="w-1 h-3 bg-theme-primary animate-pulse" />
-                            <span className="text-[10px] font-mono font-bold text-theme-primary uppercase tracking-[0.3em]">
-                                {selectedFolderId ? folders.find(f => f.id === selectedFolderId)?.name || 'Folder' : 'ROOT_PROJECTS'}
-                            </span>
-                        </div>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => setShowCreateFolder(true)}
-                                className="flex items-center gap-2 px-3 py-1 border border-theme hover:bg-theme-secondary hover:text-theme-primary transition-all text-[9px] font-mono uppercase tracking-widest group"
-                            >
-                                <FolderPlus size={12} className="opacity-50 group-hover:opacity-100" />
-                                <span>NEW_FOLDER</span>
-                            </button>
-                            <button
-                                onClick={() => onProjectEdit(null as any)}
-                                className="flex items-center gap-2 px-3 py-1 bg-theme-primary text-theme-primary border border-theme hover:bg-theme-secondary transition-all text-[9px] font-bold font-mono uppercase tracking-widest group"
-                            >
-                                <Plus size={12} />
-                                <span>NEW_PROJECT</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto custom-scrollbar">
-                        <ProjectGrid
-                            projects={projects}
-                            loading={loading}
-                            onEdit={onProjectEdit}
-                            onDelete={onProjectDelete}
-                            onMoveProject={(p) => setMovingProjects([p])}
-                        />
-                    </div>
+            <div className="bg-theme-secondary/20 backdrop-blur-2xl text-theme-primary rounded-lg border border-theme/30 shadow-2xl relative z-10 transition-all duration-500 flex flex-col h-[calc(100vh-140px)] overflow-hidden">
+                {/* Tabs */}
+                <div className="flex border-b border-theme/30 bg-theme-primary/10 backdrop-blur-md">
+                    <button
+                        onClick={() => setView('files')}
+                        className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-[0.2em] transition-all hover:bg-theme-secondary/20 ${view === 'files' ? 'text-accent border-b-2 border-accent bg-accent/5' : 'text-theme-muted border-b-2 border-transparent'}`}
+                    >
+                        PROJECT_FILES
+                    </button>
+                    <button
+                        onClick={() => setView('creative')}
+                        className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-[0.2em] transition-all hover:bg-theme-secondary/20 ${view === 'creative' ? 'text-accent border-b-2 border-accent bg-accent/5' : 'text-theme-muted border-b-2 border-transparent'}`}
+                    >
+                        CREATIVE_SPACE
+                    </button>
                 </div>
+
+                {view === 'files' ? (
+                    <div className="flex flex-1 overflow-hidden">
+                        <Sidebar
+                            className="w-64 flex-shrink-0"
+                            onDeleteFolder={(folder) => deleteFolder(folder)}
+                            onRenameFolder={() => { }} // Sidebar handles its own renaming state
+                            onAddProjects={(folder) => {
+                                setTargetFolder(folder);
+                                setMovingProjects(projects);
+                            }}
+                        />
+
+                        <div
+                            ref={setGridDropRef}
+                            className={`flex-1 flex flex-col min-w-0 relative transition-all duration-300 ${isOverGrid ? 'bg-theme-primary/10 ring-2 ring-inset ring-theme-primary/30' : ''}`}
+                        >
+                            {/* Interior Toolbar */}
+                            <div className="border-b border-theme/20 p-3 flex items-center justify-between bg-transparent backdrop-blur-md">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-1 h-3 bg-theme-primary animate-pulse" />
+                                    <span className="text-[10px] font-mono font-bold text-theme-primary uppercase tracking-[0.3em]">
+                                        {selectedFolderId ? folders.find(f => f.id === selectedFolderId)?.name || 'Folder' : 'ROOT_PROJECTS'}
+                                    </span>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => setShowCreateFolder(true)}
+                                        className="flex items-center gap-2 px-3 py-1 border border-theme hover:bg-theme-secondary hover:text-theme-primary transition-all text-[9px] font-mono uppercase tracking-widest group"
+                                    >
+                                        <FolderPlus size={12} className="opacity-50 group-hover:opacity-100" />
+                                        <span>NEW_FOLDER</span>
+                                    </button>
+                                    <button
+                                        onClick={() => onProjectEdit(null as any)}
+                                        className="flex items-center gap-2 px-3 py-1 bg-theme-primary text-theme-primary border border-theme hover:bg-theme-secondary transition-all text-[9px] font-bold font-mono uppercase tracking-widest group"
+                                    >
+                                        <Plus size={12} />
+                                        <span>NEW_PROJECT</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="flex-1 overflow-y-auto custom-scrollbar">
+                                <ProjectGrid
+                                    projects={projects}
+                                    loading={loading}
+                                    onEdit={onProjectEdit}
+                                    onDelete={onProjectDelete}
+                                    onMoveProject={(p) => setMovingProjects([p])}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <CreativeSpaceContent />
+                )}
             </div>
 
             <DragOverlay dropAnimation={{ sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0.4' } } }) }}>
