@@ -3,7 +3,6 @@ import { useAuth } from "../hooks/use-auth";
 import { Link } from "wouter";
 import Header from "../components/Header";
 import FolderTree from "../components/FolderTree";
-import MoveProjectModal from "../components/MoveProjectModal";
 import { FolderProvider, useFolderContext } from "../context/FolderContext";
 import { Project } from "../types/Project";
 
@@ -17,7 +16,6 @@ function DashboardContent() {
     createFolder, 
     renameFolder, 
     deleteFolder,
-    moveProjectToFolder,
     loading: folderLoading 
   } = useFolderContext();
   const [projects, setProjects] = useState<Project[]>([]);
@@ -25,8 +23,6 @@ function DashboardContent() {
   const [showModal, setShowModal] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [filter, setFilter] = useState("all");
-  const [showMoveModal, setShowMoveModal] = useState(false);
-  const [moveProjectId, setMoveProjectId] = useState<string | null>(null);
 
   useEffect(() => {
     loadProjects();
@@ -231,17 +227,6 @@ function DashboardContent() {
                     </div>
                   </div>
                   <div className="flex items-center gap-4 ml-auto">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setMoveProjectId(project.id.toString());
-                        setShowMoveModal(true);
-                      }}
-                      className="text-theme-muted hover:text-accent text-xs sm:text-sm"
-                      title="Move project"
-                    >
-                      Move
-                    </button>
                     <Link
                       href={`/project/${project.id}`}
                       onClick={(e) => e.stopPropagation()}
@@ -264,20 +249,6 @@ function DashboardContent() {
           </div>
         </div>
       </main>
-
-      {/* Move Project Modal */}
-      <MoveProjectModal
-        isOpen={showMoveModal}
-        onClose={() => setShowMoveModal(false)}
-        onMoveProject={(projectId, folderId) => {
-          moveProjectToFolder(projectId, folderId);
-          loadProjects();
-        }}
-        projectId={moveProjectId || ''}
-        projectName={projects.find(p => p.id.toString() === moveProjectId)?.title || ''}
-        currentFolderId={selectedFolderId}
-        folders={folders}
-      />
 
       {/* Project Create/Edit Modal */}
       {showModal && (
