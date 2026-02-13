@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
     DndContext,
     DragOverlay,
@@ -17,7 +18,7 @@ import {
 import {
     sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
-import { FileText, Plus, FolderPlus } from 'lucide-react';
+import { FileText, Plus, FolderPlus, Check, Search, FileJson } from 'lucide-react';
 import { ProjectGrid } from './ProjectGrid';
 import { Sidebar } from './Sidebar';
 import { useFolderContext } from '../../context/FolderContext';
@@ -201,28 +202,29 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                 )}
             </div>
 
-            <DragOverlay
-                dropAnimation={{ sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0.4' } } }) }}
-                style={{ zIndex: 9999 }}
-            >
-                {activeProject ? (
-                    <div className="bg-theme-secondary p-3 rounded-sm border border-theme-primary shadow-2xl opacity-90 cursor-grabbing w-56 scale-95 origin-center transition-transform ring-1 ring-theme-primary/30 font-mono pointer-events-none z-[9999]">
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-theme-tertiary flex items-center justify-center rounded-sm border border-theme text-theme-primary">
-                                <FileText size={16} />
-                            </div>
-                            <div className="flex flex-col min-w-0">
-                                <span className="text-xs font-bold text-theme-primary truncate uppercase tracking-tight">
-                                    {activeProject.title}
-                                </span>
-                                <span className="text-[9px] text-theme-muted uppercase tracking-[0.2em]">
-                                    MOVING_PROJECT
-                                </span>
+            {/* Drag Overlay - Portaled to body to ensure it's above everything */}
+            {typeof document !== 'undefined' && createPortal(
+                <DragOverlay
+                    dropAnimation={{ sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0.4' } } }) }}
+                    style={{ zIndex: 9999, pointerEvents: 'none' }}
+                >
+                    {activeProject ? (
+                        <div className="bg-theme-secondary p-3 rounded-sm border border-theme-primary shadow-2xl opacity-90 cursor-grabbing w-56 scale-95 origin-center transition-transform ring-1 ring-theme-primary/30 font-mono pointer-events-none z-[9999]">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="w-8 h-8 bg-theme-primary/20 flex items-center justify-center rounded-sm text-theme-primary">
+                                    <FileJson size={14} />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <h3 className="font-bold text-theme-primary text-xs truncate uppercase">{activeProject.title}</h3>
+                                    <p className="text-[10px] text-theme-muted truncate uppercase tracking-wider">{activeProject.type}</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ) : null}
-            </DragOverlay>
+                    ) : null}
+                </DragOverlay>,
+                document.body
+            )}
+
 
             {/* Notifications */}
             < Notifications
