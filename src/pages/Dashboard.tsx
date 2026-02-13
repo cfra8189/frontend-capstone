@@ -234,7 +234,7 @@ function DashboardContent() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        setMoveProjectId(project.id);
+                        setMoveProjectId(project.id.toString());
                         setShowMoveModal(true);
                       }}
                       className="text-theme-muted hover:text-accent text-xs sm:text-sm"
@@ -274,13 +274,11 @@ function DashboardContent() {
           loadProjects();
         }}
         projectId={moveProjectId || ''}
-        projectName={projects.find(p => p.id === moveProjectId)?.title || ''}
+        projectName={projects.find(p => p.id.toString() === moveProjectId)?.title || ''}
         currentFolderId={selectedFolderId}
         folders={folders}
       />
     </div>
-  </div>
-</div>
   );
 }
 
