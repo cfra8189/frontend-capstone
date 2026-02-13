@@ -50,7 +50,10 @@ function App() {
     }
   }, [isAuthenticated, biosPassed]);
 
-  if (!biosPassed) {
+  // Only show BIOS when the initial auth check has finished. This
+  // prevents a BIOS flash while the app is verifying an OAuth session
+  // after a provider redirect (the auth round-trip sets `isLoading` true).
+  if (!biosPassed && !isLoading) {
     return (
       <BiosBoot
         onComplete={() => {
