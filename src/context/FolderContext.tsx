@@ -59,6 +59,8 @@ export function FolderProvider({ children }: { children: ReactNode }) {
 
   const createFolder = async (parentId?: string) => {
     try {
+      console.log('Creating folder with parentId:', parentId);
+      
       const parentFolder = folders.find(f => f.id === parentId);
       const folderType = parentFolder?.type === 'root' ? 'year' : 'custom';
       
@@ -71,6 +73,8 @@ export function FolderProvider({ children }: { children: ReactNode }) {
         folderName = promptResult;
       }
 
+      console.log('Creating folder:', { name: folderName.trim(), parentId, type: folderType });
+
       const newFolder = await folderService.createFolder({
         name: folderName.trim(),
         parentId,
@@ -78,8 +82,10 @@ export function FolderProvider({ children }: { children: ReactNode }) {
         year: folderType === 'year' ? new Date().getFullYear() : undefined,
       });
 
+      console.log('Folder created:', newFolder);
       await loadFolders();
     } catch (err) {
+      console.error('Error creating folder:', err);
       setError(err instanceof Error ? err.message : 'Failed to create folder');
     }
   };

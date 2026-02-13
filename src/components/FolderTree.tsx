@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { Folder } from '../types/folder';
-import CreateFolderModal from './CreateFolderModal';
 
 interface FolderTreeProps {
   folders: Folder[];
   selectedFolderId?: string;
   onFolderSelect: (folder: Folder) => void;
-  onFolderCreate?: (parentId?: string, name?: string, type?: 'custom' | 'year', year?: number) => void;
+  onFolderCreate?: (parentId?: string) => void;
   onFolderRename?: (folder: Folder) => void;
   onFolderDelete?: (folder: Folder) => void;
   level?: number;
@@ -24,9 +23,6 @@ const FolderTree: React.FC<FolderTreeProps> = ({
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
   const [editingFolder, setEditingFolder] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [createModalParentId, setCreateModalParentId] = useState<string | undefined>(undefined);
-  const [createModalParentName, setCreateModalParentName] = useState<string>('');
 
   const toggleExpand = (folderId: string) => {
     setExpandedFolders(prev => {
@@ -59,20 +55,7 @@ const FolderTree: React.FC<FolderTreeProps> = ({
   };
 
   const handleCreateFolder = (parentId?: string) => {
-    const parentFolder = parentId ? folders.find(f => f.id === parentId) : undefined;
-    setCreateModalParentId(parentId);
-    setCreateModalParentName(parentFolder?.name || '');
-    setShowCreateModal(true);
-  };
-
-  const handleCreateFolderSubmit = (name: string, type: 'custom' | 'year', year?: number) => {
-    onFolderCreate?.(createModalParentId, name, type, year);
-  };
-
-  const handleCloseCreateModal = () => {
-    setShowCreateModal(false);
-    setCreateModalParentId(undefined);
-    setCreateModalParentName('');
+    onFolderCreate?.(parentId);
   };
 
   const renderFolder = (folder: Folder) => {
@@ -234,14 +217,7 @@ const FolderTree: React.FC<FolderTreeProps> = ({
     <div className="folder-tree">
       {folders.map(folder => renderFolder(folder))}
       
-      {/* Create Folder Modal */}
-      <CreateFolderModal
-        isOpen={showCreateModal}
-        onClose={handleCloseCreateModal}
-        onCreateFolder={handleCreateFolderSubmit}
-        parentFolderName={createModalParentName}
-      />
-    </div>
+      </div>
   );
 };
 
