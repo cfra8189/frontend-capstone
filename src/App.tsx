@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "./hooks/use-auth";
 import { Route, Switch, useLocation } from "wouter";
-import BiosBoot from "./components/BiosBoot";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 import CreativeSpace from "./pages/CreativeSpace";
