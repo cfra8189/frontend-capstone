@@ -160,9 +160,7 @@ export default function Dashboard() {
                     <div>
                       <p className="font-bold text-sm sm:text-base">{project.title}</p>
                       <p className="text-xs text-theme-muted">{project.type}</p>
-                      <p className="text-xs text-theme-accent font-mono">
-                        📁 {project.rootFolder}/{project.folderPath.split('/')[1]}
-                      </p>
+
                     </div>
                   </div>
                   <div className="flex items-center gap-4 ml-auto">
