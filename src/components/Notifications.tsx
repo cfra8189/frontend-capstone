@@ -18,7 +18,7 @@ export const Notifications: React.FC<NotificationsProps> = ({ notifications, onR
       const timer = setTimeout(() => {
         onRemove(notification.id);
       }, notification.duration || 3000);
-      
+
       return () => clearTimeout(timer);
     });
   }, [notifications, onRemove]);
@@ -28,13 +28,12 @@ export const Notifications: React.FC<NotificationsProps> = ({ notifications, onR
       {notifications.map(notification => (
         <div
           key={notification.id}
-          className={`p-4 rounded-lg shadow-lg border max-w-sm animate-pulse ${
-            notification.type === 'success' 
-              ? 'bg-green-500/20 border-green-500/50 text-green-400' 
+          className={`p-4 rounded-sm border max-w-sm shadow-2xl font-mono uppercase tracking-wider text-xs ${notification.type === 'success'
+              ? 'bg-theme-secondary text-theme-primary border-theme-primary'
               : notification.type === 'error'
-              ? 'bg-red-500/20 border-red-500/50 text-red-400'
-              : 'bg-blue-500/20 border-blue-500/50 text-blue-400'
-          }`}
+                ? 'bg-black text-white border-white'
+                : 'bg-theme-secondary text-theme-muted border-theme-muted'
+            }`}
         >
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium">{notification.message}</p>
