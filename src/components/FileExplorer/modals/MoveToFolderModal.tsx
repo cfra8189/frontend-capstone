@@ -30,11 +30,14 @@ export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({
     console.log('MoveToFolderModal - folders from context:', folders);
     console.log('MoveToFolderModal - currentFolderId:', currentFolderId);
 
-    // Filter folders: exclude current folder and apply search
-    const filteredFolders = folders.filter(f =>
-        f.id !== currentFolderId &&
-        f.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // Filter folders: exclude current folder (if specified) and apply search
+    const filteredFolders = folders.filter(f => {
+        const notCurrentFolder = !currentFolderId || f.id !== currentFolderId;
+        const matchesSearch = f.name.toLowerCase().includes(searchTerm.toLowerCase());
+        return notCurrentFolder && matchesSearch;
+    });
+
+    console.log('MoveToFolderModal - filteredFolders:', filteredFolders);
 
     const handleMove = async (folderId: string, folderName: string) => {
         try {
