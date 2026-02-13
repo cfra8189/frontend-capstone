@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import ParticleNetwork from "./ParticleNetwork";
 
 interface BiosBootProps {
     onComplete: () => void;
@@ -118,13 +119,14 @@ export default function BiosBoot({ onComplete }: BiosBootProps) {
             className="fixed inset-0 z-50 bg-black text-[#d4d4d4] font-mono p-8 overflow-y-auto cursor-text text-lg leading-relaxed select-none"
             onClick={() => inputRef.current?.focus()}
         >
-            <div className="max-w-4xl mx-auto flex flex-col min-h-full">
+            <ParticleNetwork />
+            <div className="max-w-4xl mx-auto flex flex-col min-h-full relative z-10">
                 {/* Logo in BIOS Header */}
                 {/* ASCII Art & Logo Header */}
                 <div className="mb-0 text-center opacity-80 border-b border-gray-800/50 pb-6 relative overflow-hidden">
                     <div className="flex items-center justify-center gap-6">
                         <pre className="text-[6px] sm:text-[8px] md:text-[10px] leading-[6px] sm:leading-[8px] md:leading-[10px] text-accent font-bold whitespace-pre overflow-x-hidden opacity-50 select-none pointer-events-none">
-{`
+                            {`
                                                                        
  _|_|_|    _|_|_|_|  _|      _|  _|_|_|_|  _|_|_|    _|_|_|  _|_|_|_|  
  _|    _|  _|        _|      _|  _|        _|    _|    _|    _|        

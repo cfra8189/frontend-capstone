@@ -1,63 +1,40 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import Header from "../components/Header";
 import CollaborationModal from "../components/CollaborationModal";
 import { useCollaborationContext } from "../context/CollaborationContext";
+import { useAuth } from "../hooks/use-auth";
 
 const templateData = {
-  'basic-ne': { 
-    title: 'BASIC NON-EXCLUSIVE LICENSE', 
-    idPrefix: 'LIC-B', 
-    fields: [], 
-    terms: 'Grant of non-exclusive rights for limited digital streaming and one official music video. Producer retains 100% ownership of composition.' 
+  'split-sheet': {
+    title: 'SONGWRITER SPLIT SHEET',
+    idPrefix: 'SS',
+    type: 'split',
+    terms: 'Official registration of songwriting and publishing percentages.'
   },
-  'standard-ne': { 
-    title: 'STANDARD NON-EXCLUSIVE LICENSE', 
-    idPrefix: 'LIC-S', 
-    fields: [], 
-    terms: 'Grant of non-exclusive rights for increased streaming limits. Includes high-quality WAV files.' 
+  'nda': {
+    title: 'NON-DISCLOSURE AGREEMENT',
+    idPrefix: 'NDA',
+    type: 'nda',
+    terms: 'Agreement to maintain strict confidentiality regarding unreleased materials.'
   },
-  'premium-ne': { 
-    title: 'PREMIUM NON-EXCLUSIVE LICENSE', 
-    idPrefix: 'LIC-P', 
-    fields: [], 
-    terms: 'Unlimited non-exclusive rights for streaming and distribution. Includes multi-track stems.' 
+  'basic-ne': {
+    title: 'BASIC NON-EXCLUSIVE LICENSE',
+    idPrefix: 'LIC-B',
+    type: 'license',
+    terms: 'Grant of non-exclusive rights for limited digital streaming.'
   },
-  'exclusive': { 
-    title: 'EXCLUSIVE LICENSE AGREEMENT', 
-    idPrefix: 'LIC-EX', 
-    fields: ['exclusiveFee', 'masterShare'], 
-    terms: 'Transfer of exclusive rights. Producer shall cease further licensing of track. Fee: $[exclusiveFee]. Master Royalty Share: [masterShare]%.' 
+  'exclusive': {
+    title: 'EXCLUSIVE LICENSE AGREEMENT',
+    idPrefix: 'LIC-EX',
+    type: 'license',
+    terms: 'Transfer of exclusive rights. Producer ceases further licensing.'
   },
-  'buyout-addendum': { 
-    title: 'EXCLUSIVE RIGHTS BUYOUT ADDENDUM', 
-    idPrefix: 'LIC-BO', 
-    fields: ['buyoutAmount', 'originalAgreementDate'], 
-    terms: 'Complete transfer of all rights, title, and interest including publishing and master royalties for a buyout fee of $[buyoutAmount].' 
-  },
-  'split-sheet': { 
-    title: 'SONGWRITER SPLIT SHEET', 
-    idPrefix: 'SS', 
-    fields: [], 
-    terms: 'Official registration of songwriting and publishing percentages for track [Track Title].' 
-  },
-  'producer-agreement': { 
-    title: 'PRODUCER SERVICE AGREEMENT', 
-    idPrefix: 'PSA', 
-    fields: ['exclusiveFee'], 
-    terms: 'Contract for professional production services as a work-for-hire. Producer fee: $[exclusiveFee].' 
-  },
-  'nda': { 
-    title: 'NON-DISCLOSURE AGREEMENT', 
-    idPrefix: 'NDA', 
-    fields: [], 
-    terms: 'Agreement to maintain strict confidentiality regarding all unreleased files, stems, and project details.' 
-  },
-  'custom-license': { 
-    title: 'CUSTOM MUSIC AGREEMENT', 
-    idPrefix: 'CUST', 
-    fields: ['exclusiveFee', 'masterShare'], 
-    terms: 'Custom agreement for track [Track Title].' 
+  'work-for-hire': {
+    title: 'WORK FOR HIRE AGREEMENT',
+    idPrefix: 'WFH',
+    type: 'service',
+    terms: 'Producer/Musician provides services as a work-for-hire.'
   }
 };
 
@@ -66,630 +43,467 @@ interface Collaborator {
   name: string;
   role: string;
   split: string;
+  pro?: string;
+  ipi?: string;
+  publisher?: string;
 }
 
 export default function Generator() {
-  const [step, setStep] = useState(1);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTemplate, setSelectedTemplate] = useState("");
-  const [formData, setFormData] = useState<Record<string, string | number>>({});
+  const { user } = useAuth();
+  const [, setLocation] = useLocation();
+  const { pendingCollaborations } = useCollaborationContext();
+
+  const [selectedTemplate, setSelectedTemplate] = useState("split-sheet");
+  const [formData, setFormData] = useState<Record<string, any>>({});
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [generatedContent, setGeneratedContent] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isViewMode, setIsViewMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [savedDocumentId, setSavedDocumentId] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [showCollaborationModal, setShowCollaborationModal] = useState(false);
   const [currentAgreementId, setCurrentAgreementId] = useState<string | null>(null);
-  const [, setLocation] = useLocation();
-  const { pendingCollaborations } = useCollaborationContext();
 
-  function handleSelect(templateId: string) {
-    setSelectedTemplate(templateId);
-    setStep(2);
-  }
+  // Pre-fill user data
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        producerName: prev.producerName || (user.businessName || `${user.firstName} ${user.lastName}`.trim()),
+        producerEmail: prev.producerEmail || user.email,
+        effectiveDate: prev.effectiveDate || new Date().toISOString().split('T')[0]
+      }));
 
-  function handleFormChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
-    const target = e.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
-    const value = target.type === 'number' ? Number(target.value) : target.value;
-    setFormData({ ...formData, [target.name]: value });
-  }
+      // Add user as first collaborator if list is empty
+      if (collaborators.length === 0) {
+        setCollaborators([{
+          id: Date.now().toString(),
+          name: (user.businessName || `${user.firstName} ${user.lastName}`.trim()) || "",
+          role: "Producer",
+          split: "50",
+          pro: "",
+          ipi: "",
+          publisher: ""
+        }]);
+      }
+    }
+  }, [user]);
 
-  function addCollaborator() {
-    const newCollaborator: Collaborator = {
+  const handleTemplateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedTemplate(e.target.value);
+    setGeneratedContent(""); // Clear preview on change
+  };
+
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    // @ts-ignore
+    const checked = (e.target as HTMLInputElement).checked;
+
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const updateCollaborator = (id: string, field: keyof Collaborator, value: string) => {
+    setCollaborators(prev => prev.map(c =>
+      c.id === id ? { ...c, [field]: value } : c
+    ));
+  };
+
+  const addCollaborator = () => {
+    setCollaborators([...collaborators, {
       id: Date.now().toString(),
       name: "",
       role: "",
-      split: ""
-    };
-    setCollaborators([...collaborators, newCollaborator]);
-  }
-
-  function removeCollaborator(id: string) {
-    setCollaborators(collaborators.filter(c => c.id !== id));
-  }
-
-  function updateCollaborator(id: string, field: keyof Collaborator, value: string) {
-    setCollaborators(collaborators.map(c => 
-      c.id === id ? { ...c, [field]: field === 'split' ? value.replace(/[^0-9]/g, '') : value } : c
-    ));
-  }
-
-  async function handleGenerate(e: React.FormEvent) {
-    e.preventDefault();
-    setIsGenerating(true);
-    setStep(3);
-
-    const template = templateData[selectedTemplate as keyof typeof templateData];
-    const collaboratorData = collaborators
-      .filter(c => c.name && c.role && c.split)
-      .map(c => `- ${c.name} (${c.role}): ${c.split}%`)
-      .join('\n');
-
-    // Simulate API call (replace with actual API integration)
-    setTimeout(() => {
-      const mockContent = `
-        <div class="agreement-document">
-          <h2>${template.title}</h2>
-          <p><strong>ID:</strong> ${template.idPrefix}-${Date.now()}</p>
-          <p><strong>Producer/Company:</strong> ${formData.producerName || 'TBD'}</p>
-          <p><strong>Artist/Client:</strong> ${formData.artistName}</p>
-          <p><strong>Track:</strong> ${formData.trackTitle}</p>
-          <p><strong>Project:</strong> ${formData.projectName || 'N/A'}</p>
-          <p><strong>Effective Date:</strong> ${formData.effectiveDate || 'TBD'}</p>
-          <p><strong>Delivery Date:</strong> ${formData.deliveryDate || 'N/A'}</p>
-          <p><strong>BPM:</strong> ${formData.bpm || 'N/A'}</p>
-          <p><strong>Key:</strong> ${formData.key || 'N/A'}</p>
-          <p><strong>Genre:</strong> ${formData.genre || 'N/A'}</p>
-          <p><strong>Producer Address:</strong> ${formData.producerAddress || 'N/A'}</p>
-          <p><strong>Artist Address:</strong> ${formData.artistAddress || 'N/A'}</p>
-          <p><strong>Producer Email:</strong> ${formData.producerEmail || 'N/A'}</p>
-          <p><strong>Artist Email:</strong> ${formData.artistEmail || 'N/A'}</p>
-          <p><strong>Producer Phone:</strong> ${formData.producerPhone || 'N/A'}</p>
-          <p><strong>Artist Phone:</strong> ${formData.artistPhone || 'N/A'}</p>
-          
-          ${collaborators.length > 0 ? `
-          <h3>Parties/Splits:</h3>
-          <pre>${collaboratorData}</pre>
-          ` : ''}
-          
-          <h3>Agreement Terms:</h3>
-          <p>${template.terms}</p>
-          
-          ${formData.customTerms ? `
-          <h3>Additional Terms:</h3>
-          <p>${formData.customTerms}</p>
-          ` : ''}
-          
-          <h3>SIGNATORIES</h3>
-          <div class="signatures">
-            <div class="signature-block">
-              <p>Producer/Company: _________________________ Date: _________</p>
-            </div>
-            <div class="signature-block">
-              <p>Artist/Client: _________________________ Date: _________</p>
-            </div>
-            ${collaborators.map(c => `
-              <div class="signature-block">
-                <p>${c.name} (${c.role}): _________________________ Date: _________</p>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `;
-      
-      setGeneratedContent(mockContent);
-      setIsGenerating(false);
-    }, 2000);
-  }
-
-  function handleReset() {
-    setStep(1);
-    setSelectedTemplate("");
-    setFormData({});
-    setCollaborators([]);
-    setGeneratedContent("");
-  }
-
-  function handleDownloadPDF() {
-    if (!generatedContent) return;
-    const w = window.open("", "_blank", "noopener,noreferrer");
-    if (!w) return;
-    w.document.write(`<!doctype html><html><head><meta charset=\"utf-8\"><title>Agreement</title><style>body{font-family:serif;padding:20px;color:#111} .agreement-document{max-width:800px;margin:0 auto}</style></head><body>${generatedContent}</body></html>`);
-    w.document.close();
-    w.focus();
-    w.print();
-  }
-
-  function handleDownloadHTML() {
-    if (!generatedContent) return;
-    const blob = new Blob([`<!doctype html><html><head><meta charset=\"utf-8\"><title>Agreement</title></head><body>${generatedContent}</body></html>`], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${(template?.idPrefix || 'AGREEMENT')}-${Date.now()}.html`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  }
-
-  async function saveAgreement() {
-    if (!generatedContent) return;
-    setIsSaving(true);
-    setSaveError(null);
-
-    const payload = {
-      title: `${template?.title || 'Agreement'} - ${formData.trackTitle || 'Untitled'}`,
-      templateId: selectedTemplate,
-      html: generatedContent,
-      metadata: { formData },
-      collaborators
-    };
-
-    try {
-      const resp = await fetch("/api/documents", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await resp.json();
-      if (!resp.ok) throw new Error(data?.message || "Save failed");
-      const docId = data.document?.id || null;
-      setSavedDocumentId(docId);
-      setCurrentAgreementId(docId);
-      // Auto-open saved document in Documents page
-      if (docId) setLocation(`/documents?open=${docId}`);
-    } catch (err: any) {
-      setSaveError(err.message || "Save failed");
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
-  const handleOpenCollaborationModal = () => {
-    if (savedDocumentId) {
-      setCurrentAgreementId(savedDocumentId);
-      setShowCollaborationModal(true);
-    }
+      split: "",
+      pro: "",
+      ipi: "",
+      publisher: ""
+    }]);
   };
 
-  const template = templateData[selectedTemplate as keyof typeof templateData];
-  const showAdditionalFields = template && template.fields.length > 0;
+  const removeCollaborator = (id: string) => {
+    setCollaborators(prev => prev.filter(c => c.id !== id));
+  };
+
+  const generateAgreement = (e: React.FormEvent) => {
+    e.preventDefault();
+    const template = templateData[selectedTemplate as keyof typeof templateData];
+
+    // Formatting helpers
+    const dateStr = new Date().toLocaleDateString();
+
+    let content = `
+      <div style="font-family: 'Courier New', monospace; max-width: 800px; margin: 0 auto; padding: 40px; color: #000;">
+        <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px;">
+          <h1 style="font-size: 24px; text-transform: uppercase; margin: 0;">${template.title}</h1>
+          <p style="font-size: 12px; margin-top: 5px;">ID: ${template.idPrefix}-${Date.now()}</p>
+        </div>
+    `;
+
+    // Common Header Info
+    content += `
+      <div style="margin-bottom: 30px; border: 1px solid #000; padding: 15px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div><strong>DATE:</strong> ${formData.effectiveDate || dateStr}</div>
+          <div><strong>TRACK TITLE:</strong> ${formData.trackTitle || '_________________'}</div>
+    `;
+
+    if (template.type === 'split') {
+      content += `
+          <div><strong>STUDIO:</strong> ${formData.studioName || '_________________'}</div>
+          <div><strong>ARTIST:</strong> ${formData.artistName || '_________________'}</div>
+      `;
+    } else {
+      content += `
+          <div><strong>PRODUCER:</strong> ${formData.producerName || '_________________'}</div>
+          <div><strong>CLIENT/ARTIST:</strong> ${formData.artistName || '_________________'}</div>
+      `;
+    }
+    content += `</div></div>`;
+
+    // Specific Content
+    if (template.type === 'split') {
+      content += `
+        <h3 style="background: #000; color: #fff; padding: 5px; font-size: 14px; text-transform: uppercase;">Collaborator Details & Ownership</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11px;">
+          <thead>
+            <tr style="border-bottom: 1px solid #000;">
+              <th style="text-align: left; padding: 8px;">FULL LEGAL NAME</th>
+              <th style="text-align: left; padding: 8px;">ROLE</th>
+              <th style="text-align: left; padding: 8px;">PRO / IPI</th>
+              <th style="text-align: left; padding: 8px;">PUBLISHER</th>
+              <th style="text-align: right; padding: 8px;">SHARE %</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${collaborators.map(c => `
+              <tr style="border-bottom: 1px solid #ccc;">
+                <td style="padding: 8px;">${c.name}</td>
+                <td style="padding: 8px;">${c.role}</td>
+                <td style="padding: 8px;">${c.pro || '-'}/${c.ipi || '-'}</td>
+                <td style="padding: 8px;">${c.publisher || '-'}</td>
+                <td style="padding: 8px; text-align: right;">${c.split}%</td>
+              </tr>
+            `).join('')}
+            <tr style="font-weight: bold; border-top: 2px solid #000;">
+              <td colspan="4" style="padding: 8px; text-align: right;">TOTAL:</td>
+              <td style="padding: 8px; text-align: right;">${collaborators.reduce((acc, c) => acc + Number(c.split || 0), 0)}%</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 style="border-top: 1px solid #000; padding-top: 15px; margin-top: 20px; font-size: 14px; text-transform: uppercase;">Sample Clearance</h3>
+        <p>Does this composition contain any unauthorized samples?</p>
+        <p>[${formData.hasSamples ? 'X' : ' '}] YES &nbsp;&nbsp; [${!formData.hasSamples ? 'X' : ' '}] NO</p>
+        ${formData.hasSamples ? `<p><strong>Details:</strong> ${formData.sampleDetails}</p>` : ''}
+      `;
+    } else if (template.type === 'nda') {
+      content += `
+        <h3 style="background: #000; color: #fff; padding: 5px; font-size: 14px; text-transform: uppercase;">Confidentiality Terms</h3>
+        <p style="line-height: 1.6; font-size: 12px; margin-bottom: 20px;">
+          The Receiving Party agrees to hold in strict confidence all Confidential Information and shall not disclose such information to any third party without the prior written approval of the Disclosing Party.
+        </p>
+        <p style="font-weight: bold;">Description of Confidential Material:</p>
+        <div style="border: 1px solid #000; padding: 10px; margin-bottom: 20px; height: 100px;">
+          ${formData.description || 'Unreleased recordings, stems, and related project files.'}
+        </div>
+      `;
+    } else {
+      // Standard License / WFH
+      content += `
+        <h3 style="background: #000; color: #fff; padding: 5px; font-size: 14px; text-transform: uppercase;">Agreement Terms</h3>
+        <p style="line-height: 1.6; font-size: 12px; margin-bottom: 20px;">
+          ${template.terms}
+        </p>
+        ${formData.customTerms ? `
+          <p style="font-weight: bold;">Additional Terms:</p>
+          <p style="line-height: 1.6; font-size: 12px;">${formData.customTerms}</p>
+        ` : ''}
+      `;
+    }
+
+    // Signatures
+    content += `
+      <div style="margin-top: 50px; border-top: 2px solid #000; padding-top: 20px;">
+        <h3 style="font-size: 14px; text-transform: uppercase; margin-bottom: 30px;">Authorization & Signatures</h3>
+        <p style="font-size: 11px; margin-bottom: 30px;">By signing below, each party acknowledges and agrees to the terms set forth above.</p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+          ${template.type === 'split' ?
+        collaborators.map(c => `
+              <div style="margin-bottom: 30px;">
+                <div style="border-bottom: 1px solid #000; height: 30px;"></div>
+                <p style="font-size: 11px; margin-top: 5px;">SIGNED: <strong>${c.name}</strong> (${c.role})</p>
+                <p style="font-size: 11px;">DATE: ___________</p>
+              </div>
+            `).join('')
+        : `
+              <div style="margin-bottom: 30px;">
+                <div style="border-bottom: 1px solid #000; height: 30px;"></div>
+                <p style="font-size: 11px; margin-top: 5px;">PRODUCER: ${formData.producerName}</p>
+                <p style="font-size: 11px;">DATE: ___________</p>
+              </div>
+              <div style="margin-bottom: 30px;">
+                <div style="border-bottom: 1px solid #000; height: 30px;"></div>
+                <p style="font-size: 11px; margin-top: 5px;">CLIENT: ${formData.artistName}</p>
+                <p style="font-size: 11px;">DATE: ___________</p>
+              </div>
+            `
+      }
+        </div>
+      </div>
+    </div>`;
+
+    setGeneratedContent(content);
+    setIsViewMode(true);
+  };
 
   return (
-    <div className="min-h-screen bg-theme-primary">
+    <div className="min-h-screen bg-[#141414] text-white font-mono flex flex-col">
       <Header />
 
-      <main className="max-w-7xl mx-auto p-6">
-        <div className="flex items-center gap-4 mb-8">
-          {[1, 2, 3].map(s => (
-            <div key={s} className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${step >= s ? "btn-primary" : "bg-theme-tertiary text-theme-muted"}`}>
-                {s}
-              </div>
-              <span className={`text-sm ${step >= s ? "text-theme-primary" : "text-theme-muted"}`}>
-                {s === 1 ? "Select Template" : s === 2 ? "Fill Details" : "Generate"}
-              </span>
-              {s < 3 && <div className="w-8 h-px bg-theme-tertiary" />}
-            </div>
-          ))}
+      <main className="flex-1 max-w-5xl mx-auto w-full p-6">
+        <div className="flex justify-between items-end mb-8 border-b border-[#333] pb-4">
+          <div>
+            <h1 className="text-2xl font-bold uppercase tracking-wider mb-2">Agreement Generator</h1>
+            <p className="text-zinc-500 text-xs">SYSTEM 1.0 // LEGAL DOCUMENTS</p>
+          </div>
+          {isViewMode && (
+            <button
+              onClick={() => setIsViewMode(false)}
+              className="text-xs hover:bg-white hover:text-black px-3 py-1 border border-transparent hover:border-white transition-all uppercase"
+            >
+              ← Back to Editor
+            </button>
+          )}
         </div>
 
-        {step === 1 && (
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Select Agreement Template</h2>
-            
-            {/* Search Bar */}
-            <div className="mb-6">
-              <input
-                type="text"
-                placeholder="Search templates (e.g. 'Split Sheet', 'NDA')..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="input-field w-full p-4 rounded-lg bg-theme-tertiary border border-theme text-theme-primary focus:border-accent outline-none transition-colors"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Object.entries(templateData)
-                .filter(([_, t]) => t.title.toLowerCase().includes(searchQuery.toLowerCase()) || t.terms.toLowerCase().includes(searchQuery.toLowerCase()))
-                .map(([id, template]) => (
-                <div
-                  key={id}
-                  onClick={() => handleSelect(id)}
-                  className="card p-6 rounded-xl cursor-pointer hover:border-accent transition-colors"
+        {!isViewMode ? (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Sidebar Controls */}
+            <div className="lg:col-span-1 space-y-6">
+              <div className="bg-[#1e1e1e] border border-[#333] p-4">
+                <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Document Type</label>
+                <select
+                  value={selectedTemplate}
+                  onChange={handleTemplateChange}
+                  className="w-full bg-black border border-[#333] text-white p-2 text-sm focus:border-white focus:outline-none uppercase"
                 >
-                  <h3 className="font-bold mb-2">{template.title}</h3>
-                  <p className="text-sm text-theme-muted">{template.terms}</p>
+                  {Object.entries(templateData).map(([key, t]) => (
+                    <option key={key} value={key}>{t.title}</option>
+                  ))}
+                </select>
+                <div className="mt-4 text-xs text-zinc-400 border-t border-[#333] pt-2">
+                  {templateData[selectedTemplate as keyof typeof templateData].terms}
                 </div>
-              ))}
+              </div>
+
+              <div className="bg-[#1e1e1e] border border-[#333] p-4">
+                <h3 className="text-xs font-bold text-zinc-500 uppercase mb-4">Core Info</h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-[10px] uppercase text-zinc-500 mb-1">Effective Date</label>
+                    <input
+                      type="date"
+                      name="effectiveDate"
+                      value={formData.effectiveDate || ''}
+                      onChange={handleFormChange}
+                      className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none text-white placeholder-zinc-700"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] uppercase text-zinc-500 mb-1">Track Title</label>
+                    <input
+                      type="text"
+                      name="trackTitle"
+                      placeholder="ENTER TITLE..."
+                      value={formData.trackTitle || ''}
+                      onChange={handleFormChange}
+                      className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none text-white placeholder-zinc-700 uppercase"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        )}
 
-        {step === 2 && (
-          <div>
-            <h2 className="text-2xl font-bold mb-6">Fill Agreement Details</h2>
-            <form onSubmit={handleGenerate} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Track Title *</label>
-                  <input 
-                    name="trackTitle" 
-                    required 
-                    onChange={handleFormChange} 
-                    className="input-field w-full p-3 rounded" 
-                    placeholder="e.g. Moonlight"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Template Type</label>
-                  <div className="input-field w-full p-3 rounded bg-theme-tertiary">
-                    {template?.title || 'Not selected'}
+            {/* Main Form Area */}
+            <div className="lg:col-span-2 bg-[#1e1e1e] border border-[#333] p-6">
+              <form onSubmit={generateAgreement} className="space-y-6">
+
+                {/* Dynamic Fields based on Type */}
+                {selectedTemplate === 'split-sheet' && (
+                  <>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[10px] uppercase text-zinc-500 mb-1">Studio Name/Location</label>
+                        <input
+                          name="studioName"
+                          placeholder="STUDIO A..."
+                          onChange={handleFormChange}
+                          className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase text-zinc-500 mb-1">Recording Artist(s)</label>
+                        <input
+                          name="artistName"
+                          placeholder="ARTIST NAME..."
+                          onChange={handleFormChange}
+                          className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="border border-[#333] p-4 bg-black">
+                      <div className="flex justify-between items-center mb-4 border-b border-[#333] pb-2">
+                        <h3 className="text-xs font-bold uppercase">Collaborators</h3>
+                        <button type="button" onClick={addCollaborator} className="text-[10px] border border-[#333] px-2 py-1 hover:bg-white hover:text-black uppercase">
+                          + Add Party
+                        </button>
+                      </div>
+                      <div className="space-y-4">
+                        {collaborators.map((c, idx) => (
+                          <div key={c.id} className="grid grid-cols-12 gap-2 text-xs items-start border-b border-[#333] pb-2 last:border-0">
+                            <div className="col-span-12 md:col-span-3">
+                              <input placeholder="Name" value={c.name} onChange={e => updateCollaborator(c.id, 'name', e.target.value)} className="w-full bg-transparent border-b border-[#333] focus:border-white outline-none py-1" />
+                            </div>
+                            <div className="col-span-6 md:col-span-2">
+                              <input placeholder="Role" value={c.role} onChange={e => updateCollaborator(c.id, 'role', e.target.value)} className="w-full bg-transparent border-b border-[#333] focus:border-white outline-none py-1" />
+                            </div>
+                            <div className="col-span-6 md:col-span-2">
+                              <input placeholder="PRO" value={c.pro} onChange={e => updateCollaborator(c.id, 'pro', e.target.value)} className="w-full bg-transparent border-b border-[#333] focus:border-white outline-none py-1" />
+                            </div>
+                            <div className="col-span-6 md:col-span-2">
+                              <input placeholder="IPI #" value={c.ipi} onChange={e => updateCollaborator(c.id, 'ipi', e.target.value)} className="w-full bg-transparent border-b border-[#333] focus:border-white outline-none py-1" />
+                            </div>
+                            <div className="col-span-4 md:col-span-2">
+                              <input placeholder="Share %" value={c.split} onChange={e => updateCollaborator(c.id, 'split', e.target.value)} className="w-full bg-transparent border-b border-[#333] focus:border-white outline-none py-1" />
+                            </div>
+                            <div className="col-span-2 md:col-span-1 flex justify-end">
+                              <button type="button" onClick={() => removeCollaborator(c.id)} className="text-zinc-500 hover:text-red-500">×</button>
+                            </div>
+                            <div className="col-span-12">
+                              <input placeholder="Publisher Name" value={c.publisher} onChange={e => updateCollaborator(c.id, 'publisher', e.target.value)} className="w-full bg-transparent border-b border-[#333] focus:border-white outline-none py-1 placeholder-zinc-700" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2">
+                      <input type="checkbox" name="hasSamples" onChange={handleFormChange} id="hasSamples" className="mt-1" />
+                      <div className="flex-1">
+                        <label htmlFor="hasSamples" className="text-xs uppercase font-bold">Contains Samples?</label>
+                        {formData.hasSamples && (
+                          <textarea
+                            name="sampleDetails"
+                            onChange={handleFormChange}
+                            placeholder="Describe original artist and song title..."
+                            className="w-full mt-2 bg-black border border-[#333] p-2 text-xs focus:border-white outline-none h-20"
+                          />
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {selectedTemplate === 'nda' && (
+                  <div className="bg-black border border-[#333] p-4">
+                    <label className="block text-[10px] uppercase text-zinc-500 mb-2">Confidential Material Description</label>
+                    <textarea
+                      name="description"
+                      onChange={handleFormChange}
+                      placeholder="Describe what is being protected (e.g. 'Unreleased beat pack vol. 1')..."
+                      className="w-full bg-[#1e1e1e] border border-[#333] p-2 text-sm focus:border-white outline-none h-32"
+                    />
                   </div>
-                </div>
-              </div>
+                )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Producer/Company *</label>
-                  <input 
-                    name="producerName" 
-                    required 
-                    onChange={handleFormChange} 
-                    className="input-field w-full p-3 rounded" 
-                    placeholder="Legal Name or Company Name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Artist/Client *</label>
-                  <input 
-                    name="artistName" 
-                    required 
-                    onChange={handleFormChange} 
-                    className="input-field w-full p-3 rounded" 
-                    placeholder="Legal Name or Artist Name"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Project/Album Name</label>
-                <input 
-                  name="projectName" 
-                  onChange={handleFormChange} 
-                  className="input-field w-full p-3 rounded" 
-                  placeholder="e.g. Midnight Sessions EP"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Effective Date *</label>
-                  <input 
-                    name="effectiveDate" 
-                    type="date" 
-                    required
-                    onChange={handleFormChange} 
-                    className="input-field w-full p-3 rounded" 
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Delivery Date</label>
-                  <input 
-                    name="deliveryDate" 
-                    type="date" 
-                    onChange={handleFormChange} 
-                    className="input-field w-full p-3 rounded" 
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">BPM</label>
-                  <input 
-                    name="bpm" 
-                    type="number" 
-                    onChange={handleFormChange} 
-                    className="input-field w-full p-3 rounded" 
-                    placeholder="120"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Key</label>
-                  <select 
-                    name="key" 
-                    onChange={handleFormChange} 
-                    className="input-field w-full p-3 rounded"
-                  >
-                    <option value="">Select Key</option>
-                    <option value="C">C Major</option>
-                    <option value="C#">C# Major</option>
-                    <option value="D">D Major</option>
-                    <option value="D#">D# Major</option>
-                    <option value="E">E Major</option>
-                    <option value="F">F Major</option>
-                    <option value="F#">F# Major</option>
-                    <option value="G">G Major</option>
-                    <option value="G#">G# Major</option>
-                    <option value="A">A Major</option>
-                    <option value="A#">A# Major</option>
-                    <option value="B">B Major</option>
-                    <option value="Cm">C Minor</option>
-                    <option value="Dm">D Minor</option>
-                    <option value="Em">E Minor</option>
-                    <option value="Fm">F Minor</option>
-                    <option value="Gm">G Minor</option>
-                    <option value="Am">A Minor</option>
-                    <option value="Bm">B Minor</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Genre</label>
-                  <input 
-                    name="genre" 
-                    onChange={handleFormChange} 
-                    className="input-field w-full p-3 rounded" 
-                    placeholder="e.g. Hip Hop, R&B, Pop"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Producer Address</label>
-                  <input 
-                    name="producerAddress" 
-                    onChange={handleFormChange} 
-                    className="input-field w-full p-3 rounded" 
-                    placeholder="Full Legal Address"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Artist Address</label>
-                  <input 
-                    name="artistAddress" 
-                    onChange={handleFormChange} 
-                    className="input-field w-full p-3 rounded" 
-                    placeholder="Full Legal Address"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Producer Email</label>
-                  <input 
-                    name="producerEmail" 
-                    type="email"
-                    onChange={handleFormChange} 
-                    className="input-field w-full p-3 rounded" 
-                    placeholder="producer@example.com"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Artist Email</label>
-                  <input 
-                    name="artistEmail" 
-                    type="email"
-                    onChange={handleFormChange} 
-                    className="input-field w-full p-3 rounded" 
-                    placeholder="artist@example.com"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Producer Phone</label>
-                  <input 
-                    name="producerPhone" 
-                    type="tel"
-                    onChange={handleFormChange} 
-                    className="input-field w-full p-3 rounded" 
-                    placeholder="+1 (555) 123-4567"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Artist Phone</label>
-                  <input 
-                    name="artistPhone" 
-                    type="tel"
-                    onChange={handleFormChange} 
-                    className="input-field w-full p-3 rounded" 
-                    placeholder="+1 (555) 123-4567"
-                  />
-                </div>
-              </div>
-
-              {showAdditionalFields && (
-                <div className="card p-4 rounded-lg bg-theme-tertiary">
-                  <h3 className="font-bold mb-4">Additional Fields</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {template.fields.includes('exclusiveFee') && (
-                      <div>
-                        <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Fee ($)</label>
-                        <input 
-                          name="exclusiveFee" 
-                          type="number" 
-                          onChange={handleFormChange} 
-                          className="input-field w-full p-3 rounded" 
-                        />
-                      </div>
-                    )}
-                    {template.fields.includes('masterShare') && (
-                      <div>
-                        <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Master Royalty (%)</label>
-                        <input 
-                          name="masterShare" 
-                          type="number" 
-                          onChange={handleFormChange} 
-                          className="input-field w-full p-3 rounded" 
-                        />
-                      </div>
-                    )}
-                    {template.fields.includes('buyoutAmount') && (
-                      <div>
-                        <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Buyout Amount ($)</label>
-                        <input 
-                          name="buyoutAmount" 
-                          type="number" 
-                          onChange={handleFormChange} 
-                          className="input-field w-full p-3 rounded" 
-                        />
-                      </div>
-                    )}
-                    {template.fields.includes('originalAgreementDate') && (
-                      <div>
-                        <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Original Agreement Date</label>
-                        <input 
-                          name="originalAgreementDate" 
-                          type="date" 
-                          onChange={handleFormChange} 
-                          className="input-field w-full p-3 rounded" 
-                        />
-                      </div>
-                    )}
+                {/* Generic Fields for other types */}
+                {!['split-sheet', 'nda'].includes(selectedTemplate) && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[10px] uppercase text-zinc-500 mb-1">Producer Name</label>
+                      <input
+                        name="producerName"
+                        value={formData.producerName || ''}
+                        onChange={handleFormChange}
+                        className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase text-zinc-500 mb-1">Client/Artist Name</label>
+                      <input
+                        name="artistName"
+                        onChange={handleFormChange}
+                        className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none"
+                      />
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              <div className="card p-4 rounded-lg">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-bold text-theme-secondary uppercase">Additional Collaborators</h3>
-                  <button 
-                    type="button"
-                    onClick={addCollaborator}
-                    className="text-sm bg-theme-accent text-white px-3 py-1 rounded hover:bg-accent/80"
-                  >
-                    + Add Party
+                <div className="pt-4 border-t border-[#333]">
+                  <button type="submit" className="w-full bg-white text-black font-bold py-3 uppercase tracking-widest hover:bg-zinc-200 transition-colors">
+                    Generate Document
                   </button>
                 </div>
-                <div className="space-y-2">
-                  {collaborators.map(collaborator => (
-                    <div key={collaborator.id} className="flex gap-2 items-center">
-                      <input
-                        type="text"
-                        placeholder="Full Legal Name"
-                        value={collaborator.name}
-                        onChange={(e) => updateCollaborator(collaborator.id, 'name', e.target.value)}
-                        className="flex-1 input-field p-2 rounded text-sm"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Role (e.g. Writer)"
-                        value={collaborator.role}
-                        onChange={(e) => updateCollaborator(collaborator.id, 'role', e.target.value)}
-                        className="w-24 input-field p-2 rounded text-sm"
-                      />
-                      <input
-                        type="number"
-                        placeholder="Split %"
-                        value={collaborator.split}
-                        onChange={(e) => updateCollaborator(collaborator.id, 'split', e.target.value)}
-                        className="w-16 input-field p-2 rounded text-sm"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeCollaborator(collaborator.id)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-theme-secondary uppercase mb-2">Custom Clauses / Provisions</label>
-                <textarea 
-                  name="customTerms" 
-                  rows={3}
-                  onChange={handleFormChange} 
-                  className="input-field w-full p-3 rounded resize-none text-sm" 
-                  placeholder="Enter any specific terms or modifications..."
-                />
-              </div>
-
-              <div className="flex gap-4">
-                <button type="button" onClick={() => setStep(1)} className="px-6 py-3 bg-theme-tertiary rounded">
-                  Back
-                </button>
-                <button type="submit" className="flex-1 btn-primary font-bold py-3 rounded">
-                  Generate Agreement
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
-        )}
+        ) : (
+          <div className="h-full flex flex-col">
+            <div className="flex gap-4 mb-4 items-center">
+              <button onClick={() => setIsViewMode(false)} className="text-xs uppercase hover:underline mr-auto">
+                ← Edit
+              </button>
+              <button onClick={() => window.print()} className="bg-white text-black px-4 py-2 text-xs font-bold uppercase border border-white hover:bg-black hover:text-white transition-all">
+                Print / PDF
+              </button>
+              <button
+                onClick={saveAgreement}
+                disabled={isSaving || !!savedDocumentId}
+                className={`px-4 py-2 text-xs font-bold uppercase border transition-all ${isSaving || savedDocumentId
+                    ? 'border-zinc-700 text-zinc-500 cursor-not-allowed'
+                    : 'border-[#333] hover:border-white text-white'
+                  }`}
+              >
+                {isSaving ? 'Saving...' : savedDocumentId ? 'Saved' : 'Save to Box'}
+              </button>
+            </div>
 
-        {step === 3 && (
-          <div>
-            <div className="card p-8 rounded-xl">
-              {isGenerating ? (
-                <div className="text-center py-12">
-                  <div className="animate-pulse text-accent font-medium">Finalizing legal language...</div>
-                </div>
-              ) : (
-                <>
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-bold">Agreement Generated!</h2>
-                    <div className="flex gap-2 items-center">
-                      <button onClick={handleDownloadPDF} className="btn-primary px-4 py-2 rounded">Download / Print</button>
-                      <button onClick={handleDownloadHTML} className="px-4 py-2 rounded border border-theme-tertiary text-theme-secondary">Save HTML</button>
-                      <button onClick={saveAgreement} disabled={isSaving || !!savedDocumentId} className={`px-4 py-2 rounded ${isSaving || savedDocumentId ? 'bg-theme-tertiary text-theme-muted' : 'bg-theme-accent text-white'}`}>
-                        {isSaving ? 'Saving…' : savedDocumentId ? 'Saved' : 'Save to Box'}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="bg-white text-gray-800 p-8 rounded-lg font-serif text-sm max-h-96 overflow-y-auto">
-                    <div dangerouslySetInnerHTML={{ __html: generatedContent }} />
-                  </div>
+            {savedDocumentId && (
+              <div className="mb-4 p-2 border border-green-900 bg-green-900/20 text-green-500 text-xs flex justify-between items-center">
+                <span>Document saved successfully.</span>
+                <button
+                  onClick={() => setShowCollaborationModal(true)}
+                  className="underline hover:text-green-400"
+                >
+                  Add Collaborators to Box
+                </button>
+              </div>
+            )}
 
-                  {saveError && (
-                    <div className="mt-4 text-red-500 text-sm">Error saving document: {saveError}</div>
-                  )}
+            {saveError && (
+              <div className="mb-4 p-2 border border-red-900 bg-red-900/20 text-red-500 text-xs">
+                {saveError}
+              </div>
+            )}
 
-                  {savedDocumentId && (
-                    <div className="mt-4 text-sm">
-                      <strong className="text-theme-secondary">Saved to Box</strong>
-                      <span className="ml-2 text-theme-muted">(ID: {savedDocumentId})</span>
-                    </div>
-                  )}
-
-                  {savedDocumentId && (
-                    <div className="mt-4">
-                      <button
-                        onClick={handleOpenCollaborationModal}
-                        className="w-full btn-primary font-bold py-3 rounded"
-                      >
-                        + Add Collaborator
-                      </button>
-                    </div>
-                  )}
-
-                  <div className="mt-6 text-center">
-                    <button onClick={handleReset} className="text-accent hover:underline">
-                      Create Another Agreement
-                    </button>
-                  </div>
-                </>
-              )}
+            <div className="flex-1 bg-white overflow-y-auto p-8 border border-[#333] text-black">
+              <div dangerouslySetInnerHTML={{ __html: generatedContent }} />
             </div>
           </div>
         )}
       </main>
 
-      {/* Collaboration Modal */}
       <CollaborationModal
         isOpen={showCollaborationModal}
         onClose={() => setShowCollaborationModal(false)}
         agreementId={currentAgreementId || undefined}
         itemType="agreement"
-        itemName={`${template?.title || 'Agreement'} - ${formData.trackTitle || 'Untitled'}`}
+        itemName={`${templateData[selectedTemplate as keyof typeof templateData].title} - ${formData.trackTitle || 'Untitled'}`}
       />
     </div>
   );

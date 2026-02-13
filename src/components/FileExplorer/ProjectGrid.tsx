@@ -45,34 +45,34 @@ const ProjectCard: React.FC<{
             {...listeners}
             {...attributes}
             className={`
-        group relative bg-[#1e1e1e] border border-[#333] hover:border-blue-500/50 rounded-lg p-4 
-        transition-all cursor-grab active:cursor-grabbing hover:bg-[#252526]
-        ${isDragging ? 'ring-2 ring-blue-500 shadow-xl' : ''}
+        group relative border border-[#333] hover:border-white hover:bg-black p-4 
+        transition-all cursor-grab active:cursor-grabbing bg-[#1e1e1e]
+        ${isDragging ? 'ring-2 ring-white shadow-xl opacity-50 grayscale' : ''}
       `}
             onClick={() => onEdit(project)}
         >
             <div className="flex items-start justify-between mb-3">
-                <div className="p-2 bg-black/30 rounded-lg">
+                <div className="p-2 border border-[#333] group-hover:border-white group-hover:bg-white group-hover:text-black transition-colors rounded-sm">
                     {getIcon()}
                 </div>
                 <div className="opacity-0 group-hover:opacity-100 flex gap-2">
                     <button
                         onClick={(e) => { e.stopPropagation(); onDelete(project.id); }}
-                        className="p-1.5 hover:bg-black/50 rounded text-zinc-400 hover:text-red-400"
+                        className="p-1.5 hover:bg-white hover:text-black rounded-sm text-zinc-500 transition-colors border border-transparent hover:border-black"
                     >
-                        <MoreVertical size={16} />
+                        <MoreVertical size={14} />
                     </button>
                 </div>
             </div>
 
-            <h3 className="text-sm font-semibold text-zinc-200 truncate mb-1">{project.title}</h3>
-            <div className="flex items-center gap-2 text-xs text-zinc-500">
+            <h3 className="text-xs font-bold font-mono text-zinc-300 group-hover:text-white truncate mb-2 mt-2 uppercase tracking-wide">{project.title}</h3>
+            <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-500">
                 <span className={`
-          px-1.5 py-0.5 rounded bg-black/20 uppercase tracking-wider text-[10px]
+          px-1 py-0.5 border border-[#333] group-hover:border-white group-hover:bg-white group-hover:text-black transition-colors uppercase
           ${project.status === 'published' ? 'text-green-400' :
                         project.status === 'development' ? 'text-blue-400' : 'text-zinc-500'}
         `}>
-                    {project.status}
+                    {project.status.substring(0, 3)}
                 </span>
                 <span className="truncate opacity-50">{new Date(project.updatedAt).toLocaleDateString()}</span>
             </div>
