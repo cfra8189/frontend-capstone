@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTheme } from "../context/ThemeContext";
+import BiosBoot from "../components/BiosBoot";
 
 export default function Landing() {
   const queryClient = useQueryClient();
@@ -18,6 +19,20 @@ export default function Landing() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
+
+  // BIOS: show before login unless explicitly skipped
+  const [biosPassed, setBiosPassed] = useState<boolean>(() => {
+    try {
+      if (typeof window === "undefined") return false;
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("skipBios") === "1" || params.get("skipBios") === "true") return true;
+      if (sessionStorage.getItem("bios_passed") === "true") return true;
+      if (localStorage.getItem("skipBios") === "1") return true;
+      return false;
+    } catch (err) {
+      return false;
+    }
+  });
 
   // Runtime detection to avoid accidentally initiating OAuth against the
   // production backend when developing locally.
@@ -96,6 +111,18 @@ export default function Landing() {
     } finally {
       setResending(false);
     }
+  }
+
+  // Show BIOS before any login/verify UI when not yet passed
+  if (!biosPassed) {
+    return (
+      <BiosBoot
+        onComplete={() => {
+          try { sessionStorage.setItem("bios_passed", "true"); } catch (e) {}
+          setBiosPassed(true);
+        }}
+      />
+    );
   }
 
   if (mode === "verify") {
