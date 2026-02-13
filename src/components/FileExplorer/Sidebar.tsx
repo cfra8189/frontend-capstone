@@ -63,7 +63,7 @@ const FolderItem: React.FC<{
            ${isOver ? 'ring-2 ring-theme-primary bg-theme-primary/20 text-theme-primary scale-[1.05] shadow-[0_0_20px_rgba(var(--particle-color),0.3)] z-20 relative' : ''}
          `}
                     style={{ paddingLeft: `${level * 12 + 8}px` }}
-                    onPointerDown={() => onSelect(folder.id)}
+                    onClick={() => onSelect(folder.id)}
                 >
                     <button
                         onClick={(e) => {
@@ -174,7 +174,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ className, onRenameFolder, onD
                         }
           `}
                     onClick={() => selectFolder(undefined)}
-                    onPointerDown={() => selectFolder(undefined)}
                 >
                     <Monitor size={14} />
                     <span className="truncate uppercase font-bold tracking-widest">ROOT_PROJECTS</span>

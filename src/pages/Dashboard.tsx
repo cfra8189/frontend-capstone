@@ -106,6 +106,7 @@ function DashboardContent() {
             setShowModal(true);
           }}
           onProjectDelete={deleteProject}
+          onRefresh={loadProjects}
         />
       </main>
 

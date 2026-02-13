@@ -31,13 +31,15 @@ interface FileExplorerProps {
     loading: boolean;
     onProjectEdit: (project: Project) => void;
     onProjectDelete: (id: string) => void;
+    onRefresh: () => void;
 }
 
 export const FileExplorer: React.FC<FileExplorerProps> = ({
     projects,
     loading,
     onProjectEdit,
-    onProjectDelete
+    onProjectDelete,
+    onRefresh
 }) => {
     const { moveProject, selectedFolderId, folders, deleteFolder } = useFolderContext();
     const [activeId, setActiveId] = useState<string | null>(null);
@@ -77,6 +79,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
             if (folderId && projectId && folderId !== active.data.current?.folderId) {
                 try {
                     await moveProject(projectId, folderId);
+                    onRefresh();
                 } catch (error) {
                     console.error("Failed to move project", error);
                 }
@@ -108,6 +111,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                 }}
                 projects={movingProjects.length > 0 ? movingProjects : projects}
                 targetFolder={targetFolder}
+                onSuccess={onRefresh}
             />
 
             <div className="bg-theme-secondary/20 backdrop-blur-2xl text-theme-primary rounded-lg border border-theme/30 shadow-2xl relative z-10 transition-all duration-500 flex flex-col h-[calc(100vh-140px)] overflow-hidden">

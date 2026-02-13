@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "./hooks/use-auth";
+import { NotificationProvider } from "./context/NotificationContext";
 import { Route, Switch, useLocation } from "wouter";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
@@ -103,7 +104,7 @@ function App() {
   }
 
   return (
-    <>
+    <NotificationProvider>
       <GlobalEffects />
       <Switch>
         <Route path="/" component={Dashboard} />
@@ -124,7 +125,7 @@ function App() {
           </div>
         </Route>
       </Switch>
-    </>
+    </NotificationProvider>
   );
 }
 

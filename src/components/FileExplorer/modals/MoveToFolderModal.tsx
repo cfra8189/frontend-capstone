@@ -2,16 +2,19 @@ import React, { useState } from 'react';
 import { useFolderContext } from '../../../context/FolderContext';
 import { Project, Folder } from '../../../types/folder';
 import { Search, Folder as FolderIcon, X, CheckSquare, Square } from 'lucide-react';
+import { useNotification } from '../../../context/NotificationContext';
 
 interface MoveToFolderModalProps {
     isOpen: boolean;
     onClose: () => void;
     projects: Project[];
     targetFolder?: Folder | null;
+    onSuccess: () => void;
 }
 
-export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({ isOpen, onClose, projects, targetFolder }) => {
+export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({ isOpen, onClose, projects, targetFolder, onSuccess }) => {
     const { folderTree, moveProject, folders: allFolders } = useFolderContext();
+    const { showNotification } = useNotification();
     const [searchTerm, setSearchTerm] = useState('');
     const [moving, setMoving] = useState(false);
     const [selectedProjectIds, setSelectedProjectIds] = useState<Set<string>>(new Set());
@@ -41,9 +44,12 @@ export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({ isOpen, on
             if (idsToMove.length === 0) return;
 
             await Promise.all(idsToMove.map(id => moveProject(id, folderId)));
+            showNotification('success', `Moved ${idsToMove.length} project(s)`);
+            onSuccess();
             onClose();
         } catch (error) {
             console.error("Failed to move projects", error);
+            showNotification('error', 'Failed to move projects');
         } finally {
             setMoving(false);
         }
