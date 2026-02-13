@@ -30,6 +30,12 @@ export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({
     console.log('MoveToFolderModal - folders from context:', folders);
     console.log('MoveToFolderModal - currentFolderId:', currentFolderId);
 
+    // Debug: Log the first folder to see its structure
+    if (folders.length > 0) {
+        console.log('Sample folder object:', folders[0]);
+        console.log('Sample folder keys:', Object.keys(folders[0]));
+    }
+
     // Filter folders: exclude current folder (if specified) and apply search
     const filteredFolders = folders.filter(f => {
         const notCurrentFolder = !currentFolderId || f.id !== currentFolderId;
