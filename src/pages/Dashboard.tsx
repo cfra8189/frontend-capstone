@@ -114,31 +114,29 @@ function DashboardContent() {
         <div className="flex gap-6">
           {/* Folder Tree Sidebar */}
           <div className="w-64 flex-shrink-0">
-            <div className="card p-4 rounded-xl">
-              <div className="flex items-center mb-4">
-                <h2 className="text-lg font-bold">Folders</h2>
-              </div>
-              
-              {folderLoading ? (
-                <div className="text-center text-theme-muted py-4">
-                  <div className="animate-pulse">Loading folders...</div>
-                </div>
-              ) : (
-                <FolderTree
-                  folders={folderTree.folders}
-                  selectedFolderId={selectedFolderId}
-                  onFolderSelect={(folder) => selectFolder(folder.id)}
-                  onFolderCreate={createFolder}
-                  onFolderRename={(folder) => {
-                    const newName = prompt('Enter new name:', folder.name);
-                    if (newName && newName.trim() && newName !== folder.name) {
-                      renameFolder(folder, newName.trim());
-                    }
-                  }}
-                  onFolderDelete={deleteFolder}
-                />
-              )}
+            <div className="mb-4">
+              <h2 className="text-lg font-bold mb-4">Folders</h2>
             </div>
+            
+            {folderLoading ? (
+              <div className="text-center text-theme-muted py-4">
+                <div className="animate-pulse">Loading folders...</div>
+              </div>
+            ) : (
+              <FolderTree
+                folders={folderTree.folders}
+                selectedFolderId={selectedFolderId}
+                onFolderSelect={(folder) => selectFolder(folder.id)}
+                onFolderCreate={createFolder}
+                onFolderRename={(folder) => {
+                  const newName = prompt('Enter new name:', folder.name);
+                  if (newName && newName.trim() && newName !== folder.name) {
+                    renameFolder(folder, newName.trim());
+                  }
+                }}
+                onFolderDelete={deleteFolder}
+              />
+            )}
           </div>
 
           {/* Main Content */}
