@@ -24,6 +24,16 @@ export default {
       fontFamily: {
         mono: ["Chicago", "JetBrains Mono", "monospace"],
       },
+      animation: {
+        shimmer: "shimmer 2s linear infinite",
+        "pulse-slow": "pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+      },
+      keyframes: {
+        shimmer: {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+      },
     },
   },
   plugins: [],
