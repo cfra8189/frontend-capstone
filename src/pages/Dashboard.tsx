@@ -113,8 +113,8 @@ function DashboardContent() {
       <main className="max-w-6xl mx-auto p-4 sm:p-6">
         <div className="flex gap-6">
           {/* Folder Tree Sidebar */}
-          <div className="w-64 flex-shrink-0">
-            <div className="mb-4">
+          <div className="w-80 flex-shrink-0 border-r border-theme-tertiary">
+            <div className="p-4">
               <h2 className="text-lg font-bold mb-4">Folders</h2>
             </div>
             
@@ -140,7 +140,7 @@ function DashboardContent() {
           </div>
 
           {/* Main Content */}
-          <div className="flex-1">
+          <div className="flex-1 min-h-0">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold">
