@@ -25,9 +25,18 @@ export default function Landing() {
     try {
       if (typeof window === "undefined") return false;
       const params = new URLSearchParams(window.location.search);
+      // Dev/testing overrides
       if (params.get("skipBios") === "1" || params.get("skipBios") === "true") return true;
-      if (sessionStorage.getItem("bios_passed") === "true") return true;
       if (localStorage.getItem("skipBios") === "1") return true;
+
+      // OAuth round-trip detection: Google (and other providers) typically
+      // return with a `code` and `state` query param. Treat these as evidence
+      // the user just completed an OAuth flow so BIOS should be skipped.
+      if (params.get("code") || params.get("state")) return true;
+
+      // Session-based one-time flag (normal path)
+      if (sessionStorage.getItem("bios_passed") === "true") return true;
+
       return false;
     } catch (err) {
       return false;
@@ -37,6 +46,16 @@ export default function Landing() {
   // Runtime detection to avoid accidentally initiating OAuth against the
   // production backend when developing locally.
   const runtimeBackend = (import.meta.env.VITE_BACKEND_URL as string) || (typeof window !== "undefined" ? window.location.origin : "");
+
+  // If the user just returned from an OAuth provider the URL will usually
+  // include `code`/`state` — persist the BIOS-passed flag immediately so the
+  // one-time animation doesn't reappear during the OAuth redirect round-trip.
+  if (typeof window !== "undefined") {
+    const params = new URLSearchParams(window.location.search);
+    if ((params.get("code") || params.get("state")) && sessionStorage.getItem("bios_passed") !== "true") {
+      try { sessionStorage.setItem("bios_passed", "true"); } catch (e) {}
+    }
+  }
   const isLocalhost = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname.startsWith("127."));
   const backendIsLocal = runtimeBackend.includes("localhost") || runtimeBackend.includes("127.");
   const backendIsProd = !backendIsLocal;
