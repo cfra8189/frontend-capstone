@@ -51,7 +51,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
-                distance: 8,
+                distance: 3,
             },
         }),
         useSensor(KeyboardSensor, {
@@ -89,7 +89,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     return (
         <DndContext
             sensors={sensors}
-            collisionDetection={rectIntersection}
+            collisionDetection={pointerWithin}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
@@ -121,7 +121,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                         <div className="flex items-center gap-3">
                             <div className="w-1 h-3 bg-theme-primary animate-pulse" />
                             <span className="text-[10px] font-mono font-bold text-theme-primary uppercase tracking-[0.3em]">
-                                {selectedFolderId ? folders.find(f => f.id === selectedFolderId)?.name || 'Folder' : 'ROOT_VAULT'}
+                                {selectedFolderId ? folders.find(f => f.id === selectedFolderId)?.name || 'Folder' : 'ROOT_PROJECTS'}
                             </span>
                         </div>
                         <div className="flex gap-2">
@@ -137,7 +137,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                                 className="flex items-center gap-2 px-3 py-1 bg-theme-primary text-theme-primary border border-theme hover:bg-theme-secondary transition-all text-[9px] font-bold font-mono uppercase tracking-widest group"
                             >
                                 <Plus size={12} />
-                                <span>NEW_OBJECT</span>
+                                <span>NEW_PROJECT</span>
                             </button>
                         </div>
                     </div>
@@ -166,7 +166,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                                     {activeProject.title}
                                 </span>
                                 <span className="text-[9px] text-theme-muted uppercase tracking-[0.2em]">
-                                    MOVING_OBJECT
+                                    MOVING_PROJECT
                                 </span>
                             </div>
                         </div>

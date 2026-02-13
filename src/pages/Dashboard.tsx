@@ -115,7 +115,7 @@ function DashboardContent() {
           <div className="bg-theme-secondary/80 border border-theme p-6 max-w-lg w-full shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-md">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-bold text-theme-primary uppercase tracking-widest">
-                {editingProject ? "Update Object" : "Initialize New Object"}
+                {editingProject ? "Update Project" : "Initialize New Project"}
               </h3>
               <button
                 onClick={() => setShowModal(false)}
@@ -176,7 +176,7 @@ function DashboardContent() {
                 type="submit"
                 className="w-full bg-theme-primary text-theme-primary border border-theme font-bold py-3 uppercase tracking-widest hover:bg-theme-secondary transition-all"
               >
-                {editingProject ? "Confirm Changes" : "Create Object"}
+                {editingProject ? "Confirm Changes" : "Create Project"}
               </button>
             </form>
           </div>

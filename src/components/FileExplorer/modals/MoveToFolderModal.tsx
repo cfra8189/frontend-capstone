@@ -47,7 +47,7 @@ export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({ isOpen, on
                 <div className="p-4 border-b border-theme flex items-center justify-between bg-theme-tertiary">
                     <div className="flex flex-col">
                         <span className="text-[10px] font-bold text-theme-muted uppercase tracking-[0.2em]">FILE_OPERATIONS</span>
-                        <h3 className="text-sm font-bold text-theme-primary uppercase tracking-widest">MOVE_OBJECT</h3>
+                        <h3 className="text-sm font-bold text-theme-primary uppercase tracking-widest">MOVE_PROJECT</h3>
                     </div>
                     <button onClick={onClose} className="text-theme-muted hover:text-theme-primary transition-colors p-1">
                         <X size={20} />
@@ -60,7 +60,7 @@ export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({ isOpen, on
                             <FolderIcon size={20} className="opacity-50" />
                         </div>
                         <div>
-                            <p className="text-[10px] text-theme-muted uppercase tracking-widest">TARGET_OBJECT</p>
+                            <p className="text-[10px] text-theme-muted uppercase tracking-widest">TARGET_PROJECT</p>
                             <p className="text-sm font-bold text-theme-primary truncate max-w-[250px]">{project.title}</p>
                         </div>
                     </div>
