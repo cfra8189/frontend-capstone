@@ -38,7 +38,7 @@ export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({
 
     // Filter folders: exclude current folder (if specified) and apply search
     const filteredFolders = folders.filter(f => {
-        const notCurrentFolder = !currentFolderId || f.id !== currentFolderId;
+        const notCurrentFolder = !currentFolderId || f._id !== currentFolderId;
         const matchesSearch = f.name.toLowerCase().includes(searchTerm.toLowerCase());
         return notCurrentFolder && matchesSearch;
     });
@@ -124,8 +124,8 @@ export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({
                     ) : (
                         filteredFolders.map(folder => (
                             <button
-                                key={folder.id}
-                                onClick={() => handleMove(folder.id, folder.name)}
+                                key={folder._id}
+                                onClick={() => handleMove(folder._id, folder.name)}
                                 disabled={moving}
                                 className="w-full flex items-center gap-3 p-2 hover:bg-theme-tertiary text-left transition-all border border-transparent hover:border-theme rounded-sm group disabled:opacity-50 disabled:cursor-not-allowed"
                             >
