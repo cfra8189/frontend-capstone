@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -56,14 +57,33 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         data: { type: 'folder', id: selectedFolderId || null }
     });
 
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 8,
+            },
+        })
+    );
+
     const handleDragStart = (event: DragStartEvent) => {
         console.log('Drag Start:', event.active.id);
+        const project = projects.find(p => p.id === event.active.id);
+        if (project) {
+            console.log('Found active project:', project.title);
+        } else {
+            console.log('Could not find project with ID:', event.active.id);
+        }
         setActiveId(event.active.id as string);
     };
 
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
-        console.log('Drag End:', { active: active.id, over: over?.id });
+        console.log('Drag End Event:', JSON.stringify({
+            activeId: active.id,
+            overId: over?.id,
+            overData: over?.data?.current
+        }, null, 2));
+
         setActiveId(null);
 
         if (!over) return;
@@ -90,23 +110,12 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         }
     };
 
-    const sensors = useSensors(
-        useSensor(PointerSensor, {
-            activationConstraint: {
-                distance: 8,
-            },
-        }),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates,
-        })
-    );
 
     const activeProject = activeId ? projects.find(p => p.id === activeId) : null;
 
     return (
         <DndContext
             sensors={sensors}
-            collisionDetection={pointerWithin}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
