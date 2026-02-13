@@ -199,9 +199,12 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                 )}
             </div>
 
-            <DragOverlay dropAnimation={{ sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0.4' } } }) }}>
+            <DragOverlay
+                dropAnimation={{ sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0.4' } } }) }}
+                style={{ zIndex: 9999 }}
+            >
                 {activeProject ? (
-                    <div className="bg-theme-secondary p-3 rounded-sm border border-theme-primary shadow-2xl opacity-90 cursor-grabbing w-56 scale-95 origin-center transition-transform ring-1 ring-theme-primary/30 font-mono pointer-events-none">
+                    <div className="bg-theme-secondary p-3 rounded-sm border border-theme-primary shadow-2xl opacity-90 cursor-grabbing w-56 scale-95 origin-center transition-transform ring-1 ring-theme-primary/30 font-mono pointer-events-none z-[9999]">
                         <div className="flex items-center gap-3">
                             <div className="w-8 h-8 bg-theme-tertiary flex items-center justify-center rounded-sm border border-theme text-theme-primary">
                                 <FileText size={16} />
@@ -220,10 +223,10 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
             </DragOverlay>
 
             {/* Notifications */}
-            <Notifications
+            < Notifications
                 notifications={notifications}
                 onRemove={removeNotification}
             />
-        </DndContext>
+        </DndContext >
     );
 };

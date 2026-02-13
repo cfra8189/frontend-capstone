@@ -28,7 +28,7 @@ function DashboardContent() {
       setLoading(true);
       const url = selectedFolderId
         ? `/api/projects?folderId=${selectedFolderId}`
-        : "/api/projects";
+        : "/api/projects?folderId=root";
 
       const res = await fetch(url);
       if (res.ok) {
