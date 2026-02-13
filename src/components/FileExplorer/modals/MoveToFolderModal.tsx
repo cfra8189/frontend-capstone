@@ -42,14 +42,21 @@ export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({
     const handleMove = async (folderId: string, folderName: string) => {
         try {
             setMoving(true);
+            console.log('=== MOVE OPERATION START ===');
             console.log('Moving project:', projectId, 'to folder:', folderId);
+            console.log('Project title:', projectTitle);
+            console.log('Folder name:', folderName);
 
             await moveProject(projectId, folderId);
 
+            console.log('=== MOVE OPERATION SUCCESS ===');
             success(`"${projectTitle}" moved to "${folderName}"`);
+            console.log('Calling onSuccess to refresh...');
             onSuccess();
+            console.log('Closing modal...');
             onClose();
         } catch (err) {
+            console.error('=== MOVE OPERATION FAILED ===');
             console.error('Failed to move project:', err);
             error(err instanceof Error ? err.message : 'Failed to move project');
         } finally {
