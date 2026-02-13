@@ -29,10 +29,16 @@ export function FolderProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       setError(null);
+      console.log('Loading folders...');
+      
       const [foldersData, treeData] = await Promise.all([
         folderService.getFolders(),
         folderService.getFolderTree()
       ]);
+      
+      console.log('Folders loaded:', foldersData);
+      console.log('Tree loaded:', treeData);
+      
       setFolders(foldersData);
       setFolderTree(treeData);
       

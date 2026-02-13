@@ -168,21 +168,6 @@ const FolderTree: React.FC<FolderTreeProps> = ({
                 </svg>
               </button>
             )}
-
-            {folder.type !== 'root' && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleCreateFolder(folder.id);
-                }}
-                className="w-6 h-6 flex items-center justify-center text-theme-muted hover:text-accent"
-                title="Create subfolder"
-              >
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
-                  <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
-              </button>
-            )}
           </div>
         </div>
 
