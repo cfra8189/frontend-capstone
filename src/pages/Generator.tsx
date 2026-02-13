@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import Header from "../components/Header";
+import CollaborationModal from "../components/CollaborationModal";
+import { useCollaborationContext } from "../context/CollaborationContext";
 
 const templateData = {
   'basic-ne': { 
@@ -77,7 +79,10 @@ export default function Generator() {
   const [isSaving, setIsSaving] = useState(false);
   const [savedDocumentId, setSavedDocumentId] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [showCollaborationModal, setShowCollaborationModal] = useState(false);
+  const [currentAgreementId, setCurrentAgreementId] = useState<string | null>(null);
   const [, setLocation] = useLocation();
+  const { pendingCollaborations } = useCollaborationContext();
 
   function handleSelect(templateId: string) {
     setSelectedTemplate(templateId);
@@ -232,6 +237,7 @@ export default function Generator() {
       if (!resp.ok) throw new Error(data?.message || "Save failed");
       const docId = data.document?.id || null;
       setSavedDocumentId(docId);
+      setCurrentAgreementId(docId);
       // Auto-open saved document in Documents page
       if (docId) setLocation(`/documents?open=${docId}`);
     } catch (err: any) {
@@ -240,6 +246,13 @@ export default function Generator() {
       setIsSaving(false);
     }
   }
+
+  const handleOpenCollaborationModal = () => {
+    if (savedDocumentId) {
+      setCurrentAgreementId(savedDocumentId);
+      setShowCollaborationModal(true);
+    }
+  };
 
   const template = templateData[selectedTemplate as keyof typeof templateData];
   const showAdditionalFields = template && template.fields.length > 0;
@@ -647,6 +660,17 @@ export default function Generator() {
                     </div>
                   )}
 
+                  {savedDocumentId && (
+                    <div className="mt-4">
+                      <button
+                        onClick={handleOpenCollaborationModal}
+                        className="w-full btn-primary font-bold py-3 rounded"
+                      >
+                        + Add Collaborator
+                      </button>
+                    </div>
+                  )}
+
                   <div className="mt-6 text-center">
                     <button onClick={handleReset} className="text-accent hover:underline">
                       Create Another Agreement
@@ -658,6 +682,15 @@ export default function Generator() {
           </div>
         )}
       </main>
+
+      {/* Collaboration Modal */}
+      <CollaborationModal
+        isOpen={showCollaborationModal}
+        onClose={() => setShowCollaborationModal(false)}
+        agreementId={currentAgreementId || undefined}
+        itemType="agreement"
+        itemName={`${template?.title || 'Agreement'} - ${formData.trackTitle || 'Untitled'}`}
+      />
     </div>
   );
 }
