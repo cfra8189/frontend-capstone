@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../hooks/use-auth";
 import Header from "../components/Header";
+import ProfileImageUpload from "../components/ProfileImageUpload";
 
 export default function Settings() {
   const { user } = useAuth();
@@ -12,6 +13,7 @@ export default function Settings() {
   const [displayName, setDisplayName] = useState(user?.firstName || user?.displayName || "");
   const [profileMessage, setProfileMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [profileImageUrl, setProfileImageUrl] = useState(user?.profileImageUrl || null);
 
   async function handleProfileUpdate(e: React.FormEvent) {
     e.preventDefault();
@@ -109,6 +111,28 @@ export default function Settings() {
                 ? "Artists can use this code to join your network when they sign up."
                 : "Share this code with studios or other artists to connect and collaborate."}
             </p>
+          </div>
+        </section>
+
+        <section className="card p-6 rounded-xl mb-6">
+          <h2 className="text-lg font-bold mb-4 text-theme-primary">Profile Picture</h2>
+          
+          <div className="flex items-center gap-6 mb-6">
+            <ProfileImageUpload
+              currentImageUrl={profileImageUrl}
+              onImageUpdate={setProfileImageUrl}
+              size="large"
+            />
+            
+            <div>
+              <p className="text-sm text-theme-secondary mb-2">
+                Upload a profile picture to personalize your account
+              </p>
+              <p className="text-xs text-theme-muted">
+                Recommended: Square image, at least 200x200px<br/>
+                Maximum file size: 5MB
+              </p>
+            </div>
           </div>
         </section>
 

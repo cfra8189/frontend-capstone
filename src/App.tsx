@@ -16,6 +16,7 @@ import Portfolio from "./pages/Portfolio";
 import SubmissionGenerator from "./pages/SubmissionGenerator";
 import EPKEditor from "./pages/EPKEditor";
 import EPKView from "./pages/EPKView";
+import EPK from "./pages/EPK";
 import CapstoneDoc from "./pages/CapstoneDoc";
 import BackgroundGif from "./components/BackgroundGif";
 
@@ -111,7 +112,7 @@ function App() {
         <Route path="/generator" component={Generator} />
         <Route path="/documents" component={Documents} />
         <Route path="/submissions" component={SubmissionGenerator} />
-        <Route path="/epk" component={EPKEditor} />
+        <Route path="/epk" component={EPK} />
         <Route path="/settings" component={Settings} />
         <Route path="/studio" component={StudioDashboard} />
         <Route>
