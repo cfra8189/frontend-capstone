@@ -10,9 +10,10 @@ interface Particle {
 
 interface ParticleNetworkProps {
     opacity?: number;
+    color?: string; // e.g., "255, 255, 255"
 }
 
-const ParticleNetwork: React.FC<ParticleNetworkProps> = ({ opacity = 0.3 }) => {
+const ParticleNetwork: React.FC<ParticleNetworkProps> = ({ opacity = 0.3, color }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const mouseRef = useRef({ x: -1000, y: -1000 });
 
@@ -90,7 +91,7 @@ const ParticleNetwork: React.FC<ParticleNetworkProps> = ({ opacity = 0.3 }) => {
 
 
                 // Draw particle
-                const particleColor = getComputedStyle(document.documentElement).getPropertyValue('--particle-color').trim() || '255, 255, 255';
+                const particleColor = color || getComputedStyle(document.documentElement).getPropertyValue('--particle-color').trim() || '255, 255, 255';
 
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);

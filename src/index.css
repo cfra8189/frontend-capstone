@@ -41,18 +41,18 @@
 }
 
 :root.light {
-  --bg-primary: #e5e5e5;
-  --bg-secondary: #f0f0f0;
-  --bg-tertiary: #d9d9d9;
-  --text-primary: #1a1a1a;
-  --text-secondary: #444444;
-  --text-muted: #666666;
-  --border-color: #cccccc;
+  --bg-primary: #a3a3a3;
+  --bg-secondary: #b5b5b5;
+  --bg-tertiary: #8f8f8f;
+  --text-primary: #0a0a0a;
+  --text-secondary: #262626;
+  --text-muted: #404040;
+  --border-color: #666666;
   --accent: #000000;
   --accent-contrast: #ffffff;
   --particle-color: 0, 0, 0;
-  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  --card-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  --card-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.2);
 }
 
 body {

@@ -56,7 +56,7 @@ export default function BiosBoot({ onComplete }: BiosBootProps) {
             { text: "Awaiting User Authentication...", delay: 6000 },
         ];
 
-        let timeouts: NodeJS.Timeout[] = [];
+        let timeouts: any[] = [];
 
         // Reset lines initially
         setLines([]);
@@ -119,7 +119,7 @@ export default function BiosBoot({ onComplete }: BiosBootProps) {
             className="fixed inset-0 z-50 bg-black text-[#d4d4d4] font-mono p-8 overflow-y-auto cursor-text text-lg leading-relaxed select-none"
             onClick={() => inputRef.current?.focus()}
         >
-            <ParticleNetwork />
+            <ParticleNetwork color="255, 255, 255" opacity={0.4} />
             <div className="max-w-4xl mx-auto flex flex-col min-h-full relative z-10">
                 {/* Logo in BIOS Header */}
                 {/* ASCII Art & Logo Header */}
