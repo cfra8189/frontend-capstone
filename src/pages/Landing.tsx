@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTheme } from "../context/ThemeContext";
 import BiosBoot from "../components/BiosBoot";
+import { useAuth } from "../hooks/use-auth";
 
 export default function Landing() {
   const queryClient = useQueryClient();
@@ -20,29 +21,6 @@ export default function Landing() {
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
 
-  // BIOS: show before login unless explicitly skipped
-  const [biosPassed, setBiosPassed] = useState<boolean>(() => {
-    try {
-      if (typeof window === "undefined") return false;
-      const params = new URLSearchParams(window.location.search);
-      // Dev/testing overrides
-      if (params.get("skipBios") === "1" || params.get("skipBios") === "true") return true;
-      if (localStorage.getItem("skipBios") === "1") return true;
-
-      // OAuth round-trip detection: Google (and other providers) typically
-      // return with a `code` and `state` query param. Treat these as evidence
-      // the user just completed an OAuth flow so BIOS should be skipped.
-      if (params.get("code") || params.get("state")) return true;
-
-      // Session-based one-time flag (normal path)
-      if (sessionStorage.getItem("bios_passed") === "true") return true;
-
-      return false;
-    } catch (err) {
-      return false;
-    }
-  });
-
   // Runtime detection to avoid accidentally initiating OAuth against the
   // production backend when developing locally.
   const runtimeBackend = (import.meta.env.VITE_BACKEND_URL as string) || (typeof window !== "undefined" ? window.location.origin : "");
@@ -56,6 +34,31 @@ export default function Landing() {
       try { sessionStorage.setItem("bios_passed", "true"); } catch (e) {}
     }
   }
+
+  // BIOS: show before login unless explicitly skipped
+  const [biosPassed, setBiosPassed] = useState<boolean>(() => {
+    try {
+      if (typeof window === "undefined") return false;
+      const params = new URLSearchParams(window.location.search);
+      
+      // OAuth round-trip detection: Google (and other providers) typically
+      // return with a `code` and `state` query param. Treat these as evidence
+      // the user just completed an OAuth flow so BIOS should be skipped.
+      // This check needs to happen FIRST to prevent BIOS from showing during OAuth redirect
+      if (params.get("code") || params.get("state")) return true;
+      
+      // Dev/testing overrides
+      if (params.get("skipBios") === "1" || params.get("skipBios") === "true") return true;
+      if (localStorage.getItem("skipBios") === "1") return true;
+
+      // Session-based one-time flag (normal path)
+      if (sessionStorage.getItem("bios_passed") === "true") return true;
+
+      return false;
+    } catch (err) {
+      return false;
+    }
+  });
   const isLocalhost = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname.startsWith("127."));
   const backendIsLocal = runtimeBackend.includes("localhost") || runtimeBackend.includes("127.");
   const backendIsProd = !backendIsLocal;
