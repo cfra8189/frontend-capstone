@@ -1,12 +1,15 @@
-const express = require('express');
-const path = require('path');
-const { createProxyMiddleware } = require('http-proxy-middleware');
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { createProxyMiddleware } from 'http-proxy-middleware';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 const BACKEND_URL = process.env.VITE_BACKEND_URL || 'https://box-backend-otsb.onrender.com';
 
-// Proxy API requests to backend
 app.use('/api', createProxyMiddleware({
   target: BACKEND_URL,
   changeOrigin: true,
@@ -16,10 +19,8 @@ app.use('/api', createProxyMiddleware({
   },
 }));
 
-// Serve static files
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// Handle client-side routing
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });

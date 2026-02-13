@@ -21,7 +21,7 @@ import { FileText, Plus, FolderPlus } from 'lucide-react';
 import { ProjectGrid } from './ProjectGrid';
 import { Sidebar } from './Sidebar';
 import { useFolderContext } from '../../context/FolderContext';
-import { Project } from '../../types/folder';
+import { Project, Folder } from '../../types/folder';
 import { CreateFolderModal } from './modals/CreateFolderModal';
 import { MoveToFolderModal } from './modals/MoveToFolderModal';
 
@@ -41,7 +41,8 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     const { moveProject, selectedFolderId, folders, deleteFolder } = useFolderContext();
     const [activeId, setActiveId] = useState<string | null>(null);
     const [showCreateFolder, setShowCreateFolder] = useState(false);
-    const [movingProject, setMovingProject] = useState<Project | null>(null);
+    const [movingProjects, setMovingProjects] = useState<Project[]>([]);
+    const [targetFolder, setTargetFolder] = useState<Folder | null>(null);
 
     const { setNodeRef: setGridDropRef, isOver: isOverGrid } = useDroppable({
         id: `grid-${selectedFolderId || 'root'}`,
@@ -51,7 +52,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
-                distance: 3,
+                distance: 5,
             },
         }),
         useSensor(KeyboardSensor, {
@@ -60,24 +61,22 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     );
 
     const handleDragStart = (event: DragStartEvent) => {
-        setActiveId(event.active.id as string);
+        const { active } = event;
+        setActiveId(active.id as string);
     };
 
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
 
         if (over && active.id !== over.id) {
-            if (over.data.current?.type === 'folder') {
-                const folderId = over.data.current.id;
-                const projectId = active.data.current?.id;
-                const currentFolderId = active.data.current?.folderId;
-
-                if (folderId && projectId && folderId !== currentFolderId) {
-                    try {
-                        await moveProject(projectId, folderId);
-                    } catch (error) {
-                        console.error("Failed to move project", error);
-                    }
+            const folderId = over.data.current?.id;
+            const projectId = active.data.current?.id;
+            
+            if (folderId && projectId && folderId !== active.data.current?.folderId) {
+                try {
+                    await moveProject(projectId, folderId);
+                } catch (error) {
+                    console.error("Failed to move project", error);
                 }
             }
         }
@@ -89,7 +88,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     return (
         <DndContext
             sensors={sensors}
-            collisionDetection={pointerWithin}
+            collisionDetection={closestCenter}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
@@ -100,9 +99,13 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
             />
 
             <MoveToFolderModal
-                isOpen={movingProject !== null}
-                onClose={() => setMovingProject(null)}
-                project={movingProject}
+                isOpen={movingProjects.length > 0}
+                onClose={() => {
+                    setMovingProjects([]);
+                    setTargetFolder(null);
+                }}
+                projects={movingProjects.length > 0 ? movingProjects : projects}
+                targetFolder={targetFolder}
             />
 
             <div className="flex h-[calc(100vh-140px)] bg-theme-secondary/20 backdrop-blur-2xl text-theme-primary overflow-hidden rounded-lg border border-theme/30 shadow-2xl relative z-10 transition-all duration-500">
@@ -110,6 +113,10 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                     className="w-64 flex-shrink-0"
                     onDeleteFolder={(folder) => deleteFolder(folder)}
                     onRenameFolder={() => { }} // Sidebar handles its own renaming state
+                    onAddProjects={(folder) => {
+                        setTargetFolder(folder);
+                        setMovingProjects(projects);
+                    }}
                 />
 
                 <div
@@ -148,7 +155,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                             loading={loading}
                             onEdit={onProjectEdit}
                             onDelete={onProjectDelete}
-                            onMoveProject={(p) => setMovingProject(p)}
+                            onMoveProject={(p) => setMovingProjects([p])}
                         />
                     </div>
                 </div>

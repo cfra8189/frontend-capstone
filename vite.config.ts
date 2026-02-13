@@ -24,7 +24,9 @@ export default defineConfig(({ mode }) => {
           "frame-src *;"
         ].join(' ')
       },
-      port: 5173,
+      host: "0.0.0.0",
+      port: 5000,
+      allowedHosts: true,
       proxy: {
         "/api": {
           target: backendUrl,
