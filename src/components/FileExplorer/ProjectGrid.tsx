@@ -68,7 +68,7 @@ const ProjectCard: React.FC<{
             className={`
         group relative border border-theme hover:border-theme-primary hover:bg-theme-secondary p-4 
         transition-all cursor-grab active:cursor-grabbing bg-theme-tertiary
-        ${isDragging ? 'ring-2 ring-theme-primary shadow-xl opacity-50 grayscale' : ''}
+        ${isDragging ? 'ring-2 ring-theme-primary shadow-xl opacity-20 grayscale' : ''}
       `}
             onClick={() => onEdit(project)}
         >
