@@ -111,8 +111,14 @@ function DashboardContent() {
 
       {/* Project Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-6 z-[300] backdrop-blur-3xl">
-          <div className="bg-theme-secondary/80 border border-theme p-6 max-w-lg w-full shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-md">
+        <div
+          className="fixed inset-0 bg-black/40 flex items-center justify-center p-6 z-[300] backdrop-blur-3xl"
+          onClick={() => setShowModal(false)}
+        >
+          <div
+            className="bg-theme-secondary/80 border border-theme p-6 max-w-lg w-full shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-md"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-bold text-theme-primary uppercase tracking-widest">
                 {editingProject ? "Update Project" : "Initialize New Project"}

@@ -36,7 +36,9 @@ export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({ isOpen, on
             setMoving(true);
             const idsToMove = selectedProjectIds.size > 0
                 ? Array.from(selectedProjectIds)
-                : projects.map(p => p.id);
+                : (projects.length === 1 ? [projects[0].id] : []);
+
+            if (idsToMove.length === 0) return;
 
             await Promise.all(idsToMove.map(id => moveProject(id, folderId)));
             onClose();
@@ -132,7 +134,7 @@ export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({ isOpen, on
                             {targetFolder ? (
                                 <button
                                     onClick={() => handleMove(targetFolder.id)}
-                                    disabled={moving || (selectedProjectIds.size === 0 && projects.length === 0)}
+                                    disabled={moving || (selectedProjectIds.size === 0 && projects.length > 1)}
                                     className="w-full flex items-center gap-3 p-3 bg-accent/10 border border-accent hover:bg-accent/20 text-left transition-all rounded-sm group disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <FolderIcon size={16} className="text-accent" />

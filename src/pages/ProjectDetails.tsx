@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "wouter";
 import Header from "../components/Header";
+import GlobalEffects from "../components/GlobalEffects";
 
 interface Project {
   id: number;
@@ -14,49 +15,49 @@ interface Project {
 }
 
 const workflowSteps = [
-  { 
-    id: "fixation", 
-    title: "1. Fix Your Work", 
-    fee: "FREE", 
+  {
+    id: "fixation",
+    title: "1. Fix Your Work",
+    fee: "FREE",
     description: "Record or document in tangible form",
     fields: [
       { key: "fixation_date", label: "Date Fixed", type: "date", placeholder: "When was it recorded?" },
       { key: "fixation_format", label: "Format", type: "text", placeholder: "Audio file, video, manuscript..." },
     ]
   },
-  { 
-    id: "copyright", 
-    title: "2. Register Copyright", 
-    fee: "$45-65", 
+  {
+    id: "copyright",
+    title: "2. Register Copyright",
+    fee: "$45-65",
     description: "File with US Copyright Office",
     fields: [
       { key: "copyright_reg_number", label: "Registration Number", type: "text", placeholder: "e.g., SR0000123456" },
       { key: "copyright_date", label: "Registration Date", type: "date", placeholder: "" },
     ]
   },
-  { 
-    id: "pro", 
-    title: "3. Join a PRO", 
-    fee: "FREE-$50", 
+  {
+    id: "pro",
+    title: "3. Join a PRO",
+    fee: "FREE-$50",
     description: "ASCAP, BMI for royalty collection",
     fields: [
       { key: "pro_name", label: "PRO Name", type: "select", options: ["ASCAP", "BMI", "SESAC", "GMR", "Other"] },
       { key: "pro_member_id", label: "Member ID", type: "text", placeholder: "Your PRO member ID" },
     ]
   },
-  { 
-    id: "register_song", 
-    title: "4. Register Composition", 
-    fee: "FREE", 
+  {
+    id: "register_song",
+    title: "4. Register Composition",
+    fee: "FREE",
     description: "Get ISWC from your PRO",
     fields: [
       { key: "iswc", label: "ISWC", type: "text", placeholder: "e.g., T-123.456.789-0" },
     ]
   },
-  { 
-    id: "distributor", 
-    title: "5. Upload to Distributor", 
-    fee: "$0-30/yr", 
+  {
+    id: "distributor",
+    title: "5. Upload to Distributor",
+    fee: "$0-30/yr",
     description: "Get ISRC and UPC codes",
     fields: [
       { key: "distributor", label: "Distributor", type: "text", placeholder: "DistroKid, TuneCore, CD Baby..." },
@@ -64,10 +65,10 @@ const workflowSteps = [
       { key: "upc", label: "UPC", type: "text", placeholder: "e.g., 012345678901" },
     ]
   },
-  { 
-    id: "release", 
-    title: "6. Release & Monitor", 
-    fee: "N/A", 
+  {
+    id: "release",
+    title: "6. Release & Monitor",
+    fee: "N/A",
     description: "Track performance and royalties",
     fields: [
       { key: "release_date", label: "Release Date", type: "date", placeholder: "" },
@@ -132,8 +133,14 @@ export default function ProjectDetails() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-theme-muted">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center bg-theme-primary">
+        <GlobalEffects opacity={0.12} />
+        <div className="flex flex-col items-center">
+          <div className="w-12 h-12 mb-4">
+            <div className="w-full h-full border-2 border-theme-primary border-t-accent rounded-full animate-spin" />
+          </div>
+          <p className="text-theme-muted font-mono uppercase tracking-widest text-xs animate-pulse">Loading Project Data...</p>
+        </div>
       </div>
     );
   }
@@ -188,20 +195,20 @@ export default function ProjectDetails() {
                       <span className="text-sm font-bold text-accent">{progressPercent}%</span>
                     </div>
                     <div className="h-3 bg-theme-tertiary rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-accent transition-all duration-500" 
+                      <div
+                        className="h-full bg-accent transition-all duration-500"
                         style={{ width: `${progressPercent}%` }}
                       />
                     </div>
                   </div>
                 );
               })()}
-              
+
               <div className="space-y-3">
                 {workflowSteps.map(step => {
                   const isComplete = localWorkflow[`${step.id}_complete`];
                   const isExpanded = expandedStep === step.id;
-                  
+
                   return (
                     <div
                       key={step.id}
@@ -222,17 +229,17 @@ export default function ProjectDetails() {
                           <span className={`text-xs ${isComplete ? "text-green-400" : "text-theme-muted"}`}>
                             {isComplete ? "Complete" : step.fee}
                           </span>
-                          <svg 
-                            className={`w-4 h-4 text-theme-muted transition-transform ${isExpanded ? "rotate-180" : ""}`} 
-                            fill="none" 
-                            stroke="currentColor" 
+                          <svg
+                            className={`w-4 h-4 text-theme-muted transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                            fill="none"
+                            stroke="currentColor"
                             viewBox="0 0 24 24"
                           >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                           </svg>
                         </div>
                       </button>
-                      
+
                       {isExpanded && (
                         <div className="px-4 pb-4 border-t border-theme mt-0 pt-4">
                           <div className="space-y-3">
@@ -264,15 +271,14 @@ export default function ProjectDetails() {
                               </div>
                             ))}
                           </div>
-                          
+
                           <button
                             onClick={() => toggleStepComplete(step.id)}
                             disabled={saving}
-                            className={`mt-4 w-full py-2 px-4 rounded text-sm font-medium transition-colors ${
-                              isComplete 
-                                ? "bg-theme-tertiary text-theme-secondary hover:bg-red-900/30 hover:text-red-400" 
-                                : "bg-accent text-accent-contrast hover:opacity-90"
-                            }`}
+                            className={`mt-4 w-full py-2 px-4 rounded text-sm font-medium transition-colors ${isComplete
+                              ? "bg-theme-tertiary text-theme-secondary hover:bg-red-900/30 hover:text-red-400"
+                              : "bg-accent text-accent-contrast hover:opacity-90"
+                              }`}
                           >
                             {saving ? "Saving..." : isComplete ? "Mark as Incomplete" : "Mark as Complete"}
                           </button>
