@@ -221,6 +221,43 @@ export default function Landing() {
             </a>
           )}
 
+          {typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname.startsWith('127.')) && (
+            <div className="flex items-center justify-between gap-2 mb-4">
+              <button
+                onClick={() => {
+                  try { sessionStorage.setItem('bios_passed', 'true'); } catch (e) {}
+                  window.location.reload();
+                }}
+                className="text-sm bg-green-600 text-white py-2 px-3 rounded"
+                title="Temporarily skip BIOS for this browser session"
+              >
+                Temporarily skip BIOS
+              </button>
+
+              <button
+                onClick={() => {
+                  try { sessionStorage.removeItem('bios_passed'); localStorage.removeItem('skipBios'); } catch (e) {}
+                  window.location.reload();
+                }}
+                className="text-sm bg-gray-700 text-white py-2 px-3 rounded"
+                title="Clear skip so BIOS shows again"
+              >
+                Show BIOS again
+              </button>
+
+              <button
+                onClick={() => {
+                  try { localStorage.setItem('skipBios', '1'); } catch (e) {}
+                  window.location.reload();
+                }}
+                className="text-sm bg-blue-600 text-white py-2 px-3 rounded"
+                title="Persist skip across sessions (dev only)"
+              >
+                Persist skip (local)
+              </button>
+            </div>
+          )}
+
           <div className="flex items-center gap-4 my-6">
             <div className="flex-1 h-px bg-theme-tertiary" />
             <span className="text-theme-muted text-sm">or use email</span>

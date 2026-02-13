@@ -24,15 +24,31 @@ function App() {
   const { user, isLoading, isAuthenticated } = useAuth();
   const [location] = useLocation();
   const [biosPassed, setBiosPassed] = useState<boolean>(() => {
-    // Initialize from sessionStorage so the first render already knows if the
-    // BIOS screen was previously completed (prevents showing it again after
-    // OAuth redirects or full page reloads).
+    // Allow temporary bypass for testing via (in priority order):
+    //  - URL param `?skipBios=1` or `?skipBios=true`
+    //  - sessionStorage 'bios_passed' (existing behavior)
+    //  - localStorage 'skipBios' (persisted dev override)
     try {
-      return typeof window !== "undefined" && sessionStorage.getItem("bios_passed") === "true";
+      if (typeof window === "undefined") return false;
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("skipBios") === "1" || params.get("skipBios") === "true") return true;
+      if (sessionStorage.getItem("bios_passed") === "true") return true;
+      if (localStorage.getItem("skipBios") === "1") return true;
+      return false;
     } catch (err) {
       return false;
     }
   });
+
+  useEffect(() => {
+    // If the user is authenticated after an OAuth round-trip, assume the
+    // initial BIOS sequence should be considered completed so it doesn't
+    // re-appear after external redirects.
+    if (isAuthenticated && !biosPassed) {
+      try { sessionStorage.setItem("bios_passed", "true"); } catch (e) {}
+      setBiosPassed(true);
+    }
+  }, [isAuthenticated, biosPassed]);
 
   if (!biosPassed) {
     return (
