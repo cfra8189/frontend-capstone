@@ -23,14 +23,16 @@ import BackgroundGif from "./components/BackgroundGif";
 function App() {
   const { user, isLoading, isAuthenticated } = useAuth();
   const [location] = useLocation();
-  const [biosPassed, setBiosPassed] = useState(false);
-
-  useEffect(() => {
-    const passed = sessionStorage.getItem("bios_passed");
-    if (passed === "true") {
-      setBiosPassed(true);
+  const [biosPassed, setBiosPassed] = useState<boolean>(() => {
+    // Initialize from sessionStorage so the first render already knows if the
+    // BIOS screen was previously completed (prevents showing it again after
+    // OAuth redirects or full page reloads).
+    try {
+      return typeof window !== "undefined" && sessionStorage.getItem("bios_passed") === "true";
+    } catch (err) {
+      return false;
     }
-  }, []);
+  });
 
   if (!biosPassed) {
     return (
