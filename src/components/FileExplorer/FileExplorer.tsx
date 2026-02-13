@@ -55,10 +55,42 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         data: { type: 'folder', id: selectedFolderId || null }
     });
 
+    const handleDragStart = (event: DragStartEvent) => {
+        setActiveId(event.active.id as string);
+    };
+
+    const handleDragEnd = async (event: DragEndEvent) => {
+        const { active, over } = event;
+        setActiveId(null);
+
+        if (!over) return;
+
+        const projectId = active.id as string;
+        const project = projects.find(p => p.id === projectId);
+
+        if (!project) return;
+
+        // Check if dropping on a folder
+        if (over.data.current?.type === 'folder') {
+            const targetFolderId = over.data.current.id;
+            const targetFolderName = over.data.current.name || 'folder';
+
+            try {
+                console.log('D&D: Moving project', projectId, 'to folder', targetFolderId);
+                await moveProject(projectId, targetFolderId);
+                success(`"${project.title}" moved to "${targetFolderName}"`);
+                onRefresh(); // Refresh the project list
+            } catch (err) {
+                console.error('D&D: Failed to move project:', err);
+                error(err instanceof Error ? err.message : 'Failed to move project');
+            }
+        }
+    };
+
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
-                distance: 5,
+                distance: 8,
             },
         }),
         useSensor(KeyboardSensor, {
@@ -66,34 +98,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         })
     );
 
-    const handleDragStart = (event: DragStartEvent) => {
-        const { active } = event;
-        setActiveId(active.id as string);
-    };
-
-    const handleDragEnd = async (event: DragEndEvent) => {
-        const { active, over } = event;
-
-        if (over && active.id !== over.id) {
-            const folderId = over.data.current?.id;
-            const projectId = active.data.current?.id;
-
-            if (folderId && projectId && folderId !== active.data.current?.folderId) {
-                try {
-                    console.log('Moving project via drag & drop:', projectId, 'to folder:', folderId);
-                    await moveProject(projectId, folderId);
-                    success(`Project moved successfully to "${folders.find(f => f.id === folderId)?.name || 'folder'}"`);
-                    onRefresh();
-                } catch (err) {
-                    console.error("Failed to move project", err);
-                    error(err instanceof Error ? err.message : 'Failed to move project. Please try again.');
-                }
-            }
-        }
-        setActiveId(null);
-    };
-
-    const activeProject = activeId ? projects.find(p => `project-${p.id}` === activeId) : null;
+    const activeProject = activeId ? projects.find(p => p.id === activeId) : null;
 
     return (
         <DndContext
