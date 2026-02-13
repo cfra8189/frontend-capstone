@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useFolderContext } from '../../../context/FolderContext';
 import { Project, Folder } from '../../../types/folder';
 import { Search, Folder as FolderIcon, X } from 'lucide-react';
 
@@ -13,22 +12,12 @@ interface MoveToFolderModalProps {
 }
 
 export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({ isOpen, onClose, project, onMoveProject, currentFolderId, folders }) => {
-    const { folderTree } = useFolderContext();
     const [searchTerm, setSearchTerm] = useState('');
     const [moving, setMoving] = useState(false);
 
     if (!isOpen || !project) return null;
 
-    const flattenedFolders: Folder[] = [];
-    const flatten = (folders: Folder[]) => {
-        folders.forEach(f => {
-            flattenedFolders.push(f);
-            if (f.children) flatten(f.children);
-        });
-    };
-    flatten(folderTree.folders);
-
-    const filteredFolders = flattenedFolders.filter(f =>
+    const filteredFolders = folders.filter(f =>
         f.name.toLowerCase().includes(searchTerm.toLowerCase()) && f.id !== currentFolderId
     );
 

@@ -130,6 +130,9 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                 folders={folders}
             />
 
+            {/* Debug logging */}
+            {movingProjects.length > 0 && console.log('Modal open with folders:', folders, 'selectedFolderId:', selectedFolderId)}
+
             <div className="bg-theme-secondary/20 backdrop-blur-2xl text-theme-primary rounded-lg border border-theme/30 shadow-2xl relative z-10 transition-all duration-500 flex flex-col h-[calc(100vh-140px)] overflow-hidden">
                 {/* Tabs */}
                 <div className="flex border-b border-theme/30 bg-theme-primary/10 backdrop-blur-md">
@@ -226,9 +229,9 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
             </DragOverlay>
 
             {/* Notifications */}
-            <Notifications 
-                notifications={notifications} 
-                onRemove={removeNotification} 
+            <Notifications
+                notifications={notifications}
+                onRemove={removeNotification}
             />
         </DndContext>
     );
