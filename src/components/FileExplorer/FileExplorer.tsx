@@ -4,6 +4,8 @@ import {
     DragOverlay,
     closestCenter,
     pointerWithin,
+    rectIntersection,
+    useDroppable,
     KeyboardSensor,
     PointerSensor,
     useSensor,
@@ -40,6 +42,11 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     const [activeId, setActiveId] = useState<string | null>(null);
     const [showCreateFolder, setShowCreateFolder] = useState(false);
     const [movingProject, setMovingProject] = useState<Project | null>(null);
+
+    const { setNodeRef: setGridDropRef, isOver: isOverGrid } = useDroppable({
+        id: `grid-${selectedFolderId || 'root'}`,
+        data: { type: 'folder', id: selectedFolderId || null }
+    });
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -82,7 +89,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     return (
         <DndContext
             sensors={sensors}
-            collisionDetection={pointerWithin}
+            collisionDetection={rectIntersection}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
@@ -98,16 +105,19 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                 project={movingProject}
             />
 
-            <div className="flex h-[calc(100vh-140px)] bg-theme-secondary text-theme-primary overflow-hidden rounded-lg border border-theme shadow-2xl">
+            <div className="flex h-[calc(100vh-140px)] bg-theme-secondary/20 backdrop-blur-2xl text-theme-primary overflow-hidden rounded-lg border border-theme/30 shadow-2xl relative z-10 transition-all duration-500">
                 <Sidebar
                     className="w-64 flex-shrink-0"
                     onDeleteFolder={(folder) => deleteFolder(folder)}
                     onRenameFolder={() => { }} // Sidebar handles its own renaming state
                 />
 
-                <div className="flex-1 flex flex-col min-w-0 bg-theme-primary relative">
+                <div
+                    ref={setGridDropRef}
+                    className={`flex-1 flex flex-col min-w-0 relative transition-all duration-300 ${isOverGrid ? 'bg-theme-primary/10 ring-2 ring-inset ring-theme-primary/30' : ''}`}
+                >
                     {/* Interior Toolbar */}
-                    <div className="border-b border-theme p-3 flex items-center justify-between bg-theme-secondary/50 backdrop-blur-md">
+                    <div className="border-b border-theme/20 p-3 flex items-center justify-between bg-transparent backdrop-blur-md">
                         <div className="flex items-center gap-3">
                             <div className="w-1 h-3 bg-theme-primary animate-pulse" />
                             <span className="text-[10px] font-mono font-bold text-theme-primary uppercase tracking-[0.3em]">
@@ -132,7 +142,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                         </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto">
+                    <div className="flex-1 overflow-y-auto custom-scrollbar">
                         <ProjectGrid
                             projects={projects}
                             loading={loading}

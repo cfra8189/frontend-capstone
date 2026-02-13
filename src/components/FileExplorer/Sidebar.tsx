@@ -143,7 +143,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ className, onRenameFolder, onD
     const [renamingFolder, setRenamingFolder] = useState<Folder | null>(null);
 
     return (
-        <div className="flex flex-col h-full bg-theme-secondary border-r border-theme font-mono">
+        <div className="flex flex-col h-full bg-transparent border-r border-theme/20 font-mono relative z-10">
             <RenameModal
                 isOpen={renamingFolder !== null}
                 onClose={() => setRenamingFolder(null)}
