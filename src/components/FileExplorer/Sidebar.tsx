@@ -42,8 +42,8 @@ const FolderItem: React.FC<{
     hasChildren
 }) => {
         const { setNodeRef, isOver } = useDroppable({
-            id: `folder-${folder.id}`,
-            data: { type: 'folder', id: folder.id, name: folder.name }
+            id: `folder-${folder._id}`,
+            data: { type: 'folder', id: folder._id, name: folder.name }
         });
 
         const isSystem = folder.type === 'root' || folder.type === 'year';
@@ -60,12 +60,12 @@ const FolderItem: React.FC<{
            ${isOver ? 'ring-2 ring-theme-primary bg-theme-primary/20 text-theme-primary scale-[1.05] shadow-[0_0_20px_rgba(var(--particle-color),0.3)] z-20 relative' : ''}
          `}
                     style={{ paddingLeft: `${level * 12 + 8}px` }}
-                    onClick={() => onSelect(folder.id)}
+                    onClick={() => onSelect(folder._id)}
                 >
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
-                            toggleExpand(folder.id);
+                            toggleExpand(folder._id);
                         }}
                         className={`p-0.5 hover:bg-black/10 rounded-sm ${!hasChildren && 'invisible'}`}
                     >
@@ -118,15 +118,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ className, onRenameFolder, onD
 
     const renderTree = (folders: Folder[], level = 0) => {
         return folders.map(folder => {
-            const isExpanded = expanded.has(folder.id);
+            const isExpanded = expanded.has(folder._id);
             const hasChildren = (folder.children?.length ?? 0) > 0;
 
             return (
-                <div key={folder.id} className="group">
+                <div key={folder._id} className="group">
                     <FolderItem
                         folder={folder}
                         level={level}
-                        isSelected={selectedFolderId === folder.id}
+                        isSelected={selectedFolderId === folder._id}
                         onSelect={selectFolder}
                         onRename={(f) => setRenamingFolder(f)}
                         onDelete={onDeleteFolder}
