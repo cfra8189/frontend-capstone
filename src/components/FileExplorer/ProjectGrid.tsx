@@ -51,9 +51,9 @@ const ProjectCard: React.FC<{
         switch (project.type) {
             case 'album': return <Disc size={24} className="text-purple-500" />;
             case 'ep': return <Layers size={24} className="text-blue-500" />;
-            case 'beat': return <FileMusic size={24} className="text-green-500" />;
+            case 'beat': return <FileMusic size={24} className="text-theme-primary" />;
             case 'sample': return <Mic2 size={24} className="text-yellow-500" />;
-            default: return <FileMusic size={24} className="text-zinc-500" />;
+            default: return <FileMusic size={24} className="text-theme-secondary" />;
         }
     };
 
@@ -125,7 +125,7 @@ const ProjectCard: React.FC<{
             <div className="flex items-center gap-2 text-[10px] font-mono text-theme-muted">
                 <span className={`
           px-1 py-0.5 border border-theme group-hover:border-theme-primary group-hover:bg-theme-primary group-hover:text-theme-primary transition-colors uppercase
-          ${project.status === 'published' ? 'text-green-400' :
+          ${project.status === 'published' ? 'text-theme-primary' :
                         project.status === 'development' ? 'text-blue-400' : 'text-theme-muted'}
         `}>
                     {project.status}

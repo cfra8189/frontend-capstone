@@ -234,6 +234,7 @@ export default function Generator() {
       content += `
         <h3 style="background: #000; color: #fff; padding: 5px; font-size: 14px; text-transform: uppercase;">Terms</h3>
         <p style="font-size: 12px; line-height: 1.6;">${template.terms}</p>
+        ${formData.additionalDetails ? `<div style="margin-top: 15px;"><strong>ADDITIONAL DETAILS:</strong><p style="font-size: 12px;">${formData.additionalDetails}</p></div>` : ''}
         <div style="margin: 20px 0; border: 1px solid #eee; padding: 10px;">
           <strong>JURISDICTION:</strong> ${formData.jurisdiction || 'New York, NY'}
         </div>
@@ -441,6 +442,18 @@ export default function Generator() {
                     </div>
                   </div>
 
+                  <div className="bg-theme-secondary border border-theme p-6 shadow-2xl">
+                    <h2 className="text-[10px] font-bold text-theme-muted uppercase mb-4 tracking-[0.3em]">04 // Additional Details</h2>
+                    <textarea
+                      name="additionalDetails"
+                      placeholder="ENTER SPECIFIC TERMS, OBLIGATIONS, OR NOTES..."
+                      value={formData.additionalDetails || ''}
+                      onChange={handleFormChange}
+                      rows={4}
+                      className="w-full bg-theme-primary border border-theme px-3 py-2 text-sm focus:border-theme-primary outline-none text-theme-primary placeholder:text-theme-muted/20 uppercase font-mono"
+                    />
+                  </div>
+
                   {['split', 'master'].includes(template.type) && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
@@ -487,38 +500,11 @@ export default function Generator() {
                   <div className="flex gap-4 pt-4">
                     <button
                       type="submit"
-                      className="flex-1 bg-theme-primary text-theme-primary font-bold py-4 uppercase tracking-widest hover:bg-theme-secondary transition-all border border-theme group flex items-center justify-center gap-3 shadow-xl"
+                      className="w-full bg-theme-primary text-theme-primary font-bold py-4 uppercase tracking-widest hover:bg-theme-secondary transition-all border border-theme group flex items-center justify-center gap-3 shadow-xl"
                     >
                       <FileText size={18} className="group-hover:scale-110 transition-transform" />
-                      Build Template
+                      Build Agreement
                     </button>
-                    <motion.button
-                      type="button"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={draftAgreementWithAI}
-                      disabled={isDrafting}
-                      className="flex-1 bg-theme-primary text-theme-primary font-bold py-4 uppercase tracking-widest hover:bg-theme-secondary transition-all flex items-center justify-center gap-3 disabled:opacity-50 relative overflow-hidden shadow-xl border border-theme"
-                    >
-                      <AnimatePresence mode="wait">
-                        {isDrafting ? (
-                          <motion.div
-                            key="drafting"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="flex items-center gap-2"
-                          >
-                            <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                            Drafting...
-                          </motion.div>
-                        ) : (
-                          <motion.div key="ready" className="flex items-center gap-2">
-                            <Sparkles size={18} className="text-black" />
-                            AI Draft (Pro)
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.button>
                   </div>
                 </form>
               </div>
@@ -553,7 +539,7 @@ export default function Generator() {
                   onClick={saveAgreement}
                   disabled={isSaving || !!savedDocumentId}
                   className={`flex items-center gap-2 px-6 py-2 text-[10px] font-bold uppercase transition-all tracking-widest shadow-lg border border-theme ${savedDocumentId
-                    ? 'bg-green-600 text-white cursor-default'
+                    ? 'bg-theme-primary text-theme-primary cursor-default'
                     : 'bg-theme-primary text-theme-primary hover:bg-theme-secondary'
                     }`}
                 >
@@ -576,11 +562,11 @@ export default function Generator() {
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mt-6 p-4 bg-theme-secondary border border-green-500/30 flex items-center justify-between shadow-xl"
+                  className="mt-6 p-4 bg-theme-secondary border border-theme flex items-center justify-between shadow-xl"
                 >
                   <div className="flex items-center gap-3">
-                    <CheckCircle2 size={18} className="text-green-500" />
-                    <span className="text-[10px] font-bold text-green-500 uppercase tracking-widest">Document Secured in Vault</span>
+                    <CheckCircle2 size={18} className="text-theme-primary" />
+                    <span className="text-[10px] font-bold text-theme-primary uppercase tracking-widest">Document Secured in Vault</span>
                   </div>
                   <button
                     onClick={() => setShowCollaborationModal(true)}

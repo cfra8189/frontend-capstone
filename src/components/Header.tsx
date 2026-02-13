@@ -151,7 +151,7 @@ export default function Header({ showNav = true }: HeaderProps) {
               <span className="text-lg sm:text-xl brand-font tracking-widest text-theme-primary leading-none">BOX</span>
               {user && (
                 <span className="text-[8px] font-mono text-theme-muted uppercase tracking-[0.2em] mt-0.5">
-                  ID: {user.boxCode || 'GUEST-000000'} // <span className="text-green-500 animate-pulse">VAULT_ACTIVE</span>
+                  ID: {user.boxCode || 'GUEST-000000'} // <span className="text-theme-primary animate-pulse">VAULT_ACTIVE</span>
                 </span>
               )}
             </div>
@@ -210,8 +210,8 @@ export default function Header({ showNav = true }: HeaderProps) {
                       className="w-full text-left px-3 py-2 hover:bg-theme-tertiary transition-colors flex items-center gap-3"
                     >
                       <span className={`text-xs px-1.5 py-0.5 rounded ${result.type === "project" ? "bg-accent text-accent-contrast" :
-                          result.type === "note" ? "bg-theme-tertiary text-theme-muted" :
-                            "bg-theme-primary text-theme-secondary"
+                        result.type === "note" ? "bg-theme-tertiary text-theme-muted" :
+                          "bg-theme-primary text-theme-secondary"
                         }`}>
                         {result.type === "project" ? "PRJ" : result.type === "note" ? "NOTE" : "PAGE"}
                       </span>
