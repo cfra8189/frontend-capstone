@@ -56,11 +56,13 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     });
 
     const handleDragStart = (event: DragStartEvent) => {
+        console.log('Drag Start:', event.active.id);
         setActiveId(event.active.id as string);
     };
 
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
+        console.log('Drag End:', { active: active.id, over: over?.id });
         setActiveId(null);
 
         if (!over) return;
@@ -159,7 +161,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                                 <div className="flex items-center gap-3">
                                     <div className="w-1 h-3 bg-theme-primary animate-pulse" />
                                     <span className="text-[10px] font-mono font-bold text-theme-primary uppercase tracking-[0.3em]">
-                                        {selectedFolderId ? folders.find(f => f.id === selectedFolderId)?.name || 'Folder' : 'ROOT_PROJECTS'}
+                                        {selectedFolderId ? folders.find(f => f._id === selectedFolderId)?.name || 'Folder' : 'ROOT_PROJECTS'}
                                     </span>
                                 </div>
                                 <div className="flex gap-2">
