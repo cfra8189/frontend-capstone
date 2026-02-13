@@ -69,14 +69,6 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         const activeId = event.active.id as string;
         const projectId = activeId.replace('project-', '');
 
-        console.log('Drag Start:', activeId, '->', projectId);
-        const project = projects.find(p => p.id === projectId);
-
-        if (project) {
-            console.log('Found active project:', project.title);
-        } else {
-            console.log('Could not find project with ID:', projectId);
-        }
         setActiveId(projectId);
     };
 
@@ -85,13 +77,6 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         // Strip 'project-' to get the real ID
         const activeIdRaw = active.id as string;
         const projectId = activeIdRaw.replace('project-', '');
-
-        console.log('Drag End Event:', JSON.stringify({
-            activeIdRaw,
-            projectId,
-            overId: over?.id,
-            overData: over?.data?.current
-        }, null, 2));
 
         setActiveId(null);
 
@@ -107,7 +92,6 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
             const targetFolderName = over.data.current.name || 'folder';
 
             try {
-                console.log('D&D: Moving project', projectId, 'to folder', targetFolderId);
                 await moveProject(projectId, targetFolderId);
                 success(`"${project.title}" moved to "${targetFolderName}"`);
                 onRefresh(); // Refresh the project list

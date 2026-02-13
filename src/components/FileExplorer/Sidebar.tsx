@@ -46,11 +46,6 @@ const FolderItem: React.FC<{
             data: { type: 'folder', id: folder._id, name: folder.name }
         });
 
-        React.useEffect(() => {
-            if (isOver) {
-                console.log(`Dragging over folder: ${folder.name} (${folder._id})`);
-            }
-        }, [isOver, folder.name, folder._id]);
 
         const isSystem = folder.type === 'root' || folder.type === 'year';
 
