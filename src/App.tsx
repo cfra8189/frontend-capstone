@@ -18,7 +18,7 @@ import EPKEditor from "./pages/EPKEditor";
 import EPKView from "./pages/EPKView";
 import EPK from "./pages/EPK";
 import CapstoneDoc from "./pages/CapstoneDoc";
-import BackgroundGif from "./components/BackgroundGif";
+import GlobalEffects from "./components/GlobalEffects"; // Changed import
 
 function App() {
   const { user, isLoading, isAuthenticated } = useAuth();
@@ -28,7 +28,7 @@ function App() {
   if (location === "/admin") {
     return (
       <>
-        <BackgroundGif />
+        <GlobalEffects />
         <Admin />
       </>
     );
@@ -37,7 +37,7 @@ function App() {
   if (location === "/community") {
     return (
       <>
-        <BackgroundGif />
+        <GlobalEffects />
         <Community />
       </>
     );
@@ -46,7 +46,7 @@ function App() {
   if (location === "/docs") {
     return (
       <>
-        <BackgroundGif />
+        <GlobalEffects />
         <Docs />
       </>
     );
@@ -55,7 +55,7 @@ function App() {
   if (location === "/capstone") {
     return (
       <>
-        <BackgroundGif />
+        <GlobalEffects />
         <CapstoneDoc />
       </>
     );
@@ -64,7 +64,7 @@ function App() {
   if (location.startsWith("/portfolio/")) {
     return (
       <>
-        <BackgroundGif />
+        <GlobalEffects />
         <Portfolio />
       </>
     );
@@ -73,7 +73,7 @@ function App() {
   if (location.startsWith("/epk/")) {
     return (
       <>
-        <BackgroundGif />
+        <GlobalEffects />
         <EPKView />
       </>
     );
@@ -82,7 +82,7 @@ function App() {
   if (isLoading) {
     return (
       <>
-        <BackgroundGif />
+        <GlobalEffects />
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <img src="/box-logo.png" alt="BOX" className="w-12 h-12 mx-auto mb-4 animate-pulse" />
@@ -96,7 +96,7 @@ function App() {
   if (!isAuthenticated) {
     return (
       <>
-        <BackgroundGif />
+        <GlobalEffects />
         <Landing />
       </>
     );
@@ -104,7 +104,7 @@ function App() {
 
   return (
     <>
-      <BackgroundGif />
+      <GlobalEffects />
       <Switch>
         <Route path="/" component={Dashboard} />
         <Route path="/creative" component={CreativeSpace} />

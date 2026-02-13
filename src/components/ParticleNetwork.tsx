@@ -8,7 +8,11 @@ interface Particle {
     size: number;
 }
 
-const ParticleNetwork: React.FC = () => {
+interface ParticleNetworkProps {
+    opacity?: number;
+}
+
+const ParticleNetwork: React.FC<ParticleNetworkProps> = ({ opacity = 0.3 }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const mouseRef = useRef({ x: -1000, y: -1000 });
 
@@ -139,7 +143,7 @@ const ParticleNetwork: React.FC = () => {
         <canvas
             ref={canvasRef}
             className="fixed inset-0 pointer-events-none z-0"
-            style={{ opacity: 0.3 }} // Subtle background effect
+            style={{ opacity }} // Apply variable opacity
         />
     );
 };

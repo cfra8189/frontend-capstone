@@ -46,6 +46,9 @@ interface Collaborator {
   pro?: string;
   ipi?: string;
   publisher?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
 }
 
 export default function Generator() {
@@ -83,7 +86,10 @@ export default function Generator() {
           split: "50",
           pro: "",
           ipi: "",
-          publisher: ""
+          publisher: "",
+          email: user.email,
+          phone: "",
+          address: ""
         }]);
       }
     }
@@ -92,6 +98,7 @@ export default function Generator() {
   const handleTemplateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedTemplate(e.target.value);
     setGeneratedContent(""); // Clear preview on change
+    setSavedDocumentId(null);
   };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -119,7 +126,10 @@ export default function Generator() {
       split: "",
       pro: "",
       ipi: "",
-      publisher: ""
+      publisher: "",
+      email: "",
+      phone: "",
+      address: ""
     }]);
   };
 
@@ -170,25 +180,32 @@ export default function Generator() {
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11px;">
           <thead>
             <tr style="border-bottom: 1px solid #000;">
-              <th style="text-align: left; padding: 8px;">FULL LEGAL NAME</th>
+              <th style="text-align: left; padding: 8px;">FULL LEGAL NAME & CONTACT</th>
               <th style="text-align: left; padding: 8px;">ROLE</th>
-              <th style="text-align: left; padding: 8px;">PRO / IPI</th>
-              <th style="text-align: left; padding: 8px;">PUBLISHER</th>
+              <th style="text-align: left; padding: 8px;">PRO / IPI / PUB</th>
               <th style="text-align: right; padding: 8px;">SHARE %</th>
             </tr>
           </thead>
           <tbody>
             ${collaborators.map(c => `
               <tr style="border-bottom: 1px solid #ccc;">
-                <td style="padding: 8px;">${c.name}</td>
-                <td style="padding: 8px;">${c.role}</td>
-                <td style="padding: 8px;">${c.pro || '-'}/${c.ipi || '-'}</td>
-                <td style="padding: 8px;">${c.publisher || '-'}</td>
-                <td style="padding: 8px; text-align: right;">${c.split}%</td>
+                <td style="padding: 8px;">
+                  <strong>${c.name}</strong><br/>
+                  ${c.address ? `${c.address}<br/>` : ''}
+                  ${c.email ? `${c.email}<br/>` : ''}
+                  ${c.phone || ''}
+                </td>
+                <td style="padding: 8px; vertical-align: top;">${c.role}</td>
+                <td style="padding: 8px; vertical-align: top;">
+                  PRO: ${c.pro || '-'}<br/>
+                  IPI: ${c.ipi || '-'}<br/>
+                  PUB: ${c.publisher || '-'}
+                </td>
+                <td style="padding: 8px; text-align: right; vertical-align: top;">${c.split}%</td>
               </tr>
             `).join('')}
             <tr style="font-weight: bold; border-top: 2px solid #000;">
-              <td colspan="4" style="padding: 8px; text-align: right;">TOTAL:</td>
+              <td colspan="3" style="padding: 8px; text-align: right;">TOTAL:</td>
               <td style="padding: 8px; text-align: right;">${collaborators.reduce((acc, c) => acc + Number(c.split || 0), 0)}%</td>
             </tr>
           </tbody>
@@ -206,7 +223,7 @@ export default function Generator() {
           The Receiving Party agrees to hold in strict confidence all Confidential Information and shall not disclose such information to any third party without the prior written approval of the Disclosing Party.
         </p>
         <p style="font-weight: bold;">Description of Confidential Material:</p>
-        <div style="border: 1px solid #000; padding: 10px; margin-bottom: 20px; height: 100px;">
+        <div style="border: 1px solid #000; padding: 10px; margin-bottom: 20px; min-height: 50px;">
           ${formData.description || 'Unreleased recordings, stems, and related project files.'}
         </div>
       `;
@@ -217,6 +234,16 @@ export default function Generator() {
         <p style="line-height: 1.6; font-size: 12px; margin-bottom: 20px;">
           ${template.terms}
         </p>
+
+        <div style="margin-bottom: 20px; border: 1px solid #ccc; padding: 10px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px;">
+            <div><strong>FEE:</strong> ${formData.fee || 'N/A'}</div>
+            <div><strong>ROYALTY:</strong> ${formData.royalty || '0'}%</div>
+            <div><strong>JURISDICTION:</strong> ${formData.jurisdiction || 'New York, NY'}</div>
+            <div><strong>DELIVERY DATE:</strong> ${formData.deliveryDate || 'Upon Payment'}</div>
+          </div>
+        </div>
+
         ${formData.customTerms ? `
           <p style="font-weight: bold;">Additional Terms:</p>
           <p style="line-height: 1.6; font-size: 12px;">${formData.customTerms}</p>
@@ -243,11 +270,13 @@ export default function Generator() {
               <div style="margin-bottom: 30px;">
                 <div style="border-bottom: 1px solid #000; height: 30px;"></div>
                 <p style="font-size: 11px; margin-top: 5px;">PRODUCER: ${formData.producerName}</p>
+                <p style="font-size: 10px;">${formData.producerAddress || ''}</p>
                 <p style="font-size: 11px;">DATE: ___________</p>
               </div>
               <div style="margin-bottom: 30px;">
                 <div style="border-bottom: 1px solid #000; height: 30px;"></div>
                 <p style="font-size: 11px; margin-top: 5px;">CLIENT: ${formData.artistName}</p>
+                <p style="font-size: 10px;">${formData.artistAddress || ''}</p>
                 <p style="font-size: 11px;">DATE: ___________</p>
               </div>
             `
@@ -258,6 +287,39 @@ export default function Generator() {
 
     setGeneratedContent(content);
     setIsViewMode(true);
+  };
+
+  const saveAgreement = async () => {
+    setIsSaving(true);
+    setSaveError(null);
+
+    try {
+      const template = templateData[selectedTemplate as keyof typeof templateData];
+      const title = `${template.title} - ${formData.trackTitle || 'Untitled'}`;
+
+      const res = await fetch("/api/documents", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          templateId: selectedTemplate,
+          html: generatedContent,
+          metadata: formData,
+          collaborators
+        })
+      });
+
+      if (!res.ok) throw new Error("Failed to save document");
+
+      const data = await res.json();
+      setSavedDocumentId(data.document.id);
+      setCurrentAgreementId(data.document.id);
+    } catch (error) {
+      console.error("Save error:", error);
+      setSaveError("Failed to save document. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -365,28 +427,31 @@ export default function Generator() {
                       </div>
                       <div className="space-y-4">
                         {collaborators.map((c, idx) => (
-                          <div key={c.id} className="grid grid-cols-12 gap-2 text-xs items-start border-b border-[#333] pb-2 last:border-0">
-                            <div className="col-span-12 md:col-span-3">
-                              <input placeholder="Name" value={c.name} onChange={e => updateCollaborator(c.id, 'name', e.target.value)} className="w-full bg-transparent border-b border-[#333] focus:border-white outline-none py-1" />
+                          <div key={c.id} className="space-y-2 border-b border-[#333] pb-4 last:border-0">
+                            <div className="grid grid-cols-12 gap-2 text-xs items-start">
+                              <div className="col-span-12 md:col-span-4">
+                                <input placeholder="Full Name" value={c.name} onChange={e => updateCollaborator(c.id, 'name', e.target.value)} className="w-full bg-transparent border-b border-[#333] focus:border-white outline-none py-1" />
+                              </div>
+                              <div className="col-span-6 md:col-span-3">
+                                <input placeholder="Role" value={c.role} onChange={e => updateCollaborator(c.id, 'role', e.target.value)} className="w-full bg-transparent border-b border-[#333] focus:border-white outline-none py-1" />
+                              </div>
+                              <div className="col-span-4 md:col-span-2">
+                                <input placeholder="Share %" value={c.split} onChange={e => updateCollaborator(c.id, 'split', e.target.value)} className="w-full bg-transparent border-b border-[#333] focus:border-white outline-none py-1" />
+                              </div>
+                              <div className="col-span-2 md:col-span-1 flex justify-end">
+                                <button type="button" onClick={() => removeCollaborator(c.id)} className="text-zinc-500 hover:text-red-500">×</button>
+                              </div>
                             </div>
-                            <div className="col-span-6 md:col-span-2">
-                              <input placeholder="Role" value={c.role} onChange={e => updateCollaborator(c.id, 'role', e.target.value)} className="w-full bg-transparent border-b border-[#333] focus:border-white outline-none py-1" />
+                            <div className="grid grid-cols-3 gap-2 text-xs">
+                              <input placeholder="PRO" value={c.pro} onChange={e => updateCollaborator(c.id, 'pro', e.target.value)} className="bg-transparent border-b border-[#333] focus:border-white outline-none py-1" />
+                              <input placeholder="IPI #" value={c.ipi} onChange={e => updateCollaborator(c.id, 'ipi', e.target.value)} className="bg-transparent border-b border-[#333] focus:border-white outline-none py-1" />
+                              <input placeholder="Publisher" value={c.publisher} onChange={e => updateCollaborator(c.id, 'publisher', e.target.value)} className="bg-transparent border-b border-[#333] focus:border-white outline-none py-1" />
                             </div>
-                            <div className="col-span-6 md:col-span-2">
-                              <input placeholder="PRO" value={c.pro} onChange={e => updateCollaborator(c.id, 'pro', e.target.value)} className="w-full bg-transparent border-b border-[#333] focus:border-white outline-none py-1" />
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              <input placeholder="Email" value={c.email} onChange={e => updateCollaborator(c.id, 'email', e.target.value)} className="bg-transparent border-b border-[#333] focus:border-white outline-none py-1" />
+                              <input placeholder="Phone" value={c.phone} onChange={e => updateCollaborator(c.id, 'phone', e.target.value)} className="bg-transparent border-b border-[#333] focus:border-white outline-none py-1" />
                             </div>
-                            <div className="col-span-6 md:col-span-2">
-                              <input placeholder="IPI #" value={c.ipi} onChange={e => updateCollaborator(c.id, 'ipi', e.target.value)} className="w-full bg-transparent border-b border-[#333] focus:border-white outline-none py-1" />
-                            </div>
-                            <div className="col-span-4 md:col-span-2">
-                              <input placeholder="Share %" value={c.split} onChange={e => updateCollaborator(c.id, 'split', e.target.value)} className="w-full bg-transparent border-b border-[#333] focus:border-white outline-none py-1" />
-                            </div>
-                            <div className="col-span-2 md:col-span-1 flex justify-end">
-                              <button type="button" onClick={() => removeCollaborator(c.id)} className="text-zinc-500 hover:text-red-500">×</button>
-                            </div>
-                            <div className="col-span-12">
-                              <input placeholder="Publisher Name" value={c.publisher} onChange={e => updateCollaborator(c.id, 'publisher', e.target.value)} className="w-full bg-transparent border-b border-[#333] focus:border-white outline-none py-1 placeholder-zinc-700" />
-                            </div>
+                            <input placeholder="Address" value={c.address} onChange={e => updateCollaborator(c.id, 'address', e.target.value)} className="w-full bg-transparent border-b border-[#333] focus:border-white outline-none py-1 text-xs" />
                           </div>
                         ))}
                       </div>
@@ -423,23 +488,33 @@ export default function Generator() {
 
                 {/* Generic Fields for other types */}
                 {!['split-sheet', 'nda'].includes(selectedTemplate) && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-[10px] uppercase text-zinc-500 mb-1">Producer Name</label>
-                      <input
-                        name="producerName"
-                        value={formData.producerName || ''}
-                        onChange={handleFormChange}
-                        className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none"
-                      />
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[10px] uppercase text-zinc-500 mb-1">Producer Details</label>
+                        <input name="producerName" placeholder="Name" value={formData.producerName || ''} onChange={handleFormChange} className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none mb-1" />
+                        <input name="producerAddress" placeholder="Address" onChange={handleFormChange} className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase text-zinc-500 mb-1">Client/Artist Details</label>
+                        <input name="artistName" placeholder="Name" onChange={handleFormChange} className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none mb-1" />
+                        <input name="artistAddress" placeholder="Address" onChange={handleFormChange} className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none" />
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-[10px] uppercase text-zinc-500 mb-1">Client/Artist Name</label>
-                      <input
-                        name="artistName"
-                        onChange={handleFormChange}
-                        className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none"
-                      />
+
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-[10px] uppercase text-zinc-500 mb-1">Fee ($)</label>
+                        <input name="fee" type="number" placeholder="0.00" onChange={handleFormChange} className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase text-zinc-500 mb-1">Royalty (%)</label>
+                        <input name="royalty" type="number" placeholder="50" onChange={handleFormChange} className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase text-zinc-500 mb-1">Jurisdiction</label>
+                        <input name="jurisdiction" placeholder="NY, USA" onChange={handleFormChange} className="w-full bg-black border border-[#333] px-2 py-1 text-sm focus:border-white outline-none" />
+                      </div>
                     </div>
                   </div>
                 )}
@@ -465,8 +540,8 @@ export default function Generator() {
                 onClick={saveAgreement}
                 disabled={isSaving || !!savedDocumentId}
                 className={`px-4 py-2 text-xs font-bold uppercase border transition-all ${isSaving || savedDocumentId
-                    ? 'border-zinc-700 text-zinc-500 cursor-not-allowed'
-                    : 'border-[#333] hover:border-white text-white'
+                  ? 'border-zinc-700 text-zinc-500 cursor-not-allowed'
+                  : 'border-[#333] hover:border-white text-white'
                   }`}
               >
                 {isSaving ? 'Saving...' : savedDocumentId ? 'Saved' : 'Save to Box'}

@@ -1,30 +1,49 @@
-import React from 'react';
-import { Project } from '../../types/Project';
+import React, { useState, useEffect, useRef } from 'react';
+import { Project } from '../../types/folder'; // Changed import
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { FileMusic, Disc, Mic2, Layers, MoreVertical } from 'lucide-react';
+import { FileMusic, Disc, Mic2, Layers, MoreVertical, Edit2, Trash2, ExternalLink } from 'lucide-react';
 import { Link } from 'wouter';
 
 interface ProjectGridProps {
     projects: Project[];
     loading: boolean;
     onEdit: (project: Project) => void;
-    onDelete: (id: number) => void;
+    onDelete: (id: string) => void;
 }
 
 const ProjectCard: React.FC<{
     project: Project;
     onEdit: (p: Project) => void;
-    onDelete: (id: number) => void;
+    onDelete: (id: string) => void;
 }> = ({ project, onEdit, onDelete }) => {
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
         id: `project-${project.id}`,
         data: { type: 'project', id: project.id, folderId: project.folderId }
     });
 
+    const [showMenu, setShowMenu] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    // Close menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setShowMenu(false);
+            }
+        };
+
+        if (showMenu) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showMenu]);
+
     const style = transform ? {
         transform: CSS.Translate.toString(transform),
-        zIndex: isDragging ? 50 : undefined,
+        zIndex: isDragging ? 50 : showMenu ? 40 : 1, // Ensure menu allows z-index to work
         opacity: isDragging ? 0.5 : 1,
     } : undefined;
 
@@ -55,13 +74,50 @@ const ProjectCard: React.FC<{
                 <div className="p-2 border border-[#333] group-hover:border-white group-hover:bg-white group-hover:text-black transition-colors rounded-sm">
                     {getIcon()}
                 </div>
-                <div className="opacity-0 group-hover:opacity-100 flex gap-2">
+                <div className="opacity-0 group-hover:opacity-100 flex gap-2 relative">
                     <button
-                        onClick={(e) => { e.stopPropagation(); onDelete(project.id); }}
-                        className="p-1.5 hover:bg-white hover:text-black rounded-sm text-zinc-500 transition-colors border border-transparent hover:border-black"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setShowMenu(!showMenu);
+                        }}
+                        className="p-1.5 hover:bg-white hover:text-black rounded-sm text-zinc-500 transition-colors border border-transparent hover:border-black relative z-10"
                     >
                         <MoreVertical size={14} />
                     </button>
+
+                    {showMenu && (
+                        <div
+                            ref={menuRef}
+                            className="absolute right-0 top-8 bg-[#1e1e1e] border border-[#333] shadow-xl rounded-sm z-50 w-32 flex flex-col pointer-events-auto"
+                            onClick={(e) => e.stopPropagation()}
+                            style={{ cursor: 'default' }}
+                        >
+                            <Link href={`/project/${project.id}`}>
+                                <a className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-[#2e2e2e] text-zinc-300 hover:text-white transition-colors">
+                                    <ExternalLink size={10} /> Open
+                                </a>
+                            </Link>
+                            <button
+                                onClick={() => {
+                                    setShowMenu(false);
+                                    onEdit(project);
+                                }}
+                                className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-[#2e2e2e] text-zinc-300 hover:text-white transition-colors text-left"
+                            >
+                                <Edit2 size={10} /> Edit
+                            </button>
+                            <div className="h-px bg-[#333] mx-2 my-1"></div>
+                            <button
+                                onClick={() => {
+                                    setShowMenu(false);
+                                    onDelete(project.id); // Assuming id is number based on interface
+                                }}
+                                className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-red-900/20 hover:text-red-400 text-red-500 transition-colors text-left"
+                            >
+                                <Trash2 size={10} /> Delete
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -77,7 +133,8 @@ const ProjectCard: React.FC<{
                 <span className="truncate opacity-50">{new Date(project.updatedAt).toLocaleDateString()}</span>
             </div>
 
-            <Link href={`/project/${project.id}`} className="absolute inset-0" onClick={e => e.stopPropagation()} />
+            {/* This Link overlay causes issues with the menu click if not careful with z-index, but we stopped propagation on the menu button and menu itself */}
+            <Link href={`/project/${project.id}`} className="absolute inset-0 z-0" onClick={e => e.stopPropagation()} />
         </div>
     );
 };

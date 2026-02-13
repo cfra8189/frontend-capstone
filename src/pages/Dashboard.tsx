@@ -4,7 +4,7 @@ import { Link } from "wouter";
 import Header from "../components/Header";
 import { FileExplorer } from "../components/FileExplorer/FileExplorer";
 import { FolderProvider, useFolderContext } from "../context/FolderContext";
-import { Project } from "../types/Project";
+import { Project } from "../types/folder";
 
 function DashboardContent() {
   const { user } = useAuth();
@@ -85,7 +85,7 @@ function DashboardContent() {
     }
   }
 
-  async function deleteProject(id: number) {
+  async function deleteProject(id: string) {
     if (!confirm("Are you sure you want to delete this project?")) return;
     try {
       const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });

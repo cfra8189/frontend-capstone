@@ -1,28 +1,32 @@
 import React, { useState } from 'react';
-import { Sidebar } from './Sidebar';
-import { ProjectGrid } from './ProjectGrid';
-import { useFolderContext } from '../../context/FolderContext';
-import { Project } from '../../types/Project';
-import { Folder } from '../../types/folder';
 import {
     DndContext,
     DragOverlay,
+    closestCorners,
+    KeyboardSensor,
+    PointerSensor,
     useSensor,
     useSensors,
-    PointerSensor,
     DragStartEvent,
     DragEndEvent,
+    useDroppable,
+    pointerWithin,
     defaultDropAnimationSideEffects,
-    DragOverlay
 } from '@dnd-kit/core';
-import { CreateFolderModal } from './modals/CreateFolderModal';
-import { RenameModal } from './modals/RenameModal';
+import {
+    sortableKeyboardCoordinates,
+} from '@dnd-kit/sortable';
+import { FileText, Folder as FolderIcon } from 'lucide-react';
+import { ProjectGrid } from './ProjectGrid';
+import { Sidebar } from './Sidebar';
+import { useFolderContext } from '../../context/FolderContext';
+import { Project, Folder } from '../../types/folder';
 
 interface FileExplorerProps {
     projects: Project[];
     loading: boolean;
     onProjectEdit: (project: Project) => void;
-    onProjectDelete: (id: number) => void;
+    onProjectDelete: (id: string) => void;
 }
 
 export const FileExplorer: React.FC<FileExplorerProps> = ({
@@ -31,79 +35,67 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     onProjectEdit,
     onProjectDelete
 }) => {
-    const { moveProject, selectedFolderId } = useFolderContext();
-    const [activeProject, setActiveProject] = useState<Project | null>(null);
-
-    // Modals state
-    const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
-    const [folderToRename, setFolderToRename] = useState<Folder | null>(null);
-    const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
+    const { moveProject, selectedFolderId, folders, renameFolder, deleteFolder } = useFolderContext();
+    const [activeId, setActiveId] = useState<string | null>(null);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
                 distance: 8,
             },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
         })
     );
 
     const handleDragStart = (event: DragStartEvent) => {
-        const { active } = event;
-        const project = projects.find(p => `project-${p.id}` === active.id);
-        if (project) setActiveProject(project);
+        setActiveId(event.active.id as string);
     };
 
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event;
 
         if (over && active.id !== over.id) {
-            // Check if dropped on a folder
-            if (over.id.toString().startsWith('folder-')) {
-                const folderId = over.id.toString().replace('folder-', '');
-                const projectId = active.data.current?.id;
+            // Check if dropped on a folder (Sidebar item)
+            // active.id is `project-${id}`
+            // over.id is `folder-${id}`
+            // over.data.current.type === 'folder'
+            if (over.data.current?.type === 'folder') {
+                const folderId = over.data.current.id; // Raw folder ID
+                const projectId = active.data.current?.id; // Raw project ID
+                const currentFolderId = active.data.current?.folderId; // Current folder
 
-                // Don't move if dropped on same folder
-                if (folderId === active.data.current?.folderId) return;
-                if (folderId === selectedFolderId) return;
+                console.log(`Dropped project ${projectId} onto folder ${folderId}`);
 
-                try {
-                    await moveProject(projectId, folderId);
-                    // Optimistic update or wait for reload logic handled by parent/context
-                    // Ideally we should reload projects here or the parent should know to reload
-                    // The moves are handled, but we might need to trigger a refresh of the project list
-                    // Dashboard.tsx reloads on selectedFolderId change, but not on move within same view 
-                    // (Wait, moving removes it from current view usually, so it disappears seamlessly)
-
-                    // Force refresh projects - passed from parent? 
-                    // Actually Dashboard.tsx listens to selectedFolderId, but we might want to trigger a reload.
-                    // For now let's assume the move is successful and we might need to manually trigger project reload in parent
-                    // But since we don't have a callback for that, we rely on the state update.
-                    // If the project moves OUT of the current folder, we should remove it from the local list optimistically?
-                    // But projects prop comes from parent. 
-                } catch (error) {
-                    console.error("Failed to move project", error);
+                if (folderId && projectId && folderId !== currentFolderId) {
+                    try {
+                        await moveProject(projectId, folderId);
+                    } catch (error) {
+                        console.error("Failed to move project", error);
+                    }
                 }
             }
         }
-        setActiveProject(null);
+        setActiveId(null);
     };
+
+    const activeProject = activeId ? projects.find(p => `project-${p.id}` === activeId) : null;
 
     return (
         <DndContext
             sensors={sensors}
+            collisionDetection={pointerWithin}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
             <div className="flex h-[calc(100vh-64px)] bg-[#1e1e1e] text-zinc-300 overflow-hidden rounded-lg border border-[#333]">
                 <Sidebar
                     className="w-64 flex-shrink-0"
+                    onDeleteFolder={(folder) => deleteFolder(folder)}
                     onRenameFolder={(folder) => {
-                        setFolderToRename(folder);
-                        setIsRenameModalOpen(true);
-                    }}
-                    onDeleteFolder={(folder) => {
-                        // Delete logic handled by Sidebar internally calling context, 
-                        // or we can lift it up if needed. Sidebar handles it via context.
+                        const newName = prompt("Rename folder:", folder.name);
+                        if (newName) renameFolder(folder, newName);
                     }}
                 />
 
@@ -111,10 +103,9 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                     <div className="border-b border-[#333] p-3 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <span className="text-sm font-medium text-zinc-400">
-                                {selectedFolderId ? 'Projects' : 'All Projects'}
+                                {selectedFolderId ? folders.find(f => f.id === selectedFolderId)?.name || 'Folder' : 'All Projects'}
                             </span>
                         </div>
-                        {/* Actions like View Mode can go here */}
                     </div>
 
                     <ProjectGrid
@@ -128,23 +119,16 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
 
             <DragOverlay dropAnimation={{ sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0.5' } } }) }}>
                 {activeProject ? (
-                    <div className="bg-[#252526] p-2 rounded shadow-xl border border-blue-500 w-40 truncate text-white">
-                        {activeProject.title}
+                    <div className="bg-[#1e1e1e] p-3 rounded border border-gray-700 shadow-xl opacity-80 cursor-grabbing w-48">
+                        <div className="flex items-center gap-2">
+                            <FileText size={16} className="text-gray-400" />
+                            <span className="text-sm text-gray-200 truncate">
+                                {activeProject.title}
+                            </span>
+                        </div>
                     </div>
                 ) : null}
             </DragOverlay>
-
-            <CreateFolderModal
-                isOpen={isCreateFolderModalOpen}
-                onClose={() => setIsCreateFolderModalOpen(false)}
-                parentId={selectedFolderId}
-            />
-
-            <RenameModal
-                isOpen={isRenameModalOpen}
-                onClose={() => setIsRenameModalOpen(false)}
-                folder={folderToRename}
-            />
         </DndContext>
     );
 };
