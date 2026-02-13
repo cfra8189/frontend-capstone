@@ -2,10 +2,22 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/use-auth";
 import { Link } from "wouter";
 import Header from "../components/Header";
+import FolderTree from "../components/FolderTree";
+import { FolderProvider, useFolderContext } from "../context/FolderContext";
 import { Project } from "../types/Project";
 
-export default function Dashboard() {
+function DashboardContent() {
   const { user } = useAuth();
+  const { 
+    folders, 
+    folderTree, 
+    selectedFolderId, 
+    selectFolder, 
+    createFolder, 
+    renameFolder, 
+    deleteFolder,
+    loading: folderLoading 
+  } = useFolderContext();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -14,11 +26,16 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadProjects();
-  }, []);
+  }, [selectedFolderId]); // Reload projects when folder changes
 
   async function loadProjects() {
     try {
-      const res = await fetch("/api/projects");
+      setLoading(true);
+      const url = selectedFolderId 
+        ? `/api/projects?folderId=${selectedFolderId}`
+        : "/api/projects";
+      
+      const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
         setProjects(data.projects || []);
@@ -40,6 +57,7 @@ export default function Dashboard() {
       type: formData.get("type") as string,
       status: formData.get("status") as string,
       description: formData.get("description") as string,
+      folderId: selectedFolderId, // Add folderId to project
       metadata: {
         isrc: formData.get("isrc") || null,
         upc: formData.get("upc") || null,
@@ -93,19 +111,64 @@ export default function Dashboard() {
       <Header />
 
       <main className="max-w-6xl mx-auto p-4 sm:p-6">
-        
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold">Your Projects</h1>
-            <p className="text-sm sm:text-base text-theme-secondary">Track your creative work from concept to publication</p>
+        <div className="flex gap-6">
+          {/* Folder Tree Sidebar */}
+          <div className="w-64 flex-shrink-0">
+            <div className="card p-4 rounded-xl">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold">Folders</h2>
+                <button
+                  onClick={() => createFolder()}
+                  className="w-6 h-6 flex items-center justify-center text-theme-muted hover:text-accent"
+                  title="Create folder"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                </button>
+              </div>
+              
+              {folderLoading ? (
+                <div className="text-center text-theme-muted py-4">
+                  <div className="animate-pulse">Loading folders...</div>
+                </div>
+              ) : (
+                <FolderTree
+                  folders={folderTree.folders}
+                  selectedFolderId={selectedFolderId}
+                  onFolderSelect={(folder) => selectFolder(folder.id)}
+                  onFolderCreate={createFolder}
+                  onFolderRename={(folder) => {
+                    const newName = prompt('Enter new name:', folder.name);
+                    if (newName && newName.trim() && newName !== folder.name) {
+                      renameFolder(folder, newName.trim());
+                    }
+                  }}
+                  onFolderDelete={deleteFolder}
+                />
+              )}
+            </div>
           </div>
-          <button
-            onClick={() => { setEditingProject(null); setShowModal(true); }}
-            className="btn-primary font-bold px-4 sm:px-6 py-2 sm:py-3 rounded text-sm sm:text-base w-full sm:w-auto"
-          >
-            + New Project
-          </button>
-        </div>
+
+          {/* Main Content */}
+          <div className="flex-1">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold">
+                  {selectedFolderId 
+                    ? `Projects in ${folders.find(f => f.id === selectedFolderId)?.name || 'Folder'}`
+                    : 'Your Projects'
+                  }
+                </h1>
+                <p className="text-sm sm:text-base text-theme-secondary">Track your creative work from concept to publication</p>
+              </div>
+              <button
+                onClick={() => { setEditingProject(null); setShowModal(true); }}
+                className="btn-primary font-bold px-4 sm:px-6 py-2 sm:py-3 rounded text-sm sm:text-base w-full sm:w-auto"
+              >
+                + New Project
+              </button>
+            </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-6 sm:mb-8">
           <div className="card p-3 sm:p-4 rounded-xl text-center">
@@ -183,6 +246,8 @@ export default function Dashboard() {
             ))}
           </div>
         )}
+          </div>
+        </div>
       </main>
 
       {showModal && (
@@ -254,5 +319,13 @@ export default function Dashboard() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <FolderProvider>
+      <DashboardContent />
+    </FolderProvider>
   );
 }
