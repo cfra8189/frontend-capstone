@@ -27,6 +27,9 @@ export const MoveToFolderModal: React.FC<MoveToFolderModalProps> = ({
 
     if (!isOpen || !projectId) return null;
 
+    console.log('MoveToFolderModal - folders from context:', folders);
+    console.log('MoveToFolderModal - currentFolderId:', currentFolderId);
+
     // Filter folders: exclude current folder and apply search
     const filteredFolders = folders.filter(f =>
         f.id !== currentFolderId &&
