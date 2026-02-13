@@ -89,10 +89,26 @@ export const folderService = {
     const response = await fetch(`${API_BASE}/${id}`, {
       method: 'DELETE',
     });
-    
+
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || 'Failed to delete folder');
     }
   },
+
+  // Move project to folder
+  async moveProjectToFolder(projectId: string, folderId: string): Promise<void> {
+    const response = await fetch(`/api/projects/${projectId}/move`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ folderId }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to move project');
+    }
+  }
 };

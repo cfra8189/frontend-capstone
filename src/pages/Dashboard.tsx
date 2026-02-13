@@ -3,6 +3,7 @@ import { useAuth } from "../hooks/use-auth";
 import { Link } from "wouter";
 import Header from "../components/Header";
 import FolderTree from "../components/FolderTree";
+import MoveProjectModal from "../components/MoveProjectModal";
 import { FolderProvider, useFolderContext } from "../context/FolderContext";
 import { Project } from "../types/Project";
 
@@ -16,6 +17,7 @@ function DashboardContent() {
     createFolder, 
     renameFolder, 
     deleteFolder,
+    moveProjectToFolder,
     loading: folderLoading 
   } = useFolderContext();
   const [projects, setProjects] = useState<Project[]>([]);
@@ -23,6 +25,8 @@ function DashboardContent() {
   const [showModal, setShowModal] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [filter, setFilter] = useState("all");
+  const [showMoveModal, setShowMoveModal] = useState(false);
+  const [moveProjectId, setMoveProjectId] = useState<string | null>(null);
 
   useEffect(() => {
     loadProjects();
@@ -227,6 +231,17 @@ function DashboardContent() {
                     </div>
                   </div>
                   <div className="flex items-center gap-4 ml-auto">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setMoveProjectId(project.id);
+                        setShowMoveModal(true);
+                      }}
+                      className="text-theme-muted hover:text-accent text-xs sm:text-sm"
+                      title="Move project"
+                    >
+                      Move
+                    </button>
                     <Link
                       href={`/project/${project.id}`}
                       onClick={(e) => e.stopPropagation()}
@@ -250,75 +265,22 @@ function DashboardContent() {
         </div>
       </main>
 
-      {showModal && (
-        <div className="fixed inset-0 bg-black/90 flex items-end sm:items-center justify-center p-0 sm:p-6 z-50">
-          <div className="card p-4 sm:p-6 rounded-t-xl sm:rounded-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-accent">
-                {editingProject ? "Edit Project" : "New Project"}
-              </h3>
-              <button onClick={() => setShowModal(false)} className="text-theme-muted hover:text-theme-primary text-xl">
-                &times;
-              </button>
-            </div>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm text-theme-secondary mb-1">Title *</label>
-                <input
-                  name="title"
-                  defaultValue={editingProject?.title}
-                  required
-                  className="input-field w-full p-2 rounded"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-theme-secondary mb-1">Type</label>
-                  <select name="type" defaultValue={editingProject?.type || "single"} className="input-field w-full p-2 rounded">
-                    <option value="single">Single</option>
-                    <option value="ep">EP</option>
-                    <option value="album">Album</option>
-                    <option value="beat">Beat</option>
-                    <option value="sample">Sample Pack</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm text-theme-secondary mb-1">Status</label>
-                  <select name="status" defaultValue={editingProject?.status || "concept"} className="input-field w-full p-2 rounded">
-                    <option value="concept">Concept</option>
-                    <option value="development">Development</option>
-                    <option value="review">Review</option>
-                    <option value="published">Published</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm text-theme-secondary mb-1">Description</label>
-                <textarea
-                  name="description"
-                  defaultValue={editingProject?.description || ""}
-                  rows={3}
-                  className="input-field w-full p-2 rounded"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-theme-secondary mb-1">ISRC</label>
-                  <input name="isrc" defaultValue={editingProject?.metadata?.isrc || ""} className="input-field w-full p-2 rounded" />
-                </div>
-                <div>
-                  <label className="block text-sm text-theme-secondary mb-1">UPC</label>
-                  <input name="upc" defaultValue={editingProject?.metadata?.upc || ""} className="input-field w-full p-2 rounded" />
-                </div>
-              </div>
-              <button type="submit" className="w-full btn-primary font-bold py-3 rounded">
-                {editingProject ? "Save Changes" : "Create Project"}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Move Project Modal */}
+      <MoveProjectModal
+        isOpen={showMoveModal}
+        onClose={() => setShowMoveModal(false)}
+        onMoveProject={(projectId, folderId) => {
+          moveProjectToFolder(projectId, folderId);
+          loadProjects();
+        }}
+        projectId={moveProjectId || ''}
+        projectName={projects.find(p => p.id === moveProjectId)?.title || ''}
+        currentFolderId={selectedFolderId}
+        folders={folders}
+      />
     </div>
+  </div>
+</div>
   );
 }
 

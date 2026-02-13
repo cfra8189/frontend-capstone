@@ -9,9 +9,10 @@ interface FolderContextType {
   loading: boolean;
   error: string | null;
   selectFolder: (folderId?: string) => void;
-  createFolder: (parentId?: string) => void;
+  createFolder: (parentId?: string, name?: string, type?: 'custom' | 'year', year?: number) => void;
   renameFolder: (folder: Folder, newName: string) => void;
   deleteFolder: (folder: Folder) => void;
+  moveProjectToFolder: (projectId: string, folderId: string) => void;
   refreshFolders: () => void;
   ensureYearFolder: () => Promise<Folder>;
 }
@@ -57,16 +58,18 @@ export function FolderProvider({ children }: { children: ReactNode }) {
     setSelectedFolderId(folderId);
   };
 
-  const createFolder = async (parentId?: string) => {
+  const createFolder = async (parentId?: string, name?: string, type?: 'custom' | 'year', year?: number) => {
     try {
       const parentFolder = folders.find(f => f.id === parentId);
-      const folderType = parentFolder?.type === 'root' ? 'year' : 'custom';
+      const folderType = type || (parentFolder?.type === 'root' ? 'year' : 'custom');
       
-      let folderName = '';
-      if (folderType === 'year') {
-        folderName = new Date().getFullYear().toString();
-      } else {
-        folderName = prompt('Enter folder name:') || 'New Folder';
+      let folderName = name || '';
+      if (!folderName) {
+        if (folderType === 'year') {
+          folderName = new Date().getFullYear().toString();
+        } else {
+          folderName = 'New Folder';
+        }
       }
 
       if (!folderName.trim()) return;
@@ -75,7 +78,7 @@ export function FolderProvider({ children }: { children: ReactNode }) {
         name: folderName.trim(),
         parentId,
         type: folderType,
-        year: folderType === 'year' ? new Date().getFullYear() : undefined
+        year: year || (folderType === 'year' ? new Date().getFullYear() : undefined)
       });
 
       await loadFolders();
@@ -136,8 +139,9 @@ export function FolderProvider({ children }: { children: ReactNode }) {
     createFolder,
     renameFolder,
     deleteFolder,
+    moveProjectToFolder,
     refreshFolders,
-    ensureYearFolder
+    ensureYearFolder,
   };
 
   return (
