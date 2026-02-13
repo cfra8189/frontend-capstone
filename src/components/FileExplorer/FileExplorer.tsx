@@ -46,8 +46,8 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     const { success, error, notifications, removeNotification } = useNotifications();
     const [activeId, setActiveId] = useState<string | null>(null);
     const [showCreateFolder, setShowCreateFolder] = useState(false);
-    const [movingProjects, setMovingProjects] = useState<Project[]>([]);
-    const [targetFolder, setTargetFolder] = useState<Folder | null>(null);
+    const [movingProjectId, setMovingProjectId] = useState<string | null>(null);
+    const [movingProjectTitle, setMovingProjectTitle] = useState<string>('');
     const [view, setView] = useState<'files' | 'creative'>('files');
 
     const { setNodeRef: setGridDropRef, isOver: isOverGrid } = useDroppable({
@@ -109,29 +109,16 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
             />
 
             <MoveToFolderModal
-                isOpen={movingProjects.length > 0}
+                isOpen={movingProjectId !== null}
                 onClose={() => {
-                    setMovingProjects([]);
-                    setTargetFolder(null);
+                    setMovingProjectId(null);
+                    setMovingProjectTitle('');
                 }}
-                project={movingProjects.length > 0 ? movingProjects[0] : null}
-                onMoveProject={async (projectId: string, folderId: string) => {
-                    try {
-                        await moveProject(projectId, folderId);
-                        onRefresh();
-                        setMovingProjects([]);
-                        setTargetFolder(null);
-                    } catch (error) {
-                        console.error("Failed to move project", error);
-                        throw error;
-                    }
-                }}
+                projectId={movingProjectId}
+                projectTitle={movingProjectTitle}
                 currentFolderId={selectedFolderId}
-                folders={folders}
+                onSuccess={onRefresh}
             />
-
-            {/* Debug logging */}
-            {movingProjects.length > 0 && console.log('Modal open with folders:', folders, 'selectedFolderId:', selectedFolderId)}
 
             <div className="bg-theme-secondary/20 backdrop-blur-2xl text-theme-primary rounded-lg border border-theme/30 shadow-2xl relative z-10 transition-all duration-500 flex flex-col h-[calc(100vh-140px)] overflow-hidden">
                 {/* Tabs */}
@@ -156,10 +143,6 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                             className="w-64 flex-shrink-0"
                             onDeleteFolder={(folder) => deleteFolder(folder)}
                             onRenameFolder={() => { }} // Sidebar handles its own renaming state
-                            onAddProjects={(folder) => {
-                                setTargetFolder(folder);
-                                setMovingProjects(projects);
-                            }}
                         />
 
                         <div
@@ -198,7 +181,10 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                                     loading={loading}
                                     onEdit={onProjectEdit}
                                     onDelete={onProjectDelete}
-                                    onMoveProject={(p) => setMovingProjects([p])}
+                                    onMoveProject={(project) => {
+                                        setMovingProjectId(project.id);
+                                        setMovingProjectTitle(project.title);
+                                    }}
                                 />
                             </div>
                         </div>

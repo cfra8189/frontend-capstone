@@ -18,7 +18,6 @@ interface SidebarProps {
     className?: string;
     onRenameFolder: (folder: Folder) => void;
     onDeleteFolder: (folder: Folder) => void;
-    onAddProjects: (folder: Folder) => void;
 }
 
 const FolderItem: React.FC<{
@@ -28,7 +27,6 @@ const FolderItem: React.FC<{
     onSelect: (folderStr: string) => void;
     onRename: (folder: Folder) => void;
     onDelete: (folder: Folder) => void;
-    onAddProjects: (folder: Folder) => void;
     expanded: boolean;
     toggleExpand: (id: string) => void;
     hasChildren: boolean;
@@ -39,7 +37,6 @@ const FolderItem: React.FC<{
     onSelect,
     onRename,
     onDelete,
-    onAddProjects,
     expanded,
     toggleExpand,
     hasChildren
@@ -82,13 +79,6 @@ const FolderItem: React.FC<{
                     {!isSystem && (
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100">
                             <button
-                                onClick={(e) => { e.stopPropagation(); onAddProjects(folder); }}
-                                className="p-1 hover:bg-theme-tertiary hover:text-accent rounded-sm"
-                                title="Add Projects"
-                            >
-                                <Plus size={10} />
-                            </button>
-                            <button
                                 onClick={(e) => { e.stopPropagation(); onRename(folder); }}
                                 className="p-1 hover:bg-theme-tertiary hover:text-theme-primary rounded-sm"
                             >
@@ -107,7 +97,7 @@ const FolderItem: React.FC<{
         );
     };
 
-export const Sidebar: React.FC<SidebarProps> = ({ className, onRenameFolder, onDeleteFolder, onAddProjects }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ className, onRenameFolder, onDeleteFolder }) => {
     const {
         folderTree,
         selectedFolderId,
@@ -140,7 +130,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ className, onRenameFolder, onD
                         onSelect={selectFolder}
                         onRename={(f) => setRenamingFolder(f)}
                         onDelete={onDeleteFolder}
-                        onAddProjects={onAddProjects}
                         expanded={isExpanded}
                         toggleExpand={toggleExpand}
                         hasChildren={hasChildren}
