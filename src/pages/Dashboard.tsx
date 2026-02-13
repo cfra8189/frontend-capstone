@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import { FolderProvider, useFolderContext } from "../context/FolderContext";
 import { Project } from "../types/folder";
 import { FileExplorer } from "../components/FileExplorer/FileExplorer";
+import GlobalEffects from "../components/GlobalEffects";
 
 function DashboardContent() {
   const { user } = useAuth();
@@ -89,12 +90,14 @@ function DashboardContent() {
 
   return (
     <div className="min-h-screen bg-theme-primary text-theme-secondary font-mono relative flex flex-col overflow-hidden">
+      <GlobalEffects opacity={0.12} />
+
       {/* CRT Scanline Overlay */}
       <div className="fixed inset-0 pointer-events-none z-[100] opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
 
       <Header />
 
-      <main className="flex-1 p-4 lg:p-10 overflow-hidden">
+      <main className="flex-1 p-4 lg:p-10 overflow-hidden relative z-10">
         <FileExplorer
           projects={filteredProjects}
           loading={loading || folderLoading}
@@ -108,8 +111,8 @@ function DashboardContent() {
 
       {/* Project Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/95 flex items-center justify-center p-6 z-[300] backdrop-blur-sm">
-          <div className="bg-theme-secondary border border-theme p-6 max-w-lg w-full shadow-2xl">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-6 z-[300] backdrop-blur-3xl">
+          <div className="bg-theme-secondary/80 border border-theme p-6 max-w-lg w-full shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-md">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-bold text-theme-primary uppercase tracking-widest">
                 {editingProject ? "Update Object" : "Initialize New Object"}

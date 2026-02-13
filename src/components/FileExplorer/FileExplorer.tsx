@@ -3,6 +3,7 @@ import {
     DndContext,
     DragOverlay,
     closestCenter,
+    pointerWithin,
     KeyboardSensor,
     PointerSensor,
     useSensor,
@@ -81,7 +82,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     return (
         <DndContext
             sensors={sensors}
-            collisionDetection={closestCenter}
+            collisionDetection={pointerWithin}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >

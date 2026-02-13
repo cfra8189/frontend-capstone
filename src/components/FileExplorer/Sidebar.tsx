@@ -57,7 +57,7 @@ const FolderItem: React.FC<{
                             ? 'bg-theme-primary text-theme-primary border border-theme-primary shadow-md'
                             : 'text-theme-muted hover:bg-theme-tertiary hover:text-theme-primary hover:border-theme border border-transparent'
                         }
-           ${isOver ? 'ring-2 ring-theme-primary bg-theme-primary text-theme-primary scale-[1.05] shadow-2xl z-20 relative' : ''}
+           ${isOver ? 'ring-2 ring-theme-primary bg-theme-primary/20 text-theme-primary scale-[1.05] shadow-[0_0_20px_rgba(var(--particle-color),0.3)] z-20 relative' : ''}
          `}
                     style={{ paddingLeft: `${level * 12 + 8}px` }}
                     onClick={() => onSelect(folder.id)}
