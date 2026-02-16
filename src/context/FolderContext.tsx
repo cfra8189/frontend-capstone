@@ -47,7 +47,7 @@ export function FolderProvider({ children }: { children: ReactNode }) {
       const currentYear = new Date().getFullYear().toString();
       const yearFolder = foldersData.find(f => f.type === 'year' && f.name === currentYear);
       if (yearFolder && !selectedFolderId) {
-        setSelectedFolderId(yearFolder.id);
+        setSelectedFolderId(yearFolder._id);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load folders');
@@ -68,7 +68,7 @@ export function FolderProvider({ children }: { children: ReactNode }) {
     try {
       console.log('Creating folder with parentId:', parentId);
 
-      const parentFolder = folders.find(f => f.id === parentId);
+      const parentFolder = folders.find(f => f._id === parentId);
       const folderType = parentFolder?.type === 'root' ? 'year' : 'custom';
 
       let folderName = name || '';
@@ -101,7 +101,7 @@ export function FolderProvider({ children }: { children: ReactNode }) {
 
   const renameFolder = async (folder: Folder, newName: string) => {
     try {
-      await folderService.updateFolder(folder.id, { name: newName });
+      await folderService.updateFolder(folder._id, { name: newName });
       await loadFolders();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to rename folder');
@@ -114,10 +114,10 @@ export function FolderProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      await folderService.deleteFolder(folder.id);
+      await folderService.deleteFolder(folder._id);
       await loadFolders();
 
-      if (selectedFolderId === folder.id) {
+      if (selectedFolderId === folder._id) {
         setSelectedFolderId(undefined);
       }
     } catch (err) {
