@@ -20,6 +20,7 @@ import EPKEditor from "./pages/EPKEditor";
 import EPKView from "./pages/EPKView";
 import EPK from "./pages/EPK";
 import CapstoneDoc from "./pages/CapstoneDoc";
+import TrackReview from "./pages/TrackReview";
 import GlobalEffects from "./components/GlobalEffects"; // Changed import
 
 function App() {
@@ -112,6 +113,7 @@ function App() {
           <Route path="/" component={Dashboard} />
           <Route path="/creative" component={CreativeSpace} />
           <Route path="/project/:id" component={ProjectDetails} />
+          <Route path="/track-review" component={TrackReview} />
           <Route path="/generator" component={Generator} />
           <Route path="/documents" component={Documents} />
           <Route path="/submissions" component={SubmissionGenerator} />

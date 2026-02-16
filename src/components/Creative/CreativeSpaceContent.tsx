@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useLocation } from "wouter";
 import { useAuth } from "../../hooks/use-auth";
 import { useUpload } from "../../hooks/use-upload";
 import PremiumEmbed from "../PremiumEmbed";
@@ -26,6 +27,7 @@ interface Submission {
 
 export default function CreativeSpaceContent() {
     const { user } = useAuth();
+    const [location, setLocation] = useLocation();
     const [notes, setNotes] = useState<Note[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeCategory, setActiveCategory] = useState("all");
@@ -285,12 +287,20 @@ export default function CreativeSpaceContent() {
                     <h1 className="text-sm sm:text-base font-bold uppercase tracking-[0.3em] text-theme-primary">Creative Space</h1>
                     <p className="text-[9px] text-theme-muted uppercase tracking-widest opacity-60">Capture ideas & inspiration</p>
                 </div>
-                <button
-                    onClick={() => { setEditingNote(null); setUploadedMediaUrl(""); setShowModal(true); }}
-                    className="bg-accent/10 text-accent border border-accent/20 text-[9px] font-bold px-3 py-1.5 rounded-sm uppercase tracking-widest hover:bg-accent hover:text-theme-primary transition-all self-start sm:self-auto"
-                >
-                    + NEW_ENTRY
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => setLocation("/track-review")}
+                        className="bg-theme-secondary/30 text-theme-primary border border-theme/20 text-[9px] font-bold px-3 py-1.5 rounded-sm uppercase tracking-widest hover:bg-theme-secondary transition-all"
+                    >
+                        🎵 Track Review
+                    </button>
+                    <button
+                        onClick={() => { setEditingNote(null); setUploadedMediaUrl(""); setShowModal(true); }}
+                        className="bg-accent/10 text-accent border border-accent/20 text-[9px] font-bold px-3 py-1.5 rounded-sm uppercase tracking-widest hover:bg-accent hover:text-theme-primary transition-all self-start sm:self-auto"
+                    >
+                        + NEW_ENTRY
+                    </button>
+                </div>
             </div>
 
             <div className="px-3 pb-2 border-b border-theme/5 mb-2 bg-theme-primary/5">
