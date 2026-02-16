@@ -106,7 +106,7 @@ const ProjectRow: React.FC<{
             </div>
 
             {/* Title Column - Flexible width */}
-            <div className="flex-1 min-w-0 pr-4">
+            <div className="flex-1 min-w-0 pr-4 flex items-center">
                 <Link href={`/project/${project.id}`} className="hover:text-accent block truncate font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-theme-primary transition-colors">
                     {project.title}
                 </Link>
@@ -165,7 +165,7 @@ const ProjectRow: React.FC<{
                         value={localDesc}
                         onChange={(e) => setLocalDesc(e.target.value)}
                         placeholder="Add note..."
-                        className="w-full bg-transparent border-b border-transparent hover:border-theme/20 focus:border-theme-primary text-[9px] font-mono text-theme-muted/80 focus:text-theme-primary outline-none px-1 py-0.5 transition-all placeholder:text-theme-muted/60"
+                        className="w-full bg-transparent border-b border-transparent hover:border-theme/20 focus:border-theme-primary text-[9px] font-mono text-theme-muted/80 focus:text-theme-primary outline-none px-1 py-1 transition-all placeholder:text-theme-muted/60 placeholder:font-bold"
                         onKeyDown={(e) => e.stopPropagation()}
                         onPointerDown={(e) => e.stopPropagation()}
                         onClick={(e) => e.stopPropagation()}
@@ -319,10 +319,10 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, loading, onE
                 <div className="w-28 hidden sm:flex items-center justify-center text-center">STATUS</div>
 
                 <div
-                    className="w-32 hidden md:flex items-center justify-center gap-2 cursor-pointer hover:text-theme-primary transition-colors group min-w-0"
+                    className="w-32 hidden md:flex items-center justify-center gap-1.5 cursor-pointer hover:text-theme-primary transition-colors group min-w-0"
                     onClick={() => handleSort('updatedAt')}
                 >
-                    <span className="whitespace-nowrap uppercase">Updated</span>
+                    <span className="whitespace-nowrap uppercase tracking-widest text-[7px] sm:text-[8px]">Updated</span>
                     <span className="flex-shrink-0">
                         {sortKey === 'updatedAt' ? (
                             sortOrder === 'asc' ? <ArrowUp size={8} className="text-theme-primary" /> : <ArrowDown size={8} className="text-theme-primary" />

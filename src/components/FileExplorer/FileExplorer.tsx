@@ -195,14 +195,14 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                                         title="New Folder"
                                     >
                                         <FolderPlus size={10} className="text-theme-muted group-hover:text-theme-primary transition-colors" />
-                                        <span className="hidden xs:inline">NEW_DIR</span>
+                                        <span>DIRECTORY</span>
                                     </button>
                                     <button
                                         onClick={() => onProjectEdit(null as any)}
                                         className="flex items-center gap-1.5 px-3 py-1.5 bg-accent/10 text-accent border border-accent/20 hover:bg-accent hover:text-theme-primary transition-all text-[9px] font-bold font-mono uppercase tracking-[0.2em] group"
                                     >
                                         <Plus size={10} />
-                                        <span>+ PROJECT</span>
+                                        <span>PROJECT</span>
                                     </button>
                                 </div>
                             </div>
