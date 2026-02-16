@@ -160,10 +160,11 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
 
                         <Sidebar
                             className={`
-                                fixed md:relative left-0 top-0 bottom-0 z-[70] md:z-10
+                                absolute md:relative left-0 top-0 bottom-0 z-[70] md:z-10
                                 w-64 flex-shrink-0 transition-transform duration-300 ease-in-out
                                 ${showMobileSidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
                                 bg-theme-secondary/95 md:bg-transparent backdrop-blur-2xl md:backdrop-blur-none
+                                border-r border-theme/20 md:border-r-0
                             `}
                             onDeleteFolder={(folder) => deleteFolder(folder)}
                             onRenameFolder={() => { }} // Sidebar handles its own renaming state
@@ -171,7 +172,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
 
                         <div
                             ref={setGridDropRef}
-                            className={`flex-1 flex flex-col min-w-0 relative transition-all duration-300 ${isOverGrid ? 'bg-theme-primary/10 ring-2 ring-inset ring-theme-primary/30' : ''}`}
+                            className={`flex-1 w-full flex flex-col min-w-0 relative transition-all duration-300 ${isOverGrid ? 'bg-theme-primary/10 ring-2 ring-inset ring-theme-primary/30' : ''}`}
                         >
                             {/* Interior Toolbar */}
                             <div className="border-b border-theme/10 p-2 sm:p-3 flex items-center justify-between gap-3 bg-theme-primary/5 backdrop-blur-md">
