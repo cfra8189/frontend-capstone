@@ -100,13 +100,13 @@ const ProjectRow: React.FC<{
                 <GripVertical size={14} />
             </div>
 
-            {/* Icon Column */}
-            <div className="w-8 flex justify-center text-theme-muted group-hover:text-theme-primary transition-colors">
+            {/* Icon Column - Hidden on very small screens */}
+            <div className="hidden xs:flex w-8 justify-center text-theme-muted group-hover:text-theme-primary transition-colors">
                 {getIcon()}
             </div>
 
-            {/* Title Column - Tightened width */}
-            <div className="w-48 min-w-0">
+            {/* Title Column - Flexible width */}
+            <div className="flex-1 min-w-0">
                 <Link href={`/project/${project.id}`} className="hover:underline block truncate font-bold font-mono text-[11px] uppercase tracking-wider text-theme-primary">
                     {project.title}
                 </Link>
@@ -293,12 +293,12 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, loading, onE
                 <div className="w-6 flex justify-center opacity-30">
                     <AlignLeft size={10} />
                 </div>
-                <div className="w-8 flex justify-center opacity-30">
+                <div className="hidden xs:flex w-8 justify-center opacity-30">
                     <Music size={10} />
                 </div>
 
                 <div
-                    className="w-48 cursor-pointer hover:text-theme-primary transition-colors flex items-center gap-2 group"
+                    className="flex-1 cursor-pointer hover:text-theme-primary transition-colors flex items-center gap-2 group"
                     onClick={() => handleSort('title')}
                 >
                     NAME

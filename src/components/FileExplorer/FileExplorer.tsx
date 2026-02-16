@@ -19,7 +19,7 @@ import {
 import {
     sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
-import { FileText, Plus, FolderPlus, Check, Search, FileJson } from 'lucide-react';
+import { FileText, Plus, FolderPlus, Check, Search, FileJson, AlignLeft } from 'lucide-react';
 import { ProjectGrid } from './ProjectGrid';
 import { Sidebar } from './Sidebar';
 import { useFolderContext } from '../../context/FolderContext';
@@ -51,6 +51,8 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     const [movingProjectId, setMovingProjectId] = useState<string | null>(null);
     const [movingProjectTitle, setMovingProjectTitle] = useState<string>('');
     const [view, setView] = useState<'files' | 'creative'>('files');
+
+    const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
     const { setNodeRef: setGridDropRef, isOver: isOverGrid } = useDroppable({
         id: `grid-${selectedFolderId || 'root'}`,
@@ -147,9 +149,22 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                 </div>
 
                 {view === 'files' ? (
-                    <div className="flex flex-1 overflow-hidden">
+                    <div className="flex flex-1 overflow-hidden relative">
+                        {/* Mobile Sidebar Overlay */}
+                        {showMobileSidebar && (
+                            <div
+                                className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
+                                onClick={() => setShowMobileSidebar(false)}
+                            />
+                        )}
+
                         <Sidebar
-                            className="w-64 flex-shrink-0"
+                            className={`
+                                fixed md:relative left-0 top-0 bottom-0 z-[70] md:z-10
+                                w-64 flex-shrink-0 transition-transform duration-300 ease-in-out
+                                ${showMobileSidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+                                bg-theme-secondary/95 md:bg-transparent backdrop-blur-2xl md:backdrop-blur-none
+                            `}
                             onDeleteFolder={(folder) => deleteFolder(folder)}
                             onRenameFolder={() => { }} // Sidebar handles its own renaming state
                         />
@@ -159,10 +174,16 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                             className={`flex-1 flex flex-col min-w-0 relative transition-all duration-300 ${isOverGrid ? 'bg-theme-primary/10 ring-2 ring-inset ring-theme-primary/30' : ''}`}
                         >
                             {/* Interior Toolbar */}
-                            <div className="border-b border-theme/20 p-3 flex items-center justify-between bg-transparent backdrop-blur-md">
+                            <div className="border-b border-theme/20 p-3 flex flex-wrap items-center justify-between gap-3 bg-transparent backdrop-blur-md">
                                 <div className="flex items-center gap-3">
+                                    <button
+                                        onClick={() => setShowMobileSidebar(true)}
+                                        className="md:hidden p-1 text-theme-muted hover:text-theme-primary transition-colors"
+                                    >
+                                        <AlignLeft size={16} />
+                                    </button>
                                     <div className="w-1 h-3 bg-theme-primary animate-pulse" />
-                                    <span className="text-[10px] font-mono font-bold text-theme-primary uppercase tracking-[0.3em]">
+                                    <span className="text-[10px] font-mono font-bold text-theme-primary uppercase tracking-[0.3em] truncate max-w-[120px] sm:max-w-none">
                                         {selectedFolderId ? folders.find(f => f._id === selectedFolderId)?.name || 'Folder' : 'ROOT_PROJECTS'}
                                     </span>
                                 </div>

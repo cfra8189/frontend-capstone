@@ -3,6 +3,7 @@ import LogoGif from "./LogoGif";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "../hooks/use-auth";
 import { useTheme } from "../context/ThemeContext";
+import { ChevronRight } from "lucide-react";
 
 interface HeaderProps {
   showNav?: boolean;
@@ -159,7 +160,7 @@ export default function Header({ showNav = true }: HeaderProps) {
 
         {showNav && (
           <>
-            <div ref={searchRef} className="relative hidden sm:block flex-1 max-w-xs mx-4">
+            <div ref={searchRef} className="relative hidden lg:block flex-1 max-w-xs mx-4">
               <div className="relative">
                 <input
                   type="text"
@@ -226,7 +227,7 @@ export default function Header({ showNav = true }: HeaderProps) {
               )}
             </div>
 
-            <nav className="hidden md:flex items-center gap-6">
+            <nav className="hidden xl:flex items-center gap-6">
               {navLinks.map(link => (
                 <Link key={link.href} href={link.href}>
                   <span className={`text-sm cursor-pointer transition-colors ${isActive(link.href) ? "text-theme-primary font-bold" : "text-theme-muted hover:text-theme-primary"}`}>
@@ -251,7 +252,7 @@ export default function Header({ showNav = true }: HeaderProps) {
 
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="md:hidden p-1 text-theme-primary"
+                className="xl:hidden p-1 text-theme-primary"
                 aria-label="Toggle menu"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -268,13 +269,52 @@ export default function Header({ showNav = true }: HeaderProps) {
       </div>
 
       {menuOpen && showNav && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-theme-secondary border-b border-theme z-50">
+        <div className="xl:hidden absolute top-full left-0 right-0 bg-theme-secondary/95 backdrop-blur-3xl border-b border-theme z-50 shadow-2xl overflow-hidden">
           <nav className="flex flex-col p-4 space-y-3">
+            {/* Mobile Search */}
+            <div className="lg:hidden relative mb-4">
+              <input
+                type="text"
+                placeholder="SEARCH_VAULT..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-theme-primary/50 border border-theme px-4 py-3 rounded text-sm font-mono uppercase tracking-[0.2em] outline-none focus:border-theme-primary transition-all"
+              />
+              <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+
+              {searchQuery && (
+                <div className="mt-2 bg-theme-primary/10 border border-theme/20 rounded max-h-48 overflow-y-auto">
+                  {searching ? (
+                    <div className="p-3 text-center text-theme-muted text-xs">SEARCHING...</div>
+                  ) : searchResults.length === 0 ? (
+                    <div className="p-3 text-center text-theme-muted text-xs">NO_RESULTS_FOUND</div>
+                  ) : searchResults.map((result, i) => (
+                    <button
+                      key={`mobile-${result.type}-${result.id || i}`}
+                      onClick={() => {
+                        handleResultClick(result);
+                        setMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-theme-tertiary transition-colors border-b border-theme/5 last:border-0 flex items-center justify-between"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm text-theme-primary truncate">{result.title}</div>
+                        <div className="text-[10px] text-theme-muted uppercase tracking-widest">{result.type}</div>
+                      </div>
+                      <ChevronRight size={14} className="text-theme-muted" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {navLinks.map(link => (
               <Link key={link.href} href={link.href}>
                 <span
                   onClick={() => setMenuOpen(false)}
-                  className={`block text-sm cursor-pointer py-2 px-3 rounded ${isActive(link.href) ? "bg-theme-tertiary text-theme-primary font-bold" : "text-theme-secondary hover:text-theme-primary hover:bg-theme-tertiary"}`}
+                  className={`block text-base cursor-pointer py-3 px-4 rounded border border-transparent transition-all ${isActive(link.href) ? "bg-theme-primary/10 text-theme-primary font-bold border-theme-primary/30" : "text-theme-secondary hover:text-theme-primary hover:bg-theme-tertiary"}`}
                 >
                   {link.label}
                 </span>
