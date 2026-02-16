@@ -89,6 +89,10 @@ function DashboardContent() {
     ? projects
     : projects.filter(p => p.status === filter);
 
+  // Parse query params for initial view
+  const searchParams = new URLSearchParams(window.location.search);
+  const initialView = searchParams.get("view") === "creative" ? "creative" : "files";
+
   return (
     <PageTransition>
       <div className="min-h-screen w-full bg-theme-primary text-theme-secondary font-mono relative flex flex-col overflow-hidden">
@@ -109,6 +113,7 @@ function DashboardContent() {
             }}
             onProjectDelete={deleteProject}
             onRefresh={loadProjects}
+            initialView={initialView}
           />
         </main>
 

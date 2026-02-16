@@ -121,7 +121,9 @@ export function FolderProvider({ children }: { children: ReactNode }) {
         setSelectedFolderId(undefined);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete folder');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete folder';
+      setError(errorMessage);
+      throw err; // Re-throw so UI can handle it
     }
   };
 

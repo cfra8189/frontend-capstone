@@ -35,6 +35,7 @@ interface FileExplorerProps {
     onProjectEdit: (project: Project) => void;
     onProjectDelete: (id: string) => void;
     onRefresh: () => void;
+    initialView?: 'files' | 'creative';
 }
 
 export const FileExplorer: React.FC<FileExplorerProps> = ({
@@ -42,7 +43,8 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     loading,
     onProjectEdit,
     onProjectDelete,
-    onRefresh
+    onRefresh,
+    initialView = 'files'
 }) => {
     const { moveProject, selectedFolderId, folders, deleteFolder } = useFolderContext();
     const { success, error, notifications, removeNotification } = useNotifications();
@@ -50,7 +52,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     const [showCreateFolder, setShowCreateFolder] = useState(false);
     const [movingProjectId, setMovingProjectId] = useState<string | null>(null);
     const [movingProjectTitle, setMovingProjectTitle] = useState<string>('');
-    const [view, setView] = useState<'files' | 'creative'>('files');
+    const [view, setView] = useState<'files' | 'creative'>(initialView);
 
     const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
@@ -160,13 +162,21 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
 
                         <Sidebar
                             className={`
-                                absolute md:relative left-0 top-0 bottom-0 z-[70] md:z-10
-                                w-64 flex-shrink-0 transition-transform duration-300 ease-in-out
-                                ${showMobileSidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-                                bg-theme-secondary/95 md:bg-transparent backdrop-blur-2xl md:backdrop-blur-none
-                                border-r border-theme/20 md:border-r-0
-                            `}
-                            onDeleteFolder={(folder) => deleteFolder(folder)}
+                                    absolute md:relative left-0 top-0 bottom-0 z-[70] md:z-10
+                                    w-64 flex-shrink-0 transition-transform duration-300 ease-in-out
+                                    ${showMobileSidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+                                    bg-theme-secondary/95 md:bg-transparent backdrop-blur-2xl md:backdrop-blur-none
+                                    border-r border-theme/20 md:border-r-0
+                                `}
+                            onDeleteFolder={async (folder) => {
+                                try {
+                                    await deleteFolder(folder);
+                                    success(`Folder "${folder.name}" deleted`);
+                                } catch (err) {
+                                    console.error('Failed to delete folder:', err);
+                                    error(err instanceof Error ? err.message : 'Failed to delete folder');
+                                }
+                            }}
                             onRenameFolder={() => { }} // Sidebar handles its own renaming state
                         />
 

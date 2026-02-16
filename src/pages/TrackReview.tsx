@@ -267,7 +267,7 @@ export default function TrackReview() {
                         {saving ? "Saving..." : "Save"}
                     </button>
                     <button
-                        onClick={() => setLocation("/creative")}
+                        onClick={() => setLocation("/?view=creative")}
                         className="bg-theme-secondary/30 text-theme-muted border border-theme/20 text-[9px] font-bold px-3 py-1.5 rounded-sm uppercase tracking-widest hover:bg-theme-secondary hover:text-theme-primary transition-all"
                     >
                         Close
@@ -482,7 +482,7 @@ export default function TrackReview() {
                                 <option value="">-- Select a folder --</option>
                                 {folders.map((folder) => (
                                     <option key={folder.id} value={folder.id}>
-                                        {folder.name}
+                                        {folder.path || folder.name}
                                     </option>
                                 ))}
                             </select>
