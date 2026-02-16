@@ -23,30 +23,6 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
     const isTwitter = url.includes("twitter.com") || url.includes("x.com");
 
     useEffect(() => {
-        let cancelled = false;
-        async function load() {
-            setLoading(true);
-            setError(false);
-            try {
-                const res = await fetch(`/api/oembed?url=${encodeURIComponent(url)}`);
-                if (!res.ok) throw new Error("Failed to load");
-                const json = await res.json();
-                if (!cancelled) {
-                    setData(json);
-                    setLoading(false);
-                }
-            } catch (err) {
-                if (!cancelled) {
-                    setError(true);
-                    setLoading(false);
-                }
-            }
-        }
-        load();
-        return () => { cancelled = true; };
-    }, [url]);
-
-    useEffect(() => {
         if (!loading && data?.html) {
             // Pinterest re-parsing
             if (isPinterest && (window as any).PinUtils) {
@@ -57,7 +33,7 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
             if (isTwitter) {
                 if ((window as any).twttr && (window as any).twttr.widgets) {
                     (window as any).twttr.widgets.load();
-                } else {
+                } else if (!document.querySelector('script[src*="twitter.com/widgets.js"]')) {
                     const script = document.createElement("script");
                     script.src = "https://platform.twitter.com/widgets.js";
                     script.async = true;
@@ -74,6 +50,9 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
             script.src = "//assets.pinterest.com/js/pinit.js";
             script.async = true;
             script.setAttribute("data-pin-build", "PinUtils.build");
+            script.onload = () => {
+                if ((window as any).PinUtils) (window as any).PinUtils.build();
+            };
             document.body.appendChild(script);
         }
     }, [isPinterest]);
@@ -111,6 +90,7 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
     }
 
     const isVideo = data.type === "video" || !!data.html;
+    const isImage = data.type === "image" || (!data.html && !!data.thumbnail_url);
 
     return (
         <motion.div
@@ -120,11 +100,11 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
         >
             {/* Media Content */}
             <div className={`relative overflow-hidden ${isVideo && !isPinterest && !isTwitter ? 'aspect-video' : 'aspect-auto min-h-[100px]'}`}>
-                {data.thumbnail_url && !data.html ? (
+                {isImage && data.thumbnail_url ? (
                     <img
                         src={data.thumbnail_url}
-                        alt={data.title || "Social Media Content"}
-                        className="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-700"
+                        alt={data.title || "Image content"}
+                        className="w-full h-auto object-contain transform group-hover:scale-105 transition-transform duration-700"
                         loading="lazy"
                     />
                 ) : data.html ? (
@@ -139,7 +119,7 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
                 )}
 
                 {/* Overlay for Pinterest/Images */}
-                {(!isVideo || isPinterest) && !data.html && (
+                {(!isVideo || isPinterest || isImage) && !data.html && (
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                 )}
             </div>
