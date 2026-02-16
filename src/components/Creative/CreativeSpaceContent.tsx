@@ -258,6 +258,34 @@ export default function CreativeSpaceContent() {
     function getMediaEmbed(url: string) {
         if (!url) return null;
 
+        // Pinterest embed iframe (user pastes the embed code)
+        const pinterestEmbedMatch = url.match(/assets\.pinterest\.com\/ext\/embed\.html\?id=(\d+)/);
+        if (pinterestEmbedMatch) {
+            return (
+                <div className="media-embed mb-3 w-full h-[500px]">
+                    <iframe
+                        src={`https://assets.pinterest.com/ext/embed.html?id=${pinterestEmbedMatch[1]}`}
+                        scrolling="yes"
+                        style={{ border: 'none', width: '100%', height: '100%' }}
+                    />
+                </div>
+            );
+        }
+
+        // Pinterest URL
+        const pinterestPinMatch = url.match(/pinterest\.com\/pin\/(\d+)/);
+        if (pinterestPinMatch) {
+            return (
+                <div className="media-embed mb-3 w-full h-[500px]">
+                    <iframe
+                        src={`https://assets.pinterest.com/ext/embed.html?id=${pinterestPinMatch[1]}`}
+                        scrolling="yes"
+                        style={{ border: 'none', width: '100%', height: '100%' }}
+                    />
+                </div>
+            );
+        }
+
         // Unified premium embed for Pinterest, Twitter, YouTube, etc.
         const isSocial = url.includes("pinterest.com") || url.includes("pin.it") ||
             url.includes("twitter.com") || url.includes("x.com") ||
