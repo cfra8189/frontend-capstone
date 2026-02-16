@@ -289,7 +289,7 @@ export default function CreativeSpaceContent() {
         }
 
         // Unified premium embed for Pinterest, Twitter, YouTube, etc.
-        const isSocial = url.includes("pinterest.com") || url.includes("pin.it") ||
+        const isSocial = url.includes("pinterest.com") || url.includes("pin.it") || url.includes("i.pinimg.com") ||
             url.includes("twitter.com") || url.includes("x.com") ||
             url.includes("youtube.com") || url.includes("youtu.be") ||
             url.includes("spotify.com") || url.includes("soundcloud.com") ||

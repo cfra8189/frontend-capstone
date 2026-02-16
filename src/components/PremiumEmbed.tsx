@@ -21,12 +21,29 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
 
     const isPinterest = url.includes("pin.it") || url.includes("pinterest");
     const isTwitter = url.includes("twitter.com") || url.includes("x.com");
+    const isDirectMedia = /\.(jpg|jpeg|png|gif|webp|mp4|webm)(\?.*)?$/i.test(url);
 
     useEffect(() => {
         let cancelled = false;
         async function load() {
             setLoading(true);
             setError(false);
+
+            // For direct media links (images/gifs/videos), skip the oembed fetch entirely
+            if (isDirectMedia) {
+                const isVideo = /\.(mp4|webm)(\?.*)?$/i.test(url);
+                if (!cancelled) {
+                    setData({
+                        thumbnail_url: isVideo ? undefined : url,
+                        html: isVideo ? `<video src="${url}" controls autoplay loop muted playsinline class="w-full rounded-lg"></video>` : undefined,
+                        type: isVideo ? "video" : "image",
+                        provider_name: "Direct Media",
+                    });
+                    setLoading(false);
+                }
+                return;
+            }
+
             try {
                 const res = await fetch(`/api/oembed?url=${encodeURIComponent(url)}`);
                 if (!res.ok) throw new Error("Failed to load");
@@ -47,12 +64,7 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
     }, [url]);
 
     useEffect(() => {
-        if (!loading && data?.html) {
-            // Pinterest re-parsing
-            if (isPinterest && (window as any).PinUtils) {
-                (window as any).PinUtils.build();
-            }
-
+        if (!loading && data?.html && !isPinterest) {
             // Twitter re-parsing
             if (isTwitter) {
                 if ((window as any).twttr && (window as any).twttr.widgets) {
@@ -66,20 +78,6 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
             }
         }
     }, [loading, data, isPinterest, isTwitter]);
-
-    // Load Pinterest SDK if needed
-    useEffect(() => {
-        if (isPinterest && !(window as any).PinUtils) {
-            const script = document.createElement("script");
-            script.src = "//assets.pinterest.com/js/pinit.js";
-            script.async = true;
-            script.setAttribute("data-pin-build", "PinUtils.build");
-            script.onload = () => {
-                if ((window as any).PinUtils) (window as any).PinUtils.build();
-            };
-            document.body.appendChild(script);
-        }
-    }, [isPinterest]);
 
     if (loading) {
         return (
@@ -113,8 +111,12 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
         );
     }
 
-    const isVideo = data.type === "video" || !!data.html;
-    const isImage = data.type === "image" || (!data.html && !!data.thumbnail_url);
+    // Pinterest: ALWAYS show thumbnail image, never the widget HTML (pinit.js is CSP-blocked)
+    // Direct media: show the image or video directly
+    const forceThumbnail = isPinterest || isDirectMedia;
+    const hasThumbnail = !!data.thumbnail_url;
+    const isVideo = !forceThumbnail && (data.type === "video" || !!data.html);
+    const isImage = forceThumbnail ? hasThumbnail : (data.type === "image" || (!data.html && hasThumbnail));
 
     return (
         <motion.div
@@ -123,17 +125,19 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
             className={`group relative overflow-hidden rounded-xl bg-theme-tertiary/20 border border-white/5 hover:border-accent/30 transition-all duration-500 mb-4 backdrop-blur-md shadow-2xl ${isPinterest ? 'max-w-md mx-auto' : ''}`}
         >
             {/* Media Content */}
-            <div className={`relative overflow-hidden ${isVideo && !isPinterest && !isTwitter ? 'aspect-video' : 'aspect-auto min-h-[100px]'}`}>
+            <div className={`relative overflow-hidden ${isVideo && !isTwitter ? 'aspect-video' : 'aspect-auto min-h-[100px]'}`}>
                 {isImage && data.thumbnail_url ? (
-                    <img
-                        src={data.thumbnail_url}
-                        alt={data.title || "Image content"}
-                        className="w-full h-auto object-contain transform group-hover:scale-105 transition-transform duration-700"
-                        loading="lazy"
-                    />
-                ) : data.html ? (
+                    <a href={url} target="_blank" rel="noreferrer">
+                        <img
+                            src={data.thumbnail_url}
+                            alt={data.title || "Image content"}
+                            className="w-full h-auto object-contain transform group-hover:scale-105 transition-transform duration-700"
+                            loading="lazy"
+                        />
+                    </a>
+                ) : data.html && !forceThumbnail ? (
                     <div
-                        className={`w-full preview-html [&>iframe]:w-full [&>iframe]:aspect-video ${isPinterest ? 'flex justify-center p-4' : ''}`}
+                        className={`w-full preview-html [&>iframe]:w-full [&>iframe]:aspect-video`}
                         dangerouslySetInnerHTML={{ __html: data.html }}
                     />
                 ) : (
@@ -142,8 +146,8 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
                     </div>
                 )}
 
-                {/* Overlay for Pinterest/Images */}
-                {(!isVideo || isPinterest || isImage) && !data.html && (
+                {/* Gradient overlay on hover */}
+                {isImage && (
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                 )}
             </div>
