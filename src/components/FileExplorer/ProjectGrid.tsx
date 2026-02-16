@@ -114,7 +114,7 @@ const ProjectRow: React.FC<{
 
 
             {/* Status Dropdown (Functional) */}
-            <div className="w-28 hidden sm:block relative">
+            <div className="w-28 hidden sm:flex justify-center relative">
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
@@ -153,7 +153,7 @@ const ProjectRow: React.FC<{
             </div>
 
             {/* Date Column */}
-            <div className="w-28 hidden md:block text-[9px] font-mono text-theme-muted/40 uppercase tracking-wider">
+            <div className="w-32 hidden md:flex items-center text-[9px] font-mono text-theme-muted/40 uppercase tracking-wider">
                 {new Date(project.updatedAt).toLocaleDateString()}
             </div>
 
@@ -165,7 +165,7 @@ const ProjectRow: React.FC<{
                         value={localDesc}
                         onChange={(e) => setLocalDesc(e.target.value)}
                         placeholder="Add note..."
-                        className="w-full bg-transparent border-b border-transparent hover:border-theme/20 focus:border-theme-primary text-[9px] font-mono text-theme-muted/80 focus:text-theme-primary outline-none px-1 py-0.5 transition-all placeholder:text-theme-muted/40"
+                        className="w-full bg-transparent border-b border-transparent hover:border-theme/20 focus:border-theme-primary text-[9px] font-mono text-theme-muted/80 focus:text-theme-primary outline-none px-1 py-0.5 transition-all placeholder:text-theme-muted/60"
                         onKeyDown={(e) => e.stopPropagation()}
                         onPointerDown={(e) => e.stopPropagation()}
                         onClick={(e) => e.stopPropagation()}
@@ -316,10 +316,10 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, loading, onE
                     </span>
                 </div>
 
-                <div className="w-28 hidden sm:block">STATUS</div>
+                <div className="w-28 hidden sm:block text-center">STATUS</div>
 
                 <div
-                    className="w-28 hidden md:block cursor-pointer hover:text-theme-primary transition-colors flex items-center gap-2 group min-w-0"
+                    className="w-32 hidden md:block cursor-pointer hover:text-theme-primary transition-colors flex items-center gap-2 group min-w-0"
                     onClick={() => handleSort('updatedAt')}
                 >
                     <span className="whitespace-nowrap">UPDATED</span>
