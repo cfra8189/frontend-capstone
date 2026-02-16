@@ -107,7 +107,7 @@ function DashboardContent() {
 
   return (
     <PageTransition>
-      <div className="min-h-screen w-full bg-theme-primary text-theme-secondary font-mono relative flex flex-col overflow-hidden">
+      <div className="min-h-screen w-full bg-theme-primary text-theme-secondary font-mono relative flex flex-col">
         <GlobalEffects opacity={0.12} />
 
         {/* CRT Scanline Overlay */}

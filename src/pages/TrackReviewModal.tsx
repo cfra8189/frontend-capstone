@@ -354,7 +354,7 @@ export default function TrackReviewModal({ isOpen, onClose, reviewId, initialFol
                                             type="text"
                                             value={trackName}
                                             onChange={(e) => setTrackName(e.target.value)}
-                                            className="w-full bg-theme-primary border border-theme p-2 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-colors placeholder-dark"
+                                            className="w-full bg-theme-tertiary border border-theme p-3 text-sm font-mono text-theme-primary outline-none focus:border-accent transition-all placeholder-theme-muted/50 rounded-sm"
                                             placeholder="Enter track name..."
                                         />
                                     </div>
@@ -365,7 +365,7 @@ export default function TrackReviewModal({ isOpen, onClose, reviewId, initialFol
                                                 type="text"
                                                 value={key}
                                                 onChange={(e) => setKey(e.target.value)}
-                                                className="w-full bg-theme-primary border border-theme p-2 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-colors placeholder-dark"
+                                                className="w-full bg-theme-tertiary border border-theme p-3 text-sm font-mono text-theme-primary outline-none focus:border-accent transition-all placeholder-theme-muted/50 rounded-sm"
                                                 placeholder="C# Min"
                                             />
                                         </div>
@@ -375,7 +375,7 @@ export default function TrackReviewModal({ isOpen, onClose, reviewId, initialFol
                                                 type="number"
                                                 value={bpm}
                                                 onChange={(e) => setBpm(e.target.value)}
-                                                className="w-full bg-theme-primary border border-theme p-2 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-colors placeholder-dark"
+                                                className="w-full bg-theme-tertiary border border-theme p-3 text-sm font-mono text-theme-primary outline-none focus:border-accent transition-all placeholder-theme-muted/50 rounded-sm"
                                                 placeholder="140"
                                             />
                                         </div>
@@ -394,7 +394,7 @@ export default function TrackReviewModal({ isOpen, onClose, reviewId, initialFol
                                             type="text"
                                             value={audioUrl}
                                             onChange={(e) => setAudioUrl(e.target.value)}
-                                            className="flex-1 bg-theme-primary border border-theme p-2 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-colors placeholder-dark"
+                                            className="flex-1 bg-theme-tertiary border border-theme p-3 text-sm font-mono text-theme-primary outline-none focus:border-accent transition-all placeholder-theme-muted/50 rounded-sm"
                                             placeholder="Paste audio URL..."
                                         />
                                         <button
@@ -453,7 +453,7 @@ export default function TrackReviewModal({ isOpen, onClose, reviewId, initialFol
                                     <select
                                         value={selectedFolder}
                                         onChange={(e) => setSelectedFolder(e.target.value)}
-                                        className="w-full bg-theme-primary border border-theme p-2 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-colors"
+                                        className="w-full bg-theme-tertiary border border-theme p-3 text-sm font-mono text-theme-primary outline-none focus:border-accent transition-all rounded-sm appearance-none cursor-pointer"
                                     >
                                         <option value="">-- Select --</option>
                                         {folders.map((folder) => (
@@ -515,7 +515,7 @@ export default function TrackReviewModal({ isOpen, onClose, reviewId, initialFol
                                                     value={marker.lyrics}
                                                     onChange={(e) => updateSectionLyrics(index, e.target.value)}
                                                     rows={3}
-                                                    className="w-full bg-theme-primary/50 border border-theme/20 p-3 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-colors resize-none placeholder-dark"
+                                                    className="w-full bg-theme-tertiary/50 border border-theme/20 p-3 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-all resize-none placeholder-theme-muted/50 rounded-sm"
                                                     placeholder={`Write lyrics for ${marker.label}...`}
                                                 />
                                             </div>
@@ -535,7 +535,7 @@ export default function TrackReviewModal({ isOpen, onClose, reviewId, initialFol
                                         value={commentInput}
                                         onChange={(e) => setCommentInput(e.target.value)}
                                         onKeyPress={(e) => e.key === "Enter" && addComment()}
-                                        className="flex-1 bg-theme-primary border border-theme p-2 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-colors placeholder-dark"
+                                        className="flex-1 bg-theme-tertiary border border-theme p-3 text-sm font-mono text-theme-primary outline-none focus:border-accent transition-all placeholder-theme-muted/50 rounded-sm"
                                         placeholder="Add note at current time..."
                                     />
                                     <button

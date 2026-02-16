@@ -292,7 +292,7 @@ export default function CreativeSpaceContent() {
     }
 
     return (
-        <div className="flex flex-col h-full bg-transparent overflow-hidden">
+        <div className="flex flex-col h-full bg-transparent">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2 p-3 sm:p-4 border-b border-theme/10 bg-theme-primary/5">
                 <div>
                     <h1 className="text-sm sm:text-base font-bold uppercase tracking-[0.3em] text-theme-primary">Creative Space</h1>
