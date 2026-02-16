@@ -298,8 +298,15 @@ export default function TrackReviewModal({ isOpen, onClose, reviewId, initialFol
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[200] flex items-center justify-center p-4">
-            <div className="bg-theme-secondary/95 border border-theme w-full max-w-6xl h-[90vh] flex flex-col shadow-2xl rounded-sm overflow-hidden relative">
+    return (
+        <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
+            onClick={onClose}
+        >
+            <div
+                className="bg-theme-secondary/95 border border-theme w-full max-w-6xl h-[90vh] flex flex-col shadow-2xl rounded-sm overflow-hidden relative animate-in fade-in zoom-in-95 duration-200"
+                onClick={(e) => e.stopPropagation()}
+            >
 
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-theme/20 bg-theme-primary/10">
