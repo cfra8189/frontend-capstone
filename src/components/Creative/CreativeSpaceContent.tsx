@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../hooks/use-auth";
 import { useUpload } from "../../hooks/use-upload";
+import PremiumEmbed from "../PremiumEmbed";
 
 interface Note {
     id: number;
@@ -262,23 +263,11 @@ export default function CreativeSpaceContent() {
             url.includes("twitter.com") || url.includes("x.com") ||
             url.includes("youtube.com") || url.includes("youtu.be") ||
             url.includes("spotify.com") || url.includes("soundcloud.com") ||
-            url.match(/\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i);
+            url.includes("instagram.com") || url.includes("tiktok.com") ||
+            url.match(/\.(jpg|jpeg|png|gif|webp|mp4|webm|vimeo)(\?.*)?$/i);
 
         if (isSocial) {
-            // return <PremiumEmbed url={url} />;
-            return (
-                <a
-                    href={url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block p-4 rounded-xl bg-theme-tertiary/20 border border-white/5 hover:border-accent/30 transition-colors mb-4"
-                >
-                    <div className="flex items-center justify-between">
-                        <span className="text-xs text-theme-muted truncate mr-2">{url}</span>
-                        <span className="text-accent">→</span>
-                    </div>
-                </a>
-            );
+            return <PremiumEmbed url={url} />;
         }
 
         // Default: show link

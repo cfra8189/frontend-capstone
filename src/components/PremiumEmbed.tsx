@@ -77,16 +77,49 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
 
     const isVideo = data.type === "video" || !!data.html;
     const isPinterest = url.includes("pin.it") || url.includes("pinterest");
+    const isTwitter = url.includes("twitter.com") || url.includes("x.com");
+
+    useEffect(() => {
+        if (!loading && data?.html) {
+            // Pinterest re-parsing
+            if (isPinterest && (window as any).PinUtils) {
+                (window as any).PinUtils.build();
+            }
+
+            // Twitter re-parsing
+            if (isTwitter) {
+                if ((window as any).twttr && (window as any).twttr.widgets) {
+                    (window as any).twttr.widgets.load();
+                } else {
+                    const script = document.createElement("script");
+                    script.src = "https://platform.twitter.com/widgets.js";
+                    script.async = true;
+                    document.body.appendChild(script);
+                }
+            }
+        }
+    }, [loading, data, isPinterest, isTwitter]);
+
+    // Load Pinterest SDK if needed
+    useEffect(() => {
+        if (isPinterest && !(window as any).PinUtils) {
+            const script = document.createElement("script");
+            script.src = "//assets.pinterest.com/js/pinit.js";
+            script.async = true;
+            script.setAttribute("data-pin-build", "PinUtils.build");
+            document.body.appendChild(script);
+        }
+    }, [isPinterest]);
 
     return (
         <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="group relative overflow-hidden rounded-xl bg-theme-tertiary/20 border border-white/5 hover:border-accent/30 transition-all duration-500 mb-4 backdrop-blur-md shadow-2xl"
+            className={`group relative overflow-hidden rounded-xl bg-theme-tertiary/20 border border-white/5 hover:border-accent/30 transition-all duration-500 mb-4 backdrop-blur-md shadow-2xl ${isPinterest ? 'max-w-md mx-auto' : ''}`}
         >
             {/* Media Content */}
-            <div className="relative aspect-auto min-h-[100px] overflow-hidden">
-                {data.thumbnail_url ? (
+            <div className={`relative overflow-hidden ${isVideo && !isPinterest && !isTwitter ? 'aspect-video' : 'aspect-auto min-h-[100px]'}`}>
+                {data.thumbnail_url && !data.html ? (
                     <img
                         src={data.thumbnail_url}
                         alt={data.title || "Social Media Content"}
@@ -95,7 +128,7 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
                     />
                 ) : data.html ? (
                     <div
-                        className="w-full preview-html [&>iframe]:w-full [&>iframe]:aspect-video"
+                        className={`w-full preview-html [&>iframe]:w-full [&>iframe]:aspect-video ${isPinterest ? 'flex justify-center p-4' : ''}`}
                         dangerouslySetInnerHTML={{ __html: data.html }}
                     />
                 ) : (
@@ -105,7 +138,7 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
                 )}
 
                 {/* Overlay for Pinterest/Images */}
-                {!isVideo && (
+                {(!isVideo || isPinterest) && !data.html && (
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                 )}
             </div>
@@ -115,11 +148,11 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
                 <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
                         <h4 className="text-xs font-bold text-white truncate mb-0.5">
-                            {data.title || (isPinterest ? "Pinterest Content" : "Shared Link")}
+                            {data.title || (isPinterest ? "Pinterest Content" : isTwitter ? "Post" : "Shared Link")}
                         </h4>
                         <div className="flex items-center gap-2">
                             <span className="text-[10px] text-accent uppercase tracking-wider font-semibold">
-                                {data.provider_name || (isPinterest ? "Pinterest" : "Social")}
+                                {data.provider_name || (isPinterest ? "Pinterest" : isTwitter ? "Twitter" : "Social")}
                             </span>
                             {data.author_name && (
                                 <span className="text-[10px] text-theme-muted truncate">
