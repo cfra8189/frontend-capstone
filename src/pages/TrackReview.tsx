@@ -5,6 +5,7 @@ import { useAuth } from "../hooks/use-auth";
 interface StructureMarker {
     timestamp: number;
     label: string;
+    lyrics: string; // Lyrics for this specific section
 }
 
 interface Comment {
@@ -19,7 +20,7 @@ interface TrackReviewData {
     key: string;
     bpm: number | string;
     audioUrl: string;
-    lyrics: string;
+    lyrics: string; // Keep for backward compatibility
     structureMarkers: StructureMarker[];
     comments: Comment[];
     folderId: string;
@@ -39,7 +40,7 @@ export default function TrackReview() {
     const [key, setKey] = useState("");
     const [bpm, setBpm] = useState<number | string>("");
     const [audioUrl, setAudioUrl] = useState("");
-    const [lyrics, setLyrics] = useState("");
+    const [lyrics, setLyrics] = useState(""); // Deprecated, kept for backward compatibility
     const [structureMarkers, setStructureMarkers] = useState<StructureMarker[]>([]);
     const [comments, setComments] = useState<Comment[]>([]);
     const [commentInput, setCommentInput] = useState("");
@@ -59,13 +60,18 @@ export default function TrackReview() {
 
     async function loadFolders() {
         try {
+            console.log("[Track Review] Fetching folders...");
             const res = await fetch("/api/folders");
+            console.log("[Track Review] Folders response status:", res.status);
             if (res.ok) {
                 const data = await res.json();
+                console.log("[Track Review] Folders data:", data);
                 setFolders(data.folders || []);
+            } else {
+                console.error("[Track Review] Failed to load folders, status:", res.status);
             }
         } catch (error) {
-            console.error("Failed to load folders:", error);
+            console.error("[Track Review] Failed to load folders:", error);
         }
     }
 
@@ -89,9 +95,13 @@ export default function TrackReview() {
     }
 
     function loadAudio() {
+        console.log("[Track Review] Loading audio, URL:", audioUrl);
         if (audioRef.current && audioUrl) {
             audioRef.current.src = audioUrl;
             audioRef.current.load();
+            console.log("[Track Review] Audio loaded successfully");
+        } else {
+            console.error("[Track Review] Cannot load audio - missing ref or URL");
         }
     }
 
@@ -133,11 +143,17 @@ export default function TrackReview() {
 
     function markStructure(label: string) {
         const timestamp = audioRef.current?.currentTime || 0;
-        setStructureMarkers([...structureMarkers, { timestamp, label }]);
+        setStructureMarkers([...structureMarkers, { timestamp, label, lyrics: "" }]);
     }
 
     function removeStructureMarker(index: number) {
         setStructureMarkers(structureMarkers.filter((_, i) => i !== index));
+    }
+
+    function updateSectionLyrics(index: number, lyrics: string) {
+        const updated = [...structureMarkers];
+        updated[index].lyrics = lyrics;
+        setStructureMarkers(updated);
     }
 
     function addComment() {
@@ -272,7 +288,7 @@ export default function TrackReview() {
                                     type="text"
                                     value={trackName}
                                     onChange={(e) => setTrackName(e.target.value)}
-                                    className="w-full bg-theme-primary border border-theme p-2 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-colors"
+                                    className="w-full bg-theme-primary border border-theme p-2 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-colors placeholder:text-gray-700"
                                     placeholder="Enter track name..."
                                 />
                             </div>
@@ -282,7 +298,7 @@ export default function TrackReview() {
                                     type="text"
                                     value={key}
                                     onChange={(e) => setKey(e.target.value)}
-                                    className="w-full bg-theme-primary border border-theme p-2 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-colors"
+                                    className="w-full bg-theme-primary border border-theme p-2 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-colors placeholder:text-gray-700"
                                     placeholder="e.g., C# Minor"
                                 />
                             </div>
@@ -292,7 +308,7 @@ export default function TrackReview() {
                                     type="number"
                                     value={bpm}
                                     onChange={(e) => setBpm(e.target.value)}
-                                    className="w-full bg-theme-primary border border-theme p-2 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-colors"
+                                    className="w-full bg-theme-primary border border-theme p-2 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-colors placeholder:text-gray-700"
                                     placeholder="e.g., 140"
                                 />
                             </div>
@@ -308,7 +324,7 @@ export default function TrackReview() {
                                     type="text"
                                     value={audioUrl}
                                     onChange={(e) => setAudioUrl(e.target.value)}
-                                    className="flex-1 bg-theme-primary border border-theme p-2 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-colors"
+                                    className="flex-1 bg-theme-primary border border-theme p-2 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-colors placeholder:text-gray-700"
                                     placeholder="Paste audio URL (Google Drive, Dropbox, SoundCloud, etc.)"
                                 />
                                 <button
@@ -354,10 +370,10 @@ export default function TrackReview() {
                         </div>
                     </div>
 
-                    {/* Structure Markers */}
+                    {/* Song Structure & Lyrics */}
                     <div className="bg-theme-secondary/40 border border-theme p-4 rounded-sm">
-                        <h2 className="text-xs font-bold uppercase tracking-wider text-accent mb-3">Song Structure</h2>
-                        <div className="flex flex-wrap gap-2 mb-3">
+                        <h2 className="text-xs font-bold uppercase tracking-wider text-accent mb-3">Song Structure & Lyrics</h2>
+                        <div className="flex flex-wrap gap-2 mb-4">
                             {["Intro", "Verse", "Pre-Chorus", "Hook", "Chorus", "Bridge", "Outro"].map((label) => (
                                 <button
                                     key={label}
@@ -368,39 +384,42 @@ export default function TrackReview() {
                                 </button>
                             ))}
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-4">
                             {structureMarkers.sort((a, b) => a.timestamp - b.timestamp).map((marker, index) => (
-                                <div key={index} className="flex items-center justify-between bg-theme-primary/50 p-2 rounded-sm border border-theme/10">
-                                    <div className="flex items-center gap-3">
+                                <div key={index} className="bg-theme-primary/50 p-4 rounded-sm border border-theme/10">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                onClick={() => seekTo(marker.timestamp)}
+                                                className="text-[10px] font-mono text-accent hover:underline"
+                                            >
+                                                {formatTime(marker.timestamp)}
+                                            </button>
+                                            <span className="text-xs text-theme-primary font-bold uppercase tracking-wide">{marker.label}</span>
+                                        </div>
                                         <button
-                                            onClick={() => seekTo(marker.timestamp)}
-                                            className="text-[10px] font-mono text-accent hover:underline"
+                                            onClick={() => removeStructureMarker(index)}
+                                            className="text-theme-muted hover:text-red-500 text-sm"
                                         >
-                                            {formatTime(marker.timestamp)}
+                                            ×
                                         </button>
-                                        <span className="text-xs text-theme-primary font-bold uppercase tracking-wide">{marker.label}</span>
                                     </div>
-                                    <button
-                                        onClick={() => removeStructureMarker(index)}
-                                        className="text-theme-muted hover:text-red-500 text-sm"
-                                    >
-                                        ×
-                                    </button>
+                                    <textarea
+                                        value={marker.lyrics}
+                                        onChange={(e) => updateSectionLyrics(index, e.target.value)}
+                                        rows={4}
+                                        className="w-full bg-theme-primary border border-theme/20 p-3 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-colors resize-none placeholder:text-gray-700"
+                                        placeholder={`Write lyrics for ${marker.label}...`}
+                                    />
                                 </div>
                             ))}
+                            {structureMarkers.length === 0 && (
+                                <div className="text-center py-8 text-theme-muted text-xs">
+                                    <p className="uppercase tracking-widest mb-1">No sections added yet</p>
+                                    <p className="text-[10px] opacity-50">Click a structure button above to add a section</p>
+                                </div>
+                            )}
                         </div>
-                    </div>
-
-                    {/* Lyrics */}
-                    <div className="bg-theme-secondary/40 border border-theme p-4 rounded-sm">
-                        <h2 className="text-xs font-bold uppercase tracking-wider text-accent mb-3">Lyrics</h2>
-                        <textarea
-                            value={lyrics}
-                            onChange={(e) => setLyrics(e.target.value)}
-                            rows={12}
-                            className="w-full bg-theme-primary border border-theme p-3 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-colors resize-none"
-                            placeholder="Write or paste lyrics here..."
-                        />
                     </div>
 
                     {/* Comments */}
@@ -412,7 +431,7 @@ export default function TrackReview() {
                                 value={commentInput}
                                 onChange={(e) => setCommentInput(e.target.value)}
                                 onKeyPress={(e) => e.key === "Enter" && addComment()}
-                                className="flex-1 bg-theme-primary border border-theme p-2 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-colors"
+                                className="flex-1 bg-theme-primary border border-theme p-2 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-colors placeholder:text-gray-700"
                                 placeholder="Add note... (use @mentions for collaborators)"
                             />
                             <button

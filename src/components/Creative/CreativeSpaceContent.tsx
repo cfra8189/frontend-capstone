@@ -292,7 +292,7 @@ export default function CreativeSpaceContent() {
                         onClick={() => setLocation("/track-review")}
                         className="bg-theme-secondary/30 text-theme-primary border border-theme/20 text-[9px] font-bold px-3 py-1.5 rounded-sm uppercase tracking-widest hover:bg-theme-secondary transition-all"
                     >
-                        🎵 Track Review
+                        Track Review
                     </button>
                     <button
                         onClick={() => { setEditingNote(null); setUploadedMediaUrl(""); setShowModal(true); }}
