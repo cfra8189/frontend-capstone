@@ -259,7 +259,8 @@ export default function CreativeSpaceContent() {
         if (!url) return null;
 
         // Pinterest embed iframe (user pastes the embed code)
-        const pinterestEmbedMatch = url.match(/assets\.pinterest\.com\/ext\/embed\.html\?id=(\d+)/);
+        // Match both standard and international domains, case-insensitive
+        const pinterestEmbedMatch = url.match(/assets\.pinterest\.[a-z.]{2,}\/ext\/embed\.html\?id=(\d+)/i);
         if (pinterestEmbedMatch) {
             return (
                 <div className="media-embed mb-3 w-full h-[500px]">
@@ -273,7 +274,8 @@ export default function CreativeSpaceContent() {
         }
 
         // Pinterest URL
-        const pinterestPinMatch = url.match(/pinterest\.com\/pin\/(\d+)/);
+        // Match pinterest.com, pinterest.co.uk, etc.
+        const pinterestPinMatch = url.match(/pinterest\.[a-z.]{2,}\/pin\/(\d+)/i);
         if (pinterestPinMatch) {
             return (
                 <div className="media-embed mb-3 w-full h-[500px]">
