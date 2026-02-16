@@ -23,6 +23,30 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
     const isTwitter = url.includes("twitter.com") || url.includes("x.com");
 
     useEffect(() => {
+        let cancelled = false;
+        async function load() {
+            setLoading(true);
+            setError(false);
+            try {
+                const res = await fetch(`/api/oembed?url=${encodeURIComponent(url)}`);
+                if (!res.ok) throw new Error("Failed to load");
+                const json = await res.json();
+                if (!cancelled) {
+                    setData(json);
+                    setLoading(false);
+                }
+            } catch (err) {
+                if (!cancelled) {
+                    setError(true);
+                    setLoading(false);
+                }
+            }
+        }
+        load();
+        return () => { cancelled = true; };
+    }, [url]);
+
+    useEffect(() => {
         if (!loading && data?.html) {
             // Pinterest re-parsing
             if (isPinterest && (window as any).PinUtils) {
