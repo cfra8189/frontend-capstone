@@ -319,7 +319,7 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, loading, onE
                 <div className="w-28 hidden sm:block">STATUS</div>
 
                 <div
-                    className="w-20 hidden md:block cursor-pointer hover:text-theme-primary transition-colors flex items-center gap-2 group min-w-0"
+                    className="w-24 hidden md:block cursor-pointer hover:text-theme-primary transition-colors flex items-center gap-2 group min-w-0"
                     onClick={() => handleSort('updatedAt')}
                 >
                     <span className="whitespace-nowrap">UPDATED</span>

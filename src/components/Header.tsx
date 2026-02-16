@@ -247,7 +247,7 @@ export default function Header({ showNav = true }: HeaderProps) {
             <div className="flex items-center gap-2 sm:gap-4">
               <button
                 onClick={toggleTheme}
-                className="text-[9px] sm:text-[10px] font-mono font-bold text-theme-primary px-3 py-1.5 hover:bg-theme-secondary/50 rounded-sm transition-all uppercase tracking-[0.3em] opacity-80 hover:opacity-100 border border-theme/10 hover:border-theme/30"
+                className="text-[9px] sm:text-[10px] font-mono font-bold text-theme-primary px-3 py-1.5 hover:bg-theme-secondary/50 transition-all uppercase tracking-[0.3em] opacity-80 hover:opacity-100"
                 title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
               >
                 [{theme === 'dark' ? 'light' : 'dark'}]
