@@ -19,6 +19,9 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
 
+    const isPinterest = url.includes("pin.it") || url.includes("pinterest");
+    const isTwitter = url.includes("twitter.com") || url.includes("x.com");
+
     useEffect(() => {
         let cancelled = false;
         async function load() {
@@ -42,6 +45,38 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
         load();
         return () => { cancelled = true; };
     }, [url]);
+
+    useEffect(() => {
+        if (!loading && data?.html) {
+            // Pinterest re-parsing
+            if (isPinterest && (window as any).PinUtils) {
+                (window as any).PinUtils.build();
+            }
+
+            // Twitter re-parsing
+            if (isTwitter) {
+                if ((window as any).twttr && (window as any).twttr.widgets) {
+                    (window as any).twttr.widgets.load();
+                } else {
+                    const script = document.createElement("script");
+                    script.src = "https://platform.twitter.com/widgets.js";
+                    script.async = true;
+                    document.body.appendChild(script);
+                }
+            }
+        }
+    }, [loading, data, isPinterest, isTwitter]);
+
+    // Load Pinterest SDK if needed
+    useEffect(() => {
+        if (isPinterest && !(window as any).PinUtils) {
+            const script = document.createElement("script");
+            script.src = "//assets.pinterest.com/js/pinit.js";
+            script.async = true;
+            script.setAttribute("data-pin-build", "PinUtils.build");
+            document.body.appendChild(script);
+        }
+    }, [isPinterest]);
 
     if (loading) {
         return (
@@ -76,40 +111,6 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
     }
 
     const isVideo = data.type === "video" || !!data.html;
-    const isPinterest = url.includes("pin.it") || url.includes("pinterest");
-    const isTwitter = url.includes("twitter.com") || url.includes("x.com");
-
-    useEffect(() => {
-        if (!loading && data?.html) {
-            // Pinterest re-parsing
-            if (isPinterest && (window as any).PinUtils) {
-                (window as any).PinUtils.build();
-            }
-
-            // Twitter re-parsing
-            if (isTwitter) {
-                if ((window as any).twttr && (window as any).twttr.widgets) {
-                    (window as any).twttr.widgets.load();
-                } else {
-                    const script = document.createElement("script");
-                    script.src = "https://platform.twitter.com/widgets.js";
-                    script.async = true;
-                    document.body.appendChild(script);
-                }
-            }
-        }
-    }, [loading, data, isPinterest, isTwitter]);
-
-    // Load Pinterest SDK if needed
-    useEffect(() => {
-        if (isPinterest && !(window as any).PinUtils) {
-            const script = document.createElement("script");
-            script.src = "//assets.pinterest.com/js/pinit.js";
-            script.async = true;
-            script.setAttribute("data-pin-build", "PinUtils.build");
-            document.body.appendChild(script);
-        }
-    }, [isPinterest]);
 
     return (
         <motion.div
