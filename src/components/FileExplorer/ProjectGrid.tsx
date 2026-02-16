@@ -303,29 +303,33 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, loading, onE
                 </div>
 
                 <div
-                    className="flex-1 cursor-pointer hover:text-theme-primary transition-colors flex items-center gap-2 group"
+                    className="flex-1 cursor-pointer hover:text-theme-primary transition-colors flex items-center gap-2 group min-w-0"
                     onClick={() => handleSort('title')}
                 >
-                    NAME
-                    {sortKey === 'title' ? (
-                        sortOrder === 'asc' ? <ArrowUp size={8} className="text-theme-primary" /> : <ArrowDown size={8} className="text-theme-primary" />
-                    ) : (
-                        <ArrowUp size={8} className="opacity-0 group-hover:opacity-20" />
-                    )}
+                    <span className="whitespace-nowrap">NAME</span>
+                    <span className="flex-shrink-0">
+                        {sortKey === 'title' ? (
+                            sortOrder === 'asc' ? <ArrowUp size={8} className="text-theme-primary" /> : <ArrowDown size={8} className="text-theme-primary" />
+                        ) : (
+                            <ArrowUp size={8} className="opacity-0 group-hover:opacity-20" />
+                        )}
+                    </span>
                 </div>
 
                 <div className="w-28 hidden sm:block">STATUS</div>
 
                 <div
-                    className="w-20 hidden md:block cursor-pointer hover:text-theme-primary transition-colors flex items-center gap-2 group"
+                    className="w-20 hidden md:block cursor-pointer hover:text-theme-primary transition-colors flex items-center gap-2 group min-w-0"
                     onClick={() => handleSort('updatedAt')}
                 >
-                    UPDATED
-                    {sortKey === 'updatedAt' ? (
-                        sortOrder === 'asc' ? <ArrowUp size={8} className="text-theme-primary" /> : <ArrowDown size={8} className="text-theme-primary" />
-                    ) : (
-                        <ArrowUp size={8} className="opacity-0 group-hover:opacity-20" />
-                    )}
+                    <span className="whitespace-nowrap">UPDATED</span>
+                    <span className="flex-shrink-0">
+                        {sortKey === 'updatedAt' ? (
+                            sortOrder === 'asc' ? <ArrowUp size={8} className="text-theme-primary" /> : <ArrowDown size={8} className="text-theme-primary" />
+                        ) : (
+                            <ArrowUp size={8} className="opacity-0 group-hover:opacity-20" />
+                        )}
+                    </span>
                 </div>
 
                 <div className="flex-1 hidden lg:block">NOTES</div>
