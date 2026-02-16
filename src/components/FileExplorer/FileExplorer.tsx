@@ -131,18 +131,18 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                 onSuccess={onRefresh}
             />
 
-            <div className="w-full bg-theme-secondary/20 backdrop-blur-2xl text-theme-primary rounded-lg border border-theme/30 shadow-2xl relative z-10 transition-all duration-500 flex flex-col h-[calc(100vh-140px)] overflow-hidden">
+            <div className="w-full bg-theme-secondary/10 backdrop-blur-3xl text-theme-primary rounded-sm border border-theme/15 shadow-2xl relative z-10 transition-all duration-500 flex flex-col h-[calc(100vh-140px)] md:h-[calc(100vh-180px)] overflow-hidden">
                 {/* Tabs */}
-                <div className="flex border-b border-theme/30 bg-theme-primary/10 backdrop-blur-md">
+                <div className="flex border-b border-theme/10 bg-theme-primary/5 backdrop-blur-md">
                     <button
                         onClick={() => setView('files')}
-                        className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-[0.2em] transition-all hover:bg-theme-secondary/20 ${view === 'files' ? 'text-accent border-b-2 border-accent bg-accent/5' : 'text-theme-muted border-b-2 border-transparent'}`}
+                        className={`flex-1 py-2 text-[9px] font-bold uppercase tracking-[0.3em] transition-all hover:bg-theme-secondary/10 ${view === 'files' ? 'text-accent border-b border-accent bg-accent/5' : 'text-theme-muted border-b border-transparent'}`}
                     >
                         PROJECT_FILES
                     </button>
                     <button
                         onClick={() => setView('creative')}
-                        className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-[0.2em] transition-all hover:bg-theme-secondary/20 ${view === 'creative' ? 'text-accent border-b-2 border-accent bg-accent/5' : 'text-theme-muted border-b-2 border-transparent'}`}
+                        className={`flex-1 py-2 text-[9px] font-bold uppercase tracking-[0.3em] transition-all hover:bg-theme-secondary/10 ${view === 'creative' ? 'text-accent border-b border-accent bg-accent/5' : 'text-theme-muted border-b border-transparent'}`}
                     >
                         CREATIVE_SPACE
                     </button>
@@ -174,33 +174,35 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                             className={`flex-1 flex flex-col min-w-0 relative transition-all duration-300 ${isOverGrid ? 'bg-theme-primary/10 ring-2 ring-inset ring-theme-primary/30' : ''}`}
                         >
                             {/* Interior Toolbar */}
-                            <div className="border-b border-theme/20 p-3 flex flex-wrap items-center justify-between gap-3 bg-transparent backdrop-blur-md">
-                                <div className="flex items-center gap-3">
+                            <div className="border-b border-theme/10 p-2 sm:p-3 flex items-center justify-between gap-3 bg-theme-primary/5 backdrop-blur-md">
+                                <div className="flex items-center gap-2 sm:gap-3">
                                     <button
                                         onClick={() => setShowMobileSidebar(true)}
-                                        className="md:hidden p-1 text-theme-muted hover:text-theme-primary transition-colors"
+                                        className="md:hidden p-1.5 text-theme-muted hover:text-theme-primary transition-all rounded hover:bg-theme-secondary/20"
                                     >
-                                        <AlignLeft size={16} />
+                                        <AlignLeft size={14} />
                                     </button>
-                                    <div className="w-1 h-3 bg-theme-primary animate-pulse" />
-                                    <span className="text-[10px] font-mono font-bold text-theme-primary uppercase tracking-[0.3em] truncate max-w-[120px] sm:max-w-none">
-                                        {selectedFolderId ? folders.find(f => f._id === selectedFolderId)?.name || 'Folder' : 'ROOT_PROJECTS'}
+                                    <div className="w-[1px] h-3 bg-accent/50 animate-pulse hidden xs:block" />
+                                    <span className="text-[9px] sm:text-[10px] font-mono font-bold text-accent uppercase tracking-[0.4em] truncate max-w-[100px] sm:max-w-none">
+                                        {selectedFolderId ? folders.find(f => f._id === selectedFolderId)?.name || 'Folder' : 'VAULT_ROOT'}
                                     </span>
                                 </div>
-                                <div className="flex gap-2">
+                                <div className="flex gap-1.5 sm:gap-2">
                                     <button
                                         onClick={() => setShowCreateFolder(true)}
-                                        className="flex items-center gap-2 px-3 py-1 border border-theme hover:bg-theme-secondary hover:text-theme-primary transition-all text-[9px] font-mono uppercase tracking-widest group"
+                                        className="flex items-center gap-1.5 px-2 py-1 border border-theme/20 hover:border-theme-primary/50 hover:bg-theme-secondary/30 transition-all text-[8px] sm:text-[9px] font-mono uppercase tracking-widest group"
+                                        title="New Folder"
                                     >
-                                        <FolderPlus size={12} className="opacity-50 group-hover:opacity-100" />
-                                        <span>NEW_FOLDER</span>
+                                        <FolderPlus size={10} className="text-theme-muted group-hover:text-theme-primary transition-colors" />
+                                        <span className="hidden xs:inline">NEW_DIR</span>
                                     </button>
                                     <button
                                         onClick={() => onProjectEdit(null as any)}
-                                        className="flex items-center gap-2 px-3 py-1 bg-theme-primary text-theme-primary border border-theme hover:bg-theme-secondary transition-all text-[9px] font-bold font-mono uppercase tracking-widest group"
+                                        className="flex items-center gap-1.5 px-2 py-1 bg-accent/10 text-accent border border-accent/20 hover:bg-accent hover:text-theme-primary transition-all text-[8px] sm:text-[9px] font-bold font-mono uppercase tracking-widest group"
                                     >
-                                        <Plus size={12} />
-                                        <span>NEW_PROJECT</span>
+                                        <Plus size={10} />
+                                        <span className="hidden xs:inline">NEW_PRJ</span>
+                                        <span className="xs:hidden">PRJ+</span>
                                     </button>
                                 </div>
                             </div>

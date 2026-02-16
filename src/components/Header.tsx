@@ -3,7 +3,7 @@ import LogoGif from "./LogoGif";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "../hooks/use-auth";
 import { useTheme } from "../context/ThemeContext";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Sun, Moon } from "lucide-react";
 
 interface HeaderProps {
   showNav?: boolean;
@@ -145,15 +145,22 @@ export default function Header({ showNav = true }: HeaderProps) {
     <header className="w-full border-b border-theme p-3 sm:p-4 relative">
       <div className="w-full flex items-center justify-between gap-4 px-2 sm:px-6">
         <Link href="/">
-          <div className="flex items-center gap-2 sm:gap-4 cursor-pointer">
-            <LogoGif className="w-6 h-6 sm:w-8 sm:h-8" />
+          <div className="flex items-center gap-2 sm:gap-4 cursor-pointer group">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 transition-transform group-hover:scale-105">
+              <LogoGif />
+            </div>
             <div className="flex flex-col">
-              <span className="text-lg sm:text-xl brand-font tracking-widest text-theme-primary leading-none">BOX</span>
-              {user && (
-                <span className="text-[8px] font-mono text-theme-muted uppercase tracking-[0.2em] mt-0.5">
-                  ID: {user.boxCode || 'GUEST-000000'} // <span className="text-theme-primary animate-pulse">VAULT_ACTIVE</span>
+              <h1 className="text-sm sm:text-lg font-bold brand-font tracking-[0.3em] leading-tight text-theme-primary">
+                BOX
+              </h1>
+              <div className="flex items-center gap-2">
+                <span className="text-[7px] sm:text-[9px] font-mono text-theme-muted tracking-widest uppercase">
+                  ID: BOX-WFKZY6 //
                 </span>
-              )}
+                <span className="text-[7px] sm:text-[9px] font-mono text-accent tracking-widest uppercase animate-pulse">
+                  VAULT_ACTIVE
+                </span>
+              </div>
             </div>
           </div>
         </Link>
@@ -237,32 +244,43 @@ export default function Header({ showNav = true }: HeaderProps) {
               ))}
             </nav>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-4">
               <button
                 onClick={toggleTheme}
-                className="text-theme-muted hover:text-theme-primary text-xs font-mono transition-colors"
-                title="Toggle theme"
+                className="p-2 rounded-full hover:bg-theme-secondary/50 transition-all text-theme-primary flex items-center justify-center opacity-80 hover:opacity-100"
+                title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
               >
-                [{theme}]
+                {theme === 'dark' ? (
+                  <Sun size={15} className="sm:w-4 sm:h-4" />
+                ) : (
+                  <Moon size={15} className="sm:w-4 sm:h-4" />
+                )}
               </button>
 
-              <a href="/api/logout" className="hidden sm:inline text-theme-muted hover:text-theme-primary text-xs">
-                Logout
-              </a>
-
-              <button
-                onClick={() => setMenuOpen(!menuOpen)}
-                className="xl:hidden p-1 text-theme-primary"
-                aria-label="Toggle menu"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  {menuOpen ? (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  ) : (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  )}
-                </svg>
-              </button>
+              {user ? (
+                <div className="flex items-center gap-4">
+                  <div className="hidden sm:flex flex-col items-end">
+                    <span className="text-[10px] font-bold text-accent tracking-widest uppercase">ACCESS_GRANTED</span>
+                    <span className="text-[8px] font-mono text-theme-muted uppercase">{user.displayName || user.email}</span>
+                  </div>
+                  <button
+                    onClick={() => setMenuOpen(!menuOpen)}
+                    className="p-2 transition-all text-theme-primary"
+                  >
+                    <div className="space-y-1.5 w-5 sm:w-6 transition-all group">
+                      <span className={`block h-[1px] bg-current transition-all ${menuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+                      <span className={`block h-[1px] bg-current transition-all ${menuOpen ? 'opacity-0' : ''}`} />
+                      <span className={`block h-[1px] bg-current transition-all ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+                    </div>
+                  </button>
+                </div>
+              ) : (
+                <Link href="/auth">
+                  <span className="text-xs font-bold border border-theme px-3 py-1.5 hover:bg-theme-secondary transition-all cursor-pointer tracking-widest">
+                    INITIALIZE_AUTH
+                  </span>
+                </Link>
+              )}
             </div>
           </>
         )}

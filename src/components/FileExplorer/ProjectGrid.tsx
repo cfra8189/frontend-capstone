@@ -107,7 +107,7 @@ const ProjectRow: React.FC<{
 
             {/* Title Column - Flexible width */}
             <div className="flex-1 min-w-0">
-                <Link href={`/project/${project.id}`} className="hover:underline block truncate font-bold font-mono text-[11px] uppercase tracking-wider text-theme-primary">
+                <Link href={`/project/${project.id}`} className="hover:text-accent block truncate font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-theme-primary transition-colors">
                     {project.title}
                 </Link>
             </div>
@@ -278,10 +278,15 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, loading, onE
 
     if (projects.length === 0) {
         return (
-            <div className="flex-1 flex flex-col items-center justify-center text-zinc-500">
-                <Layers size={48} className="mb-4 opacity-10" />
-                <p className="font-mono uppercase tracking-widest text-[10px]">No projects found</p>
-                <p className="text-[9px] font-mono opacity-30 mt-2 uppercase tracking-tighter">Drag projects here or initiate NEW_PROJECT</p>
+            <div className="flex-1 flex flex-col items-center justify-center text-theme-muted/40 p-10">
+                <div className="relative mb-6">
+                    <Layers size={32} className="opacity-20 animate-pulse" />
+                    <div className="absolute inset-0 bg-accent/5 blur-2xl rounded-full" />
+                </div>
+                <p className="font-mono uppercase tracking-[0.4em] text-[9px] mb-2">SYSTEM_IDLE</p>
+                <p className="text-[8px] font-mono opacity-30 text-center max-w-[200px] leading-relaxed uppercase tracking-widest">
+                    NO_PROJECTS_LOCATED_IN_VAULT. INITIATE_NEW_PRJ_TO_START_STREAM.
+                </p>
             </div>
         );
     }
@@ -289,11 +294,11 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, loading, onE
     return (
         <div className="flex flex-col w-full h-full overflow-y-auto custom-scrollbar">
             {/* Header Row */}
-            <div className="flex items-center gap-3 px-3 py-1.5 border-b border-theme/20 bg-theme-secondary/40 backdrop-blur-md sticky top-0 z-20 text-[8px] font-bold font-mono uppercase tracking-[0.2em] text-theme-muted select-none">
-                <div className="w-6 flex justify-center opacity-30">
+            <div className="flex items-center gap-3 px-3 py-2 border-b border-theme/10 bg-theme-primary/10 backdrop-blur-xl sticky top-0 z-20 text-[7px] sm:text-[8px] font-bold font-mono uppercase tracking-[0.3em] text-theme-muted/60 select-none">
+                <div className="w-6 flex justify-center opacity-20">
                     <AlignLeft size={10} />
                 </div>
-                <div className="hidden xs:flex w-8 justify-center opacity-30">
+                <div className="hidden xs:flex w-8 justify-center opacity-20">
                     <Music size={10} />
                 </div>
 

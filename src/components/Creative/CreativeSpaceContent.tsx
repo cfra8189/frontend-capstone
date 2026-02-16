@@ -239,7 +239,7 @@ export default function CreativeSpaceContent() {
     const sortedNotes = [...filteredNotes].sort((a, b) => {
         if (a.is_pinned && !b.is_pinned) return -1;
         if (!a.is_pinned && b.is_pinned) return 1;
-        return (a.sort_order || 0) - (b.sort_order || 0);
+        return (a.sortOrder || 0) - (b.sortOrder || 0);
     });
 
     // Pagination (client-side)
@@ -291,26 +291,26 @@ export default function CreativeSpaceContent() {
 
     return (
         <div className="flex flex-col h-full bg-transparent overflow-hidden">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 p-4 border-b border-theme/30 bg-theme-primary/10">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2 p-3 sm:p-4 border-b border-theme/10 bg-theme-primary/5">
                 <div>
-                    <h1 className="text-lg font-bold uppercase tracking-widest text-theme-primary">Creative Space</h1>
-                    <p className="text-xs text-theme-muted uppercase tracking-wider">Capture ideas & inspiration</p>
+                    <h1 className="text-sm sm:text-base font-bold uppercase tracking-[0.3em] text-theme-primary">Creative Space</h1>
+                    <p className="text-[9px] text-theme-muted uppercase tracking-widest opacity-60">Capture ideas & inspiration</p>
                 </div>
                 <button
                     onClick={() => { setEditingNote(null); setUploadedMediaUrl(""); setShowModal(true); }}
-                    className="btn-primary text-xs font-bold px-4 py-2 rounded-sm uppercase tracking-widest hover:bg-theme-secondary transition-all"
+                    className="bg-accent/10 text-accent border border-accent/20 text-[9px] font-bold px-3 py-1.5 rounded-sm uppercase tracking-widest hover:bg-accent hover:text-theme-primary transition-all self-start sm:self-auto"
                 >
-                    + New Note
+                    + NEW_ENTRY
                 </button>
             </div>
 
-            <div className="px-4 pb-2 border-b border-theme/20 mb-4 bg-theme-primary/5">
-                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-theme-muted scrollbar-track-transparent">
+            <div className="px-3 pb-2 border-b border-theme/5 mb-2 bg-theme-primary/5">
+                <div className="flex gap-1.5 overflow-x-auto pb-2 custom-scrollbar">
                     {categories.map(cat => (
                         <button
                             key={cat}
                             onClick={() => setActiveCategory(cat)}
-                            className={`px-3 py-1 rounded-sm text-[10px] font-mono uppercase tracking-widest whitespace-nowrap transition-all border ${activeCategory === cat ? "bg-theme-primary text-theme-primary border-theme-primary" : "bg-theme-tertiary text-theme-secondary border-transparent hover:border-theme"}`}
+                            className={`px-2.5 py-1 rounded-sm text-[9px] font-mono uppercase tracking-widest whitespace-nowrap transition-all border ${activeCategory === cat ? "bg-accent/10 text-accent border-accent/20" : "bg-theme-secondary/30 text-theme-muted border-transparent hover:border-theme/20"}`}
                         >
                             {cat}
                         </button>
