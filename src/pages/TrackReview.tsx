@@ -97,7 +97,18 @@ export default function TrackReview() {
     function loadAudio() {
         console.log("[Track Review] Loading audio, URL:", audioUrl);
         if (audioRef.current && audioUrl) {
-            audioRef.current.src = audioUrl;
+            let src = audioUrl;
+
+            // Handle Google Drive links
+            if (src.includes("drive.google.com")) {
+                const idMatch = src.match(/[-\w]{25,}/);
+                if (idMatch) {
+                    src = `https://drive.google.com/uc?export=download&id=${idMatch[0]}`;
+                    console.log("[Track Review] Converted Google Drive link:", src);
+                }
+            }
+
+            audioRef.current.src = src;
             audioRef.current.load();
             console.log("[Track Review] Audio loaded successfully");
         } else {

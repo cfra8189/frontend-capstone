@@ -53,6 +53,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     const [movingProjectId, setMovingProjectId] = useState<string | null>(null);
     const [movingProjectTitle, setMovingProjectTitle] = useState<string>('');
     const [view, setView] = useState<'files' | 'creative'>(initialView);
+    const [folderToDelete, setFolderToDelete] = useState<Folder | null>(null);
 
     const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
@@ -168,15 +169,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                                     bg-theme-secondary/95 md:bg-transparent backdrop-blur-2xl md:backdrop-blur-none
                                     border-r border-theme/20 md:border-r-0
                                 `}
-                            onDeleteFolder={async (folder) => {
-                                try {
-                                    await deleteFolder(folder);
-                                    success(`Folder "${folder.name}" deleted`);
-                                } catch (err) {
-                                    console.error('Failed to delete folder:', err);
-                                    error(err instanceof Error ? err.message : 'Failed to delete folder');
-                                }
-                            }}
+                            onDeleteFolder={(folder) => setFolderToDelete(folder)}
                             onRenameFolder={() => { }} // Sidebar handles its own renaming state
                         />
 

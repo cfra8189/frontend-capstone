@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/use-auth";
 import { Link } from "wouter";
 import Header from "../components/Header";
+import { ConfirmationModal } from "../components/modals/ConfirmationModal";
 
 interface Artist {
   id: number;
@@ -110,11 +111,17 @@ export default function StudioDashboard() {
     }
   }
 
+  const [artistToRemove, setArtistToRemove] = useState<number | null>(null);
+
   async function handleRemoveArtist(artistRelationId: number) {
-    if (!confirm("Are you sure you want to remove this artist from your roster?")) return;
+    setArtistToRemove(artistRelationId);
+  }
+
+  async function confirmRemoveArtist() {
+    if (!artistToRemove) return;
 
     try {
-      const res = await fetch(`/api/studio/artists/${artistRelationId}`, {
+      const res = await fetch(`/api/studio/artists/${artistToRemove}`, {
         method: "DELETE",
       });
 
@@ -125,6 +132,8 @@ export default function StudioDashboard() {
       }
     } catch (err) {
       console.error("Failed to remove artist:", err);
+    } finally {
+      setArtistToRemove(null);
     }
   }
 
@@ -147,7 +156,7 @@ export default function StudioDashboard() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">{user.businessName || "Studio Dashboard"}</h1>
           <p className="text-theme-secondary">Manage your artist roster and curate your portfolio</p>
-          
+
           <div className="mt-4 p-4 bg-theme-secondary rounded-lg inline-block">
             <p className="text-xs text-theme-muted mb-1">Your Studio Code</p>
             <div className="flex items-center gap-3">
@@ -174,25 +183,22 @@ export default function StudioDashboard() {
         <div className="flex gap-2 mb-6 border-b border-theme pb-2">
           <button
             onClick={() => setActiveTab("roster")}
-            className={`px-4 py-2 rounded-t-lg transition-colors ${
-              activeTab === "roster" ? "bg-theme-tertiary text-accent" : "text-theme-muted hover:text-theme-primary"
-            }`}
+            className={`px-4 py-2 rounded-t-lg transition-colors ${activeTab === "roster" ? "bg-theme-tertiary text-accent" : "text-theme-muted hover:text-theme-primary"
+              }`}
           >
             Artist Roster
           </button>
           <button
             onClick={() => setActiveTab("portfolio")}
-            className={`px-4 py-2 rounded-t-lg transition-colors ${
-              activeTab === "portfolio" ? "bg-theme-tertiary text-accent" : "text-theme-muted hover:text-theme-primary"
-            }`}
+            className={`px-4 py-2 rounded-t-lg transition-colors ${activeTab === "portfolio" ? "bg-theme-tertiary text-accent" : "text-theme-muted hover:text-theme-primary"
+              }`}
           >
             Portfolio
           </button>
           <button
             onClick={() => setActiveTab("settings")}
-            className={`px-4 py-2 rounded-t-lg transition-colors ${
-              activeTab === "settings" ? "bg-theme-tertiary text-accent" : "text-theme-muted hover:text-theme-primary"
-            }`}
+            className={`px-4 py-2 rounded-t-lg transition-colors ${activeTab === "settings" ? "bg-theme-tertiary text-accent" : "text-theme-muted hover:text-theme-primary"
+              }`}
           >
             Settings
           </button>
@@ -243,11 +249,10 @@ export default function StudioDashboard() {
                             loadArtistProjects(artist.artistId);
                           }
                         }}
-                        className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                          selectedArtist?.id === artist.id 
-                            ? "bg-theme-tertiary border border-accent" 
-                            : "bg-theme-secondary hover:bg-theme-tertiary"
-                        }`}
+                        className={`p-3 rounded-lg cursor-pointer transition-colors ${selectedArtist?.id === artist.id
+                          ? "bg-theme-tertiary border border-accent"
+                          : "bg-theme-secondary hover:bg-theme-tertiary"
+                          }`}
                       >
                         <div className="flex items-center justify-between">
                           <div>
@@ -258,11 +263,10 @@ export default function StudioDashboard() {
                               {artist.status === "pending" ? "Pending invite" : `${artist.projectCount} projects`}
                             </p>
                           </div>
-                          <span className={`text-xs px-2 py-1 rounded ${
-                            artist.status === "accepted" 
-                              ? "bg-green-900/50 text-green-400" 
-                              : "bg-yellow-900/50 text-yellow-400"
-                          }`}>
+                          <span className={`text-xs px-2 py-1 rounded ${artist.status === "accepted"
+                            ? "bg-green-900/50 text-green-400"
+                            : "bg-yellow-900/50 text-yellow-400"
+                            }`}>
                             {artist.status}
                           </span>
                         </div>
@@ -303,22 +307,20 @@ export default function StudioDashboard() {
                             <p className="font-bold">{project.title}</p>
                             <div className="flex items-center gap-2 mt-1">
                               <span className="text-theme-muted text-xs">{project.type}</span>
-                              <span className={`text-xs px-2 py-0.5 rounded ${
-                                project.status === "published" 
-                                  ? "bg-green-900/50 text-green-400" 
-                                  : "bg-theme-tertiary text-theme-muted"
-                              }`}>
+                              <span className={`text-xs px-2 py-0.5 rounded ${project.status === "published"
+                                ? "bg-green-900/50 text-green-400"
+                                : "bg-theme-tertiary text-theme-muted"
+                                }`}>
                                 {project.status}
                               </span>
                             </div>
                           </div>
                           <button
                             onClick={() => handleToggleFeatured(project.id, project.isFeatured)}
-                            className={`px-3 py-1.5 rounded text-sm transition-colors ${
-                              project.isFeatured
-                                ? "bg-accent text-accent-contrast font-bold"
-                                : "bg-theme-tertiary text-theme-muted hover:text-theme-primary"
-                            }`}
+                            className={`px-3 py-1.5 rounded text-sm transition-colors ${project.isFeatured
+                              ? "bg-accent text-accent-contrast font-bold"
+                              : "bg-theme-tertiary text-theme-muted hover:text-theme-primary"
+                              }`}
                           >
                             {project.isFeatured ? "Featured" : "Feature"}
                           </button>
@@ -342,8 +344,8 @@ export default function StudioDashboard() {
             <p className="text-theme-muted text-sm mb-6">
               These projects will appear on your public portfolio page.
             </p>
-            <Link 
-              href={`/portfolio/${user.id}`} 
+            <Link
+              href={`/portfolio/${user.id}`}
               className="text-accent hover:underline text-sm"
             >
               View public portfolio →
@@ -357,8 +359,8 @@ export default function StudioDashboard() {
             <p className="text-theme-muted text-sm">
               Update your studio profile in the Settings page.
             </p>
-            <Link 
-              href="/settings" 
+            <Link
+              href="/settings"
               className="inline-block mt-4 btn-primary px-4 py-2 rounded-lg text-sm"
             >
               Go to Settings
@@ -366,6 +368,16 @@ export default function StudioDashboard() {
           </div>
         )}
       </main>
+
+      <ConfirmationModal
+        isOpen={!!artistToRemove}
+        onClose={() => setArtistToRemove(null)}
+        onConfirm={confirmRemoveArtist}
+        title="REMOVE ARTIST?"
+        message="Are you sure you want to remove this artist from your roster? This action cannot be undone."
+        confirmText="REMOVE"
+        isDangerous={true}
+      />
     </div>
   );
 }

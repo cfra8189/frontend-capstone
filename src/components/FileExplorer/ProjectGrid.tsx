@@ -67,6 +67,7 @@ const ProjectRow: React.FC<{
             case 'ep': return <Layers size={14} className="text-blue-500" />;
             case 'beat': return <FileMusic size={14} className="text-theme-primary" />;
             case 'sample': return <Mic2 size={14} className="text-yellow-500" />;
+            case 'track_review': return <Music size={14} className="text-green-500" />;
             default: return <FileMusic size={14} className="text-theme-secondary" />;
         }
     };
@@ -75,10 +76,11 @@ const ProjectRow: React.FC<{
         published: 'text-theme-primary',
         development: 'text-blue-400',
         concept: 'text-theme-muted',
-        demo: 'text-yellow-500'
+        demo: 'text-yellow-500',
+        planning: 'text-green-500' // For track reviews
     };
 
-    const statuses = ['concept', 'development', 'demo', 'published'];
+    const statuses = ['concept', 'development', 'demo', 'published', 'planning'];
 
     return (
         <div
@@ -107,9 +109,30 @@ const ProjectRow: React.FC<{
 
             {/* Title Column - Flexible width */}
             <div className="flex-1 min-w-0 pr-4 flex items-center">
-                <Link href={`/project/${project.id}`} className="hover:text-accent block truncate font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-theme-primary transition-colors">
-                    {project.title}
-                </Link>
+                {project.type === 'track_review' ? (
+                    <span
+                        onClick={() => {
+                            const url = new URL(window.location.href);
+                            url.searchParams.set("reviewId", project.metadata?.reviewId || project.id);
+                            window.history.pushState({}, "", url.toString());
+                            // Dispatch a popstate event so listeners picked it up? 
+                            // Actually, since we are using URLSearchParams in render, we need to force re-render.
+                            // But Dashboard/CreativeSpace listen to window.location.search? No, they check it on render.
+                            // We might need to dispatch a custom event or use navigation.
+                            // Let's try just pushing state and assuming the parent might re-render or we force it.
+                            // Actually, wouter's useLocation might not pick up query param changes if path doesn't change.
+                            // Let's force a reload for now, or use a custom event.
+                            window.dispatchEvent(new Event('popstate'));
+                        }}
+                        className="hover:text-accent block truncate font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-theme-primary transition-colors cursor-pointer"
+                    >
+                        {project.title}
+                    </span>
+                ) : (
+                    <Link href={`/project/${project.id}`} className="hover:text-accent block truncate font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-theme-primary transition-colors">
+                        {project.title}
+                    </Link>
+                )}
             </div>
 
 
@@ -193,11 +216,26 @@ const ProjectRow: React.FC<{
                         className="absolute right-0 top-full mt-1 bg-theme-secondary border border-theme shadow-2xl rounded-sm z-50 w-32 flex flex-col overflow-hidden"
                         onPointerDown={(e) => e.stopPropagation()}
                     >
-                        <Link href={`/project/${project.id}`}>
-                            <a className="flex items-center gap-2 px-3 py-2 text-[10px] hover:bg-theme-tertiary text-theme-secondary hover:text-theme-primary transition-colors uppercase font-mono tracking-wider">
+                        {project.type === 'track_review' ? (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    const url = new URL(window.location.href);
+                                    url.searchParams.set("reviewId", project.metadata?.reviewId || project.id);
+                                    window.history.pushState({}, "", url.toString());
+                                    window.dispatchEvent(new Event('popstate'));
+                                }}
+                                className="flex items-center gap-2 px-3 py-2 text-[10px] hover:bg-theme-tertiary text-theme-secondary hover:text-theme-primary transition-colors uppercase font-mono tracking-wider w-full text-left"
+                            >
                                 <ExternalLink size={10} /> Open
-                            </a>
-                        </Link>
+                            </button>
+                        ) : (
+                            <Link href={`/project/${project.id}`}>
+                                <a className="flex items-center gap-2 px-3 py-2 text-[10px] hover:bg-theme-tertiary text-theme-secondary hover:text-theme-primary transition-colors uppercase font-mono tracking-wider">
+                                    <ExternalLink size={10} /> Open
+                                </a>
+                            </Link>
+                        )}
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();

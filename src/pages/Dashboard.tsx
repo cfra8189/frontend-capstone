@@ -7,6 +7,9 @@ import { FileExplorer } from "../components/FileExplorer/FileExplorer";
 import GlobalEffects from "../components/GlobalEffects";
 import PageTransition from "../components/PageTransition";
 
+import TrackReviewModal from "./TrackReviewModal";
+import { ConfirmationModal } from "../components/modals/ConfirmationModal";
+
 function DashboardContent() {
   const { user } = useAuth();
   const {
@@ -17,6 +20,7 @@ function DashboardContent() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [showTrackReviewModal, setShowTrackReviewModal] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [filter, setFilter] = useState("all");
 
@@ -75,13 +79,21 @@ function DashboardContent() {
     }
   }
 
+  const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
+
   async function deleteProject(id: string) {
-    if (!confirm("Are you sure you want to delete this project?")) return;
+    setProjectToDelete(id);
+  }
+
+  async function confirmDeleteProject() {
+    if (!projectToDelete) return;
     try {
-      const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/projects/${projectToDelete}`, { method: "DELETE" });
       if (res.ok) loadProjects();
     } catch (error) {
       console.error("Failed to delete project:", error);
+    } finally {
+      setProjectToDelete(null);
     }
   }
 
@@ -197,6 +209,31 @@ function DashboardContent() {
           </div>
         )}
       </div>
+
+      <ConfirmationModal
+        isOpen={!!projectToDelete}
+        onClose={() => setProjectToDelete(null)}
+        onConfirm={confirmDeleteProject}
+        title="DELETE PROJECT?"
+        message="Are you sure you want to delete this project? This action cannot be undone."
+        confirmText="DELETE"
+        isDangerous={true}
+      />
+
+      {/* Track Review Modal */}
+      <TrackReviewModal
+        isOpen={!!new URLSearchParams(window.location.search).get("reviewId") || showTrackReviewModal}
+        onClose={() => {
+          setShowTrackReviewModal(false);
+          // Remove query param if present
+          const url = new URL(window.location.href);
+          if (url.searchParams.has("reviewId")) {
+            url.searchParams.delete("reviewId");
+            window.history.pushState({}, "", url.toString());
+          }
+        }}
+        reviewId={new URLSearchParams(window.location.search).get("reviewId")}
+      />
     </PageTransition>
   );
 }

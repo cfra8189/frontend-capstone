@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
+import { ConfirmationModal } from "../components/modals/ConfirmationModal";
 import { useAuth } from "../hooks/use-auth";
 import { useLocation } from "wouter";
 
@@ -112,19 +113,27 @@ export default function Documents() {
     }
   }
 
-  async function confirmDelete(id: string) {
-    if (!confirm("Delete this saved agreement? This cannot be undone.")) return;
+  const [docToDelete, setDocToDelete] = useState<string | null>(null);
+
+  function requestDelete(id: string) {
+    setDocToDelete(id);
+  }
+
+  async function executeDelete() {
+    if (!docToDelete) return;
     try {
-      const res = await fetch(`/api/documents/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/documents/${docToDelete}`, { method: "DELETE" });
       if (!res.ok) throw new Error((await res.json()).message || "Delete failed");
-      setDocs(docs.filter(d => d.id !== id));
-      if (selectedId === id) {
+      setDocs(docs.filter(d => d.id !== docToDelete));
+      if (selectedId === docToDelete) {
         setSelectedHtml(null);
         setSelectedId(null);
         setSelectedTitle(null);
       }
     } catch (err: any) {
       setError(err.message || "Delete failed");
+    } finally {
+      setDocToDelete(null);
     }
   }
 
@@ -191,7 +200,7 @@ export default function Documents() {
                         <button onClick={() => openDoc(d.id)} className="text-[9px] font-bold px-3 py-1.5 bg-theme-secondary border border-theme text-theme-primary hover:bg-theme-primary transition-all uppercase tracking-widest">[VIEW]</button>
                         <a href={`/api/documents/${d.id}`} className="text-[9px] font-bold px-3 py-1.5 bg-white text-black border border-white hover:bg-transparent hover:text-white transition-all uppercase tracking-widest" target="_blank" rel="noreferrer">OPEN</a>
                         <button onClick={() => startRename(d.id, d.title)} className="text-[9px] font-bold px-3 py-1.5 border border-theme text-theme-muted hover:text-theme-primary hover:border-theme-primary transition-all uppercase tracking-widest">RENAME</button>
-                        <button onClick={() => confirmDelete(d.id)} className="text-[9px] font-bold px-3 py-1.5 border border-red-500/30 text-red-500/50 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all uppercase tracking-widest">EJECT</button>
+                        <button onClick={() => requestDelete(d.id)} className="text-[9px] font-bold px-3 py-1.5 border border-red-500/30 text-red-500/50 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all uppercase tracking-widest">EJECT</button>
                       </div>
                     </div>
                   ))}
@@ -243,6 +252,16 @@ export default function Documents() {
           </div>
         )}
       </main>
+
+      <ConfirmationModal
+        isOpen={!!docToDelete}
+        onClose={() => setDocToDelete(null)}
+        onConfirm={executeDelete}
+        title="DELETE AGREEMENT?"
+        message="Are you sure you want to delete this saved agreement? This action cannot be undone."
+        confirmText="DELETE"
+        isDangerous={true}
+      />
     </div>
   );
 }

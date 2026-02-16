@@ -253,3 +253,14 @@ body {
 body.has-bg-gif {
   background: transparent !important;
 }
+
+/* Darker placeholders for light mode visibility */
+.placeholder-dark::placeholder {
+  color: #333333 !important;
+  opacity: 0.7 !important;
+}
+
+.dark .placeholder-dark::placeholder {
+  color: #888888 !important;
+  opacity: 0.6 !important;
+}

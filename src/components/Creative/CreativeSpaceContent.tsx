@@ -3,6 +3,8 @@ import { useLocation } from "wouter";
 import { useAuth } from "../../hooks/use-auth";
 import { useUpload } from "../../hooks/use-upload";
 import PremiumEmbed from "../PremiumEmbed";
+import TrackReviewModal from "../../pages/TrackReviewModal";
+import { ConfirmationModal } from "../modals/ConfirmationModal";
 
 interface Note {
     id: number;
@@ -32,6 +34,7 @@ export default function CreativeSpaceContent() {
     const [loading, setLoading] = useState(true);
     const [activeCategory, setActiveCategory] = useState("all");
     const [showModal, setShowModal] = useState(false);
+    const [showTrackReviewModal, setShowTrackReviewModal] = useState(false);
     const [editingNote, setEditingNote] = useState<Note | null>(null);
     const [uploadedMediaUrl, setUploadedMediaUrl] = useState<string>("");
     const [draggedNote, setDraggedNote] = useState<Note | null>(null);
@@ -147,13 +150,21 @@ export default function CreativeSpaceContent() {
         }
     }
 
+    const [noteToDelete, setNoteToDelete] = useState<number | null>(null);
+
     async function deleteNote(id: number) {
-        if (!confirm("Delete this note?")) return;
+        setNoteToDelete(id);
+    }
+
+    async function confirmDeleteNote() {
+        if (!noteToDelete) return;
         try {
-            const res = await fetch(`/api/creative/notes/${id}`, { method: "DELETE" });
+            const res = await fetch(`/api/creative/notes/${noteToDelete}`, { method: "DELETE" });
             if (res.ok) loadNotes();
         } catch (error) {
             console.error("Failed to delete note:", error);
+        } finally {
+            setNoteToDelete(null);
         }
     }
 
@@ -289,7 +300,17 @@ export default function CreativeSpaceContent() {
                 </div>
                 <div className="flex gap-2">
                     <button
-                        onClick={() => setLocation("/track-review")}
+                        onClick={() => {
+                            const url = new URL(window.location.href);
+                            url.searchParams.set("reviewId", "new"); // "new" or empty to open modal
+                            window.history.pushState({}, "", url.toString());
+                            // We need to trigger a re-render or let the modal pick it up. 
+                            // Since modal listens to location.search in render, we might need to force update or just use state.
+                            // Actually, better to just use state for "New".
+                            setEditingNote(null);
+                            setUploadedMediaUrl("");
+                            setShowTrackReviewModal(true);
+                        }}
                         className="bg-theme-secondary/30 text-theme-primary border border-theme/20 text-[9px] font-bold px-3 py-1.5 rounded-sm uppercase tracking-widest hover:bg-theme-secondary transition-all"
                     >
                         Track Review
@@ -494,6 +515,30 @@ export default function CreativeSpaceContent() {
                     </div>
                 </div>
             )}
+
+            {/* Track Review Modal */}
+            <TrackReviewModal
+                isOpen={!!new URLSearchParams(window.location.search).get("reviewId") || showTrackReviewModal}
+                onClose={() => {
+                    setShowTrackReviewModal(false);
+                    const url = new URL(window.location.href);
+                    if (url.searchParams.has("reviewId")) {
+                        url.searchParams.delete("reviewId");
+                        window.history.pushState({}, "", url.toString());
+                    }
+                }}
+                reviewId={new URLSearchParams(window.location.search).get("reviewId")}
+            />
+
+            <ConfirmationModal
+                isOpen={!!noteToDelete}
+                onClose={() => setNoteToDelete(null)}
+                onConfirm={confirmDeleteNote}
+                title="DELETE NOTE?"
+                message="Are you sure you want to delete this note? This object will be permanently removed."
+                confirmText="DELETE"
+                isDangerous={true}
+            />
         </div>
     );
 }

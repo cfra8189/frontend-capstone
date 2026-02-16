@@ -109,9 +109,7 @@ export function FolderProvider({ children }: { children: ReactNode }) {
   };
 
   const deleteFolder = async (folder: Folder) => {
-    if (!confirm(`Are you sure you want to delete "${folder.name}"? This action cannot be undone.`)) {
-      return;
-    }
+
 
     try {
       await folderService.deleteFolder(folder._id);
