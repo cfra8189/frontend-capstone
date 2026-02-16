@@ -106,7 +106,7 @@ const ProjectRow: React.FC<{
             </div>
 
             {/* Title Column - Flexible width */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 pr-4">
                 <Link href={`/project/${project.id}`} className="hover:text-accent block truncate font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.2em] text-theme-primary transition-colors">
                     {project.title}
                 </Link>
@@ -114,7 +114,7 @@ const ProjectRow: React.FC<{
 
 
             {/* Status Dropdown (Functional) */}
-            <div className="w-28 hidden sm:flex justify-center relative">
+            <div className="w-28 hidden sm:flex items-center justify-center relative">
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
@@ -316,13 +316,13 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, loading, onE
                     </span>
                 </div>
 
-                <div className="w-28 hidden sm:block text-center">STATUS</div>
+                <div className="w-28 hidden sm:flex items-center justify-center text-center">STATUS</div>
 
                 <div
-                    className="w-32 hidden md:block cursor-pointer hover:text-theme-primary transition-colors flex items-center gap-2 group min-w-0"
+                    className="w-32 hidden md:flex items-center justify-center gap-2 cursor-pointer hover:text-theme-primary transition-colors group min-w-0"
                     onClick={() => handleSort('updatedAt')}
                 >
-                    <span className="whitespace-nowrap">UPDATED</span>
+                    <span className="whitespace-nowrap uppercase">Updated</span>
                     <span className="flex-shrink-0">
                         {sortKey === 'updatedAt' ? (
                             sortOrder === 'asc' ? <ArrowUp size={8} className="text-theme-primary" /> : <ArrowDown size={8} className="text-theme-primary" />

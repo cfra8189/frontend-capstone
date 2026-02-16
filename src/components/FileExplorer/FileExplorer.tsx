@@ -199,11 +199,10 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                                     </button>
                                     <button
                                         onClick={() => onProjectEdit(null as any)}
-                                        className="flex items-center gap-1.5 px-2 py-1 bg-accent/10 text-accent border border-accent/20 hover:bg-accent hover:text-theme-primary transition-all text-[8px] sm:text-[9px] font-bold font-mono uppercase tracking-widest group"
+                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-accent/10 text-accent border border-accent/20 hover:bg-accent hover:text-theme-primary transition-all text-[9px] font-bold font-mono uppercase tracking-[0.2em] group"
                                     >
                                         <Plus size={10} />
-                                        <span className="hidden xs:inline">NEW_PRJ</span>
-                                        <span className="xs:hidden">PRJ+</span>
+                                        <span>+ PROJECT</span>
                                     </button>
                                 </div>
                             </div>
