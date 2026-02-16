@@ -142,7 +142,7 @@ export default function Header({ showNav = true }: HeaderProps) {
   };
 
   return (
-    <header className="border-b border-theme p-3 sm:p-4 relative">
+    <header className="w-full border-b border-theme p-3 sm:p-4 relative">
       <div className="w-full flex items-center justify-between gap-4 px-2 sm:px-6">
         <Link href="/">
           <div className="flex items-center gap-2 sm:gap-4 cursor-pointer">
@@ -285,7 +285,7 @@ export default function Header({ showNav = true }: HeaderProps) {
               </svg>
 
               {searchQuery && (
-                <div className="mt-2 bg-theme-primary/10 border border-theme/20 rounded max-h-48 overflow-y-auto">
+                <div className="mt-2 bg-theme-secondary/80 backdrop-blur-xl border border-theme/30 rounded max-h-60 overflow-y-auto shadow-xl">
                   {searching ? (
                     <div className="p-3 text-center text-theme-muted text-xs">SEARCHING...</div>
                   ) : searchResults.length === 0 ? (

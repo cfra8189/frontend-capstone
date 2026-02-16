@@ -91,7 +91,7 @@ function DashboardContent() {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-theme-primary text-theme-secondary font-mono relative flex flex-col overflow-hidden">
+      <div className="min-h-screen w-full bg-theme-primary text-theme-secondary font-mono relative flex flex-col overflow-hidden">
         <GlobalEffects opacity={0.12} />
 
         {/* CRT Scanline Overlay */}
@@ -99,7 +99,7 @@ function DashboardContent() {
 
         <Header />
 
-        <main className="flex-1 p-4 lg:p-10 overflow-hidden relative z-10">
+        <main className="flex-1 w-full p-4 lg:p-10 relative z-10">
           <FileExplorer
             projects={filteredProjects}
             loading={loading || folderLoading}
