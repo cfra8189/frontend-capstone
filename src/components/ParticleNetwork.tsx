@@ -154,7 +154,7 @@ const ParticleNetwork: React.FC<ParticleNetworkProps> = ({ opacity = 0.3, color,
     return (
         <canvas
             ref={canvasRef}
-            className={`absolute inset-0 pointer-events-none z-0 ${className || ''}`}
+            className={`absolute inset-0 pointer-events-none z-[-1] ${className || ''}`}
             style={{ opacity }}
         />
     );

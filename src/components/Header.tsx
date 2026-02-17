@@ -143,7 +143,7 @@ export default function Header({ showNav = true }: HeaderProps) {
   };
 
   return (
-    <header className="w-full border-b border-theme p-3 sm:p-4 relative">
+    <header className="w-full border-b border-theme p-3 sm:p-4 sticky top-0 z-[50] bg-theme-primary/20 backdrop-blur-sm animate-border-flicker">
       <div className="w-full flex items-center justify-between gap-4 px-2 sm:px-6">
         <Link href="/">
           <div className="flex items-center gap-2 sm:gap-4 cursor-pointer group">
@@ -151,7 +151,7 @@ export default function Header({ showNav = true }: HeaderProps) {
               <LogoGif />
             </div>
             <div className="flex flex-col">
-              <h1 className="text-sm sm:text-lg font-bold brand-font tracking-[0.3em] leading-tight text-theme-primary">
+              <h1 className="text-sm sm:text-lg font-bold brand-font tracking-[0.3em] leading-tight text-theme-primary animate-neon">
                 BOX
               </h1>
               <div className="flex items-center gap-2">

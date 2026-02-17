@@ -228,7 +228,7 @@ body {
 .background-gif-container {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: -10;
   pointer-events: none;
   overflow: hidden;
 }
@@ -246,6 +246,65 @@ body {
   filter: blur(2px) saturate(1.1) contrast(0.95);
   will-change: opacity, transform;
   opacity: 0.12;
+}
+
+/* Dying Neon Effect */
+@keyframes neon-flicker {
+
+  0%,
+  19.999%,
+  22%,
+  62.999%,
+  64%,
+  64.999%,
+  70%,
+  100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 8px var(--accent));
+  }
+
+  20%,
+  21.999%,
+  63%,
+  63.999%,
+  65%,
+  69.999% {
+    opacity: 0.4;
+    filter: none;
+  }
+}
+
+@keyframes border-flicker {
+
+  0%,
+  19.999%,
+  22%,
+  62.999%,
+  64%,
+  64.999%,
+  70%,
+  100% {
+    border-bottom-color: var(--border-color);
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.5);
+  }
+
+  20%,
+  21.999%,
+  63%,
+  63.999%,
+  65%,
+  69.999% {
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+    box-shadow: none;
+  }
+}
+
+.animate-neon {
+  animation: neon-flicker 4s infinite;
+}
+
+.animate-border-flicker {
+  animation: border-flicker 4s infinite;
 }
 
 /* When background GIF is active, make page background transparent so GIF shows through */
