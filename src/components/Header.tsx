@@ -133,6 +133,7 @@ export default function Header({ showNav = true }: HeaderProps) {
     { href: "/documents", label: "Documents" },
     { href: "/submissions", label: "Submissions" },
     { href: "/epk", label: "EPK" },
+    { href: "/docs", label: "Docs" },
     { href: "/settings", label: "Settings" },
   ];
 
