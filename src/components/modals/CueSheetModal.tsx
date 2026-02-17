@@ -361,7 +361,7 @@ export const CueSheetModal: React.FC<CueSheetModalProps> = ({ isOpen, onClose, o
                         <button onClick={onClose} className="px-6 py-2 border border-theme/30 text-theme-muted hover:text-theme-primary font-bold uppercase tracking-widest text-xs transition-colors">
                             Cancel
                         </button>
-                        <button onClick={handleSave} disabled={loading} className="px-8 py-2 bg-accent text-theme-primary font-bold uppercase tracking-widest text-xs hover:bg-accent/80 transition-colors disabled:opacity-50">
+                        <button onClick={handleSave} disabled={loading} className="px-8 py-2 bg-white text-black border border-black font-bold uppercase tracking-widest text-xs hover:bg-gray-200 transition-colors disabled:opacity-50">
                             {loading ? "Generating..." : "Save Cue Sheet"}
                         </button>
                     </div>

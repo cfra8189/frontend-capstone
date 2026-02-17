@@ -396,7 +396,7 @@ export default function CreativeSpaceContent() {
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-4 pb-20 custom-scrollbar">
                 {loading ? (
                     <div className="text-center py-12 text-theme-muted animate-pulse uppercase tracking-widest text-xs">Loading Resources...</div>
                 ) : sortedNotes.length === 0 ? (

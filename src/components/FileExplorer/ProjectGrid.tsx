@@ -176,7 +176,7 @@ const ProjectRow: React.FC<{
             </div>
 
             {/* Date Column */}
-            <div className="w-32 hidden md:flex items-center text-[9px] font-mono text-theme-muted/40 uppercase tracking-wider">
+            <div className="w-32 hidden md:flex items-center justify-center text-[9px] font-mono text-theme-muted/40 uppercase tracking-wider">
                 {new Date(project.updatedAt).toLocaleDateString()}
             </div>
 
