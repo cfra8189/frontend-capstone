@@ -44,6 +44,7 @@ export default function CreativeSpaceContent() {
     const [folders, setFolders] = useState<Folder[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeCategory, setActiveCategory] = useState("all");
+    const [searchQuery, setSearchQuery] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [showTrackReviewModal, setShowTrackReviewModal] = useState(false);
     const [activeReviewId, setActiveReviewId] = useState<string | null>(
@@ -286,9 +287,16 @@ export default function CreativeSpaceContent() {
         setDragOverId(null);
     }
 
-    const filteredNotes = activeCategory === "all"
-        ? notes
-        : notes.filter(n => n.category === activeCategory);
+    const filteredNotes = notes.filter(n => {
+        const matchesCategory = activeCategory === "all" || n.category === activeCategory;
+        const query = searchQuery.toLowerCase();
+        const matchesSearch = !searchQuery ||
+            n.content.toLowerCase().includes(query) ||
+            (n.tags && n.tags.some(t => t.toLowerCase().includes(query))) ||
+            (n.category && n.category.toLowerCase().includes(query));
+
+        return matchesCategory && matchesSearch;
+    });
 
     const sortedNotes = [...filteredNotes].sort((a, b) => {
         if (a.is_pinned && !b.is_pinned) return -1;
@@ -384,6 +392,16 @@ export default function CreativeSpaceContent() {
                 </div>
             </div>
 
+            <div className="px-3 pb-2 bg-theme-primary/5">
+                <input
+                    type="text"
+                    placeholder="SEARCH_DATABASE..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-theme-secondary/30 border border-theme/20 p-2 text-[10px] font-mono text-theme-primary outline-none focus:border-accent uppercase tracking-widest placeholder:text-theme-muted/50 transition-all"
+                />
+            </div>
+
             <div className="px-3 pb-2 border-b border-theme/5 mb-2 bg-theme-primary/5">
                 <div className="flex gap-1.5 overflow-x-auto pb-2 custom-scrollbar">
                     {categories.map(cat => (
@@ -420,7 +438,7 @@ export default function CreativeSpaceContent() {
                                     onDragEnd={handleDragEnd}
                                     className={`
                     p-4 rounded-sm border transition-all relative overflow-hidden group
-                    bg-theme-secondary/40 backdrop-blur-sm
+                    bg-theme-secondary/40
                     ${activeCategory === "all" ? "cursor-move" : ""} 
                     ${note.is_pinned ? "border-accent shadow-[0_0_15px_rgba(var(--accent-rgb),0.1)]" : "border-theme hover:border-theme-primary"} 
                     ${draggedNote?.id === note.id ? "opacity-50 scale-95 grayscale" : ""} 

@@ -123,7 +123,7 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
         <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`group relative overflow-hidden rounded-xl bg-theme-tertiary/20 border border-white/5 hover:border-accent/30 transition-all duration-500 mb-4 backdrop-blur-md shadow-2xl ${isPinterest ? 'max-w-md mx-auto' : ''}`}
+            className={`group relative overflow-hidden rounded-xl bg-theme-tertiary/20 border border-white/5 hover:border-accent/30 transition-all duration-500 mb-4 shadow-2xl will-change-transform ${isPinterest ? 'max-w-md mx-auto' : ''}`}
         >
             {/* Media Content */}
             <div className={`relative overflow-hidden ${isVideo && !isTwitter ? 'aspect-video' : 'aspect-auto min-h-[100px]'}`}>
