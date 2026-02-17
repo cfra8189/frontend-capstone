@@ -359,6 +359,28 @@ body.has-bg-gif {
   color: inherit;
 }
 
+/* ── Global Input Overrides ── */
+input,
+textarea,
+select {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--accent) !important;
+  outline: none;
+}
+
+/* Ensure placeholder text is visible but muted */
+::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 0.5 !important;
+}
+
 /* ── Global Audio Player ── */
 @keyframes slideUp {
   from {

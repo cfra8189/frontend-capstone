@@ -361,7 +361,7 @@ export default function CreativeSpaceContent() {
 
     return (
         <div className="flex flex-col h-full bg-transparent">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2 p-3 sm:p-4 border-b border-theme/10 bg-theme-primary/5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2 p-3 sm:p-4 border-b border-theme/10 bg-transparent">
                 <div>
                     <h1 className="text-sm sm:text-base font-bold uppercase tracking-[0.3em] text-theme-primary">Creative Space</h1>
                     <p className="text-[9px] text-theme-muted uppercase tracking-widest opacity-60">Capture ideas & inspiration</p>
@@ -392,17 +392,17 @@ export default function CreativeSpaceContent() {
                 </div>
             </div>
 
-            <div className="px-3 pb-2 bg-theme-primary/5">
+            <div className="px-3 pb-2 bg-transparent">
                 <input
                     type="text"
                     placeholder="SEARCH_DATABASE..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-theme-secondary/30 border border-theme/20 p-2 text-[10px] font-mono text-theme-primary outline-none focus:border-accent uppercase tracking-widest placeholder:text-theme-muted/50 transition-all"
+                    className="w-full bg-theme-secondary border border-theme/20 p-3 text-[10px] font-mono text-theme-primary outline-none focus:border-accent uppercase tracking-[0.2em] placeholder:text-theme-muted/50 transition-all rounded-sm shadow-inner"
                 />
             </div>
 
-            <div className="px-3 pb-2 border-b border-theme/5 mb-2 bg-theme-primary/5">
+            <div className="px-3 pb-2 border-b border-theme/5 mb-2 bg-transparent">
                 <div className="flex gap-1.5 overflow-x-auto pb-2 custom-scrollbar">
                     {categories.map(cat => (
                         <button
