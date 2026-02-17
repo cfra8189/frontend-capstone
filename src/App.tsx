@@ -22,6 +22,8 @@ import EPK from "./pages/EPK";
 import CapstoneDoc from "./pages/CapstoneDoc";
 import TrackReview from "./pages/TrackReview";
 import GlobalEffects from "./components/GlobalEffects"; // Changed import
+import GlobalAudioPlayer from "./components/GlobalAudioPlayer";
+import { AudioPlayerProvider } from "./context/AudioPlayerContext";
 
 function App() {
   const { user, isLoading, isAuthenticated } = useAuth();
@@ -107,29 +109,32 @@ function App() {
 
   return (
     <NotificationProvider>
-      <GlobalEffects />
-      <AnimatePresence mode="wait">
-        <Switch location={location} key={location}>
-          <Route path="/" component={Dashboard} />
-          <Route path="/creative" component={CreativeSpace} />
-          <Route path="/project/:id" component={ProjectDetails} />
-          <Route path="/track-review" component={TrackReview} />
-          <Route path="/generator" component={Generator} />
-          <Route path="/documents" component={Documents} />
-          <Route path="/submissions" component={SubmissionGenerator} />
-          <Route path="/epk" component={EPK} />
-          <Route path="/settings" component={Settings} />
-          <Route path="/studio" component={StudioDashboard} />
-          <Route>
-            <div className="min-h-screen flex items-center justify-center">
-              <div className="text-center">
-                <h1 className="text-2xl font-bold mb-4">404</h1>
-                <p className="text-gray-500">Page not found</p>
+      <AudioPlayerProvider>
+        <GlobalEffects />
+        <AnimatePresence mode="wait">
+          <Switch location={location} key={location}>
+            <Route path="/" component={Dashboard} />
+            <Route path="/creative" component={CreativeSpace} />
+            <Route path="/project/:id" component={ProjectDetails} />
+            <Route path="/track-review" component={TrackReview} />
+            <Route path="/generator" component={Generator} />
+            <Route path="/documents" component={Documents} />
+            <Route path="/submissions" component={SubmissionGenerator} />
+            <Route path="/epk" component={EPK} />
+            <Route path="/settings" component={Settings} />
+            <Route path="/studio" component={StudioDashboard} />
+            <Route>
+              <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                  <h1 className="text-2xl font-bold mb-4">404</h1>
+                  <p className="text-gray-500">Page not found</p>
+                </div>
               </div>
-            </div>
-          </Route>
-        </Switch>
-      </AnimatePresence>
+            </Route>
+          </Switch>
+        </AnimatePresence>
+        <GlobalAudioPlayer />
+      </AudioPlayerProvider>
     </NotificationProvider>
   );
 }

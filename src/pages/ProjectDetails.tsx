@@ -38,12 +38,14 @@ const workflowSteps = [
   },
   {
     id: "pro",
-    title: "3. Join a PRO",
-    fee: "FREE-$50",
-    description: "ASCAP, BMI for royalty collection",
+    title: "3. Register Track with PRO",
+    fee: "FREE",
+    description: "Register this work with your PRO to collect royalties",
     fields: [
       { key: "pro_name", label: "PRO Name", type: "select", options: ["ASCAP", "BMI", "SESAC", "GMR", "Other"] },
       { key: "pro_member_id", label: "Member ID", type: "text", placeholder: "Your PRO member ID" },
+      { key: "pro_work_id", label: "PRO Work ID", type: "text", placeholder: "Work registration ID from your PRO" },
+      { key: "pro_work_title", label: "Registered Title", type: "text", placeholder: "Title as registered with PRO" },
     ]
   },
   {

@@ -29,11 +29,10 @@ export default function Docs() {
             <button
               key={section.id}
               onClick={() => setActiveSection(section.id as DocSection)}
-              className={`px-4 py-2 rounded text-sm whitespace-nowrap transition-colors ${
-                activeSection === section.id
+              className={`px-4 py-2 rounded text-sm whitespace-nowrap transition-colors ${activeSection === section.id
                   ? "btn-primary"
                   : "bg-theme-tertiary text-theme-secondary hover:text-theme-primary"
-              }`}
+                }`}
             >
               {section.label}
             </button>
@@ -56,9 +55,9 @@ function OverviewSection() {
   return (
     <div className="space-y-6 text-theme-primary">
       <h2 className="text-xl font-bold mb-4">Protecting Your Creative Work</h2>
-      
+
       <p className="text-theme-secondary leading-relaxed">
-        As an independent music artist, protecting your intellectual property is essential for building a sustainable career. 
+        As an independent music artist, protecting your intellectual property is essential for building a sustainable career.
         This guide walks you through the key steps to register, protect, and monetize your creative work.
       </p>
 
@@ -95,8 +94,8 @@ function CopyrightSection() {
         <div>
           <h3 className="font-bold text-lg mb-2">What is Copyright?</h3>
           <p className="text-theme-secondary leading-relaxed">
-            Copyright is automatic protection that exists the moment you create an original work in a fixed form 
-            (recording, written notation, etc.). However, <strong>registering</strong> your copyright with the 
+            Copyright is automatic protection that exists the moment you create an original work in a fixed form
+            (recording, written notation, etc.). However, <strong>registering</strong> your copyright with the
             U.S. Copyright Office provides additional legal benefits.
           </p>
         </div>
@@ -120,7 +119,7 @@ function CopyrightSection() {
             <div className="bg-theme-tertiary p-4 rounded-lg">
               <h4 className="font-bold mb-1">PA (Performing Arts)</h4>
               <p className="text-sm text-theme-secondary">
-                Covers the underlying musical composition - the melody, lyrics, and arrangement. 
+                Covers the underlying musical composition - the melody, lyrics, and arrangement.
                 This is the "song" itself, separate from any recording.
               </p>
               <p className="text-sm text-accent mt-2">Cost: $45</p>
@@ -128,7 +127,7 @@ function CopyrightSection() {
             <div className="bg-theme-tertiary p-4 rounded-lg">
               <h4 className="font-bold mb-1">SR (Sound Recording)</h4>
               <p className="text-sm text-theme-secondary">
-                Covers the specific recorded performance - the actual audio file. 
+                Covers the specific recorded performance - the actual audio file.
                 This protects the production, vocals, and instrumentation as recorded.
               </p>
               <p className="text-sm text-accent mt-2">Cost: $65</p>
@@ -269,7 +268,7 @@ function PROSection() {
       <h2 className="text-xl font-bold mb-4">Performance Rights Organizations (PROs)</h2>
 
       <p className="text-theme-secondary mb-4">
-        PROs collect royalties when your music is publicly performed - radio, TV, venues, streaming, and more. 
+        PROs collect royalties when your music is publicly performed - radio, TV, venues, streaming, and more.
         You must join one to collect these royalties.
       </p>
 
@@ -356,11 +355,11 @@ function WorkflowSection() {
     },
     {
       step: 3,
-      title: "Join a PRO",
-      description: "Sign up with BMI, ASCAP, or SESAC to collect performance royalties.",
-      cost: "FREE-$50",
+      title: "Register Track with PRO",
+      description: "Register each work with your PRO (BMI, ASCAP, SESAC) to collect performance royalties.",
+      cost: "FREE",
       time: "1-2 weeks",
-      tips: ["BMI is free for writers", "ASCAP is $50 one-time", "Only join ONE PRO"]
+      tips: ["Register each song individually", "Include all co-writers", "You'll receive a work ID"]
     },
     {
       step: 4,
@@ -426,7 +425,7 @@ function WorkflowSection() {
       <div className="bg-theme-secondary p-4 rounded-lg border-l-4 border-accent mt-6">
         <h4 className="font-bold mb-2">Pro Tip: Track Everything in BOX</h4>
         <p className="text-sm text-theme-secondary">
-          Use your project pages to store all identifiers (ISRC, UPC, ISWC, copyright registration numbers) 
+          Use your project pages to store all identifiers (ISRC, UPC, ISWC, copyright registration numbers)
           and track which steps you've completed for each release.
         </p>
       </div>
