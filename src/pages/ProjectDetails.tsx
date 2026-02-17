@@ -134,6 +134,28 @@ export default function ProjectDetails() {
     setLocalWorkflow(prev => ({ ...prev, [fieldKey]: value }));
   }
 
+  async function updateWriters(writers: string[]) {
+    if (!project) return;
+    setProject({ ...project, metadata: { ...project.metadata, writers } });
+    setSaving(true);
+    try {
+      const newMetadata = { ...project.metadata, writers };
+      const res = await fetch(`/api/projects/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ metadata: newMetadata }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProject(data.project);
+      }
+    } catch (error) {
+      console.error("Failed to update writers:", error);
+    } finally {
+      setSaving(false);
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-theme-primary">
@@ -291,6 +313,60 @@ export default function ProjectDetails() {
                       </div>
                     );
                   })}
+                </div>
+
+                {/* Writers & Collaborators Section */}
+                <div className="mt-8 border-t border-theme/20 pt-8">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h2 className="text-lg font-bold text-accent">Writers & Collaborators</h2>
+                      <p className="text-theme-muted text-sm">Add everyone who contributed to this work.</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const currentWriters = project.metadata?.writers || [];
+                        const nextWriters = [...currentWriters, ""];
+                        updateWriters(nextWriters);
+                      }}
+                      className="btn-primary px-3 py-1.5 rounded text-xs font-bold"
+                    >
+                      + Add Writer
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    {(project.metadata?.writers || []).map((writer: string, index: number) => (
+                      <div key={index} className="flex gap-2 items-center bg-theme-tertiary/20 p-3 rounded-lg border border-theme/10 group">
+                        <div className="flex-1">
+                          <input
+                            value={writer}
+                            onChange={(e) => {
+                              const currentWriters = [...(project.metadata?.writers || [])];
+                              currentWriters[index] = e.target.value;
+                              updateWriters(currentWriters);
+                            }}
+                            placeholder="Full Name (e.g., John Doe)"
+                            className="w-full bg-transparent border-b border-theme/30 focus:border-accent text-theme-primary outline-none text-sm py-1"
+                          />
+                        </div>
+                        <button
+                          onClick={() => {
+                            const currentWriters = [...(project.metadata?.writers || [])];
+                            currentWriters.splice(index, 1);
+                            updateWriters(currentWriters);
+                          }}
+                          className="p-2 text-theme-muted hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                    {(project.metadata?.writers || []).length === 0 && (
+                      <div className="text-center p-8 border border-dashed border-theme/20 rounded-lg">
+                        <p className="text-theme-muted text-sm italic">No writers added yet.</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

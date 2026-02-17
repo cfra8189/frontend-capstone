@@ -100,7 +100,7 @@ export default function SubmissionGenerator() {
   }
 
   function toggleProject(id: number) {
-    setSelectedProjects(prev => 
+    setSelectedProjects(prev =>
       prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
     );
   }
@@ -115,12 +115,12 @@ export default function SubmissionGenerator() {
 
   function generateCSVContent(): string {
     if (!selectedPlatform) return "";
-    
+
     const platform = PLATFORMS[selectedPlatform];
     const selectedData = projects.filter(p => selectedProjects.includes(p.id));
-    
+
     let csvContent = "";
-    
+
     switch (selectedPlatform) {
       case "mlc":
         csvContent = generateMLCFormat(selectedData);
@@ -138,7 +138,7 @@ export default function SubmissionGenerator() {
         csvContent = generateHFAFormat(selectedData);
         break;
     }
-    
+
     return csvContent;
   }
 
@@ -203,46 +203,51 @@ export default function SubmissionGenerator() {
   function generateHFAFormat(data: Project[]): string {
     const headers = ["Song Title", "Writer First Name", "Writer Last Name", "Ownership Share", "ISRC", "Artist Name", "Album Title", "Publisher P#"];
     const rows: string[][] = [];
-    
+
     data.forEach(p => {
       const writers = p.metadata?.writers || [];
       if (writers.length === 0) {
         rows.push([
           p.title,
-          "",
-          "",
+          "-",
+          "-",
           "100",
-          p.metadata?.isrc || "",
-          user?.displayName || "",
+          p.metadata?.isrc || "-",
+          user?.displayName || "-",
           "",
           ""
         ]);
       } else {
         const sharePerWriter = Math.floor(100 / writers.length);
-        writers.forEach((writer, i) => {
-          const nameParts = (writer || '').trim().split(" ");
-          const firstName = nameParts[0] || "";
-          const lastName = nameParts.slice(1).join(" ") || "";
+        writers.forEach((writer) => {
+          const cleanName = (writer || '').trim();
+          if (!cleanName) {
+            rows.push([p.title, "-", "-", String(sharePerWriter), p.metadata?.isrc || "-", user?.displayName || "-", "", ""]);
+            return;
+          }
+          const nameParts = cleanName.split(/\s+/);
+          const firstName = nameParts[0] || "-";
+          const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "-";
           rows.push([
             p.title,
             firstName,
             lastName,
             String(sharePerWriter),
-            p.metadata?.isrc || "",
-            user?.displayName || "",
+            p.metadata?.isrc || "-",
+            user?.displayName || "-",
             "",
             ""
           ]);
         });
       }
     });
-    
+
     return [headers.join(","), ...rows.map(r => r.map(cell => `"${cell}"`).join(","))].join("\n");
   }
 
   function downloadFile() {
     if (!selectedPlatform) return;
-    
+
     const content = generateCSVContent();
     const platform = PLATFORMS[selectedPlatform];
     const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
@@ -258,9 +263,9 @@ export default function SubmissionGenerator() {
 
   function getPreviewData(): { headers: string[], rows: string[][] } {
     if (!selectedPlatform) return { headers: [], rows: [] };
-    
+
     const selectedData = projects.filter(p => selectedProjects.includes(p.id));
-    
+
     switch (selectedPlatform) {
       case "mlc":
         return {
@@ -345,27 +350,24 @@ export default function SubmissionGenerator() {
         <div className="flex flex-wrap gap-2 mb-6 justify-center md:justify-start">
           <button
             onClick={() => setStep("select-platform")}
-            className={`px-3 py-2 rounded-lg text-xs sm:text-sm ${
-              step === "select-platform" ? "bg-accent text-accent-contrast font-bold" : "bg-theme-secondary text-theme-muted"
-            }`}
+            className={`px-3 py-2 rounded-lg text-xs sm:text-sm ${step === "select-platform" ? "bg-accent text-accent-contrast font-bold" : "bg-theme-secondary text-theme-muted"
+              }`}
           >
             1. Platform
           </button>
           <button
             onClick={() => selectedPlatform && setStep("select-projects")}
             disabled={!selectedPlatform}
-            className={`px-3 py-2 rounded-lg text-xs sm:text-sm ${
-              step === "select-projects" ? "bg-accent text-accent-contrast font-bold" : "bg-theme-secondary text-theme-muted"
-            } disabled:opacity-50`}
+            className={`px-3 py-2 rounded-lg text-xs sm:text-sm ${step === "select-projects" ? "bg-accent text-accent-contrast font-bold" : "bg-theme-secondary text-theme-muted"
+              } disabled:opacity-50`}
           >
             2. Projects
           </button>
           <button
             onClick={() => selectedProjects.length > 0 && setStep("preview")}
             disabled={selectedProjects.length === 0}
-            className={`px-3 py-2 rounded-lg text-xs sm:text-sm ${
-              step === "preview" ? "bg-accent text-accent-contrast font-bold" : "bg-theme-secondary text-theme-muted"
-            } disabled:opacity-50`}
+            className={`px-3 py-2 rounded-lg text-xs sm:text-sm ${step === "preview" ? "bg-accent text-accent-contrast font-bold" : "bg-theme-secondary text-theme-muted"
+              } disabled:opacity-50`}
           >
             3. Download
           </button>
@@ -382,9 +384,8 @@ export default function SubmissionGenerator() {
                     setSelectedPlatform(key);
                     setStep("select-projects");
                   }}
-                  className={`card p-6 rounded-xl text-left transition-all hover:border-accent ${
-                    selectedPlatform === key ? "border-2 border-accent" : "border border-theme"
-                  }`}
+                  className={`card p-6 rounded-xl text-left transition-all hover:border-accent ${selectedPlatform === key ? "border-2 border-accent" : "border border-theme"
+                    }`}
                 >
                   <h3 className="text-lg font-bold text-accent mb-1">{platform.name}</h3>
                   <p className="text-sm text-theme-secondary mb-2">{platform.fullName}</p>
@@ -409,14 +410,14 @@ export default function SubmissionGenerator() {
                 <div>
                   <h4 className="font-bold text-accent mb-1">CSV (Comma-Separated Values)</h4>
                   <p className="text-theme-muted">
-                    User-friendly format for bulk uploads. Opens in Excel or Google Sheets. 
+                    User-friendly format for bulk uploads. Opens in Excel or Google Sheets.
                     Recommended for independent artists and small publishers.
                   </p>
                 </div>
                 <div>
                   <h4 className="font-bold text-accent mb-1">CWR (Common Works Registration)</h4>
                   <p className="text-theme-muted">
-                    Industry "gold standard" for large publishers. Machine-readable format 
+                    Industry "gold standard" for large publishers. Machine-readable format
                     requiring specialized software. Used for automated catalog registration.
                   </p>
                 </div>
@@ -458,17 +459,15 @@ export default function SubmissionGenerator() {
                   <div
                     key={project.id}
                     onClick={() => toggleProject(project.id)}
-                    className={`card p-4 rounded-lg cursor-pointer transition-all flex items-center gap-4 ${
-                      selectedProjects.includes(project.id) 
-                        ? "border-2 border-accent bg-theme-secondary" 
+                    className={`card p-4 rounded-lg cursor-pointer transition-all flex items-center gap-4 ${selectedProjects.includes(project.id)
+                        ? "border-2 border-accent bg-theme-secondary"
                         : "border border-theme hover:border-theme-muted"
-                    }`}
+                      }`}
                   >
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                      selectedProjects.includes(project.id) 
-                        ? "border-accent bg-accent" 
+                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedProjects.includes(project.id)
+                        ? "border-accent bg-accent"
                         : "border-theme-muted bg-transparent"
-                    }`}>
+                      }`}>
                       {selectedProjects.includes(project.id) && (
                         <span className="text-black text-xs font-bold">✓</span>
                       )}
@@ -519,7 +518,7 @@ export default function SubmissionGenerator() {
             <div className="mb-6">
               <h2 className="text-xl font-bold mb-2">Preview & Download</h2>
               <p className="text-sm text-theme-muted">
-                <span className="text-accent">{PLATFORMS[selectedPlatform].name}</span> format • 
+                <span className="text-accent">{PLATFORMS[selectedPlatform].name}</span> format •
                 {selectedProjects.length} project{selectedProjects.length !== 1 ? "s" : ""} selected
               </p>
             </div>
