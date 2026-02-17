@@ -4,13 +4,14 @@ import ParticleNetwork from './ParticleNetwork';
 
 interface GlobalEffectsProps {
     opacity?: number;
+    showParticles?: boolean;
 }
 
-const GlobalEffects: React.FC<GlobalEffectsProps> = ({ opacity = 0.08 }) => {
+const GlobalEffects: React.FC<GlobalEffectsProps> = ({ opacity = 0.08, showParticles = true }) => {
     return (
         <>
             <BackgroundGif opacity={opacity} />
-            <ParticleNetwork opacity={0.15} />
+            {showParticles && <ParticleNetwork opacity={0.15} />}
         </>
     );
 };
