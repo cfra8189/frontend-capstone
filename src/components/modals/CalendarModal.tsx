@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
-import { X, ChevronLeft, ChevronRight, Loader, Plus, CheckCircle, AlertCircle, Clock, Calendar as CalendarIcon, Filter, Layers, Zap, Trash2, Edit2, Play, CheckSquare, Square, FileText, StickyNote, Save } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { X, ChevronLeft, ChevronRight, Loader, Plus, CheckCircle, Clock, Zap, Trash2, Edit2, CheckSquare, Square, StickyNote, Save } from "lucide-react";
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, isSameDay, addDays, parseISO } from "date-fns";
 import { useAuth } from "../../hooks/use-auth";
 import ParticleNetwork from "../ParticleNetwork";
+import { ConfirmationModal } from "./ConfirmationModal";
 
 interface CalendarEvent {
     _id: string;
@@ -32,7 +33,6 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [events, setEvents] = useState<CalendarEvent[]>([]);
     const [dayNotes, setDayNotes] = useState<CreativeNote[]>([]);
-    const [recentNotes, setRecentNotes] = useState<CreativeNote[]>([]);
     const [loading, setLoading] = useState(false);
 
     // Quick Add State
@@ -47,10 +47,12 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
     const [editingEventId, setEditingEventId] = useState<string | null>(null);
     const [editTitle, setEditTitle] = useState("");
 
+    // Delete Confirmation State
+    const [itemToDelete, setItemToDelete] = useState<{ id: string; type: 'event' } | null>(null);
+
     useEffect(() => {
         if (isOpen) {
             fetchEvents();
-            fetchRecentNotes();
         }
     }, [isOpen]);
 
@@ -58,7 +60,7 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
         if (isOpen) {
             fetchNotesForDate(selectedDate);
         }
-    }, [selectedDate, isOpen]); // Fetch notes when selected date changes
+    }, [selectedDate, isOpen]);
 
     const fetchEvents = async () => {
         setLoading(true);
@@ -91,18 +93,6 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
         }
     };
 
-    const fetchRecentNotes = async () => {
-        try {
-            const res = await fetch(`/api/creative/notes?limit=10`);
-            if (res.ok) {
-                const data = await res.json();
-                setRecentNotes(data.notes);
-            }
-        } catch (error) {
-            console.error("Failed to fetch recent notes", error);
-        }
-    };
-
     const handleQuickAdd = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!quickTitle.trim()) return;
@@ -129,7 +119,6 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
 
     const handleToggleStatus = async (event: CalendarEvent) => {
         const newStatus = event.status === "completed" ? "pending" : "completed";
-        // Optimistic update
         setEvents(prev => prev.map(e => e._id === event._id ? { ...e, status: newStatus } : e));
 
         try {
@@ -140,16 +129,17 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
             });
         } catch (error) {
             console.error("Failed to update status", error);
-            fetchEvents(); // Revert on error
+            fetchEvents();
         }
     };
 
-    const handleDeleteEvent = async (id: string, e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (!confirm("Delete this event?")) return;
+    const confirmDeleteEvent = async () => {
+        if (!itemToDelete) return;
+        const id = itemToDelete.id;
 
         // Optimistic update
         setEvents(prev => prev.filter(e => e._id !== id));
+        setItemToDelete(null);
 
         try {
             await fetch(`/api/calendar/${id}`, { method: "DELETE" });
@@ -168,7 +158,6 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
     const saveEdit = async (id: string) => {
         if (!editTitle.trim()) return;
 
-        // Optimistic
         setEvents(prev => prev.map(e => e._id === id ? { ...e, title: editTitle } : e));
         setEditingEventId(null);
 
@@ -203,7 +192,6 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
                 setNewNote("");
                 setIsAddingNote(false);
                 fetchNotesForDate(selectedDate);
-                fetchRecentNotes(); // Refresh recent if adding for today/recent date
             }
         } catch (error) {
             console.error("Failed to save note", error);
@@ -309,10 +297,10 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
                                 <div key={idx} className={`flex items-center gap-1.5 px-1.5 py-0.5 rounded-sm backdrop-blur-[1px] border border-theme/5 ${event.status === 'completed' ? 'opacity-50 grayscale' : 'bg-theme-secondary/50'
                                     }`}>
                                     <div className={`w-1 h-1 rounded-full ${event.type === 'milestone' ? 'bg-purple-500 shadow-[0_0_5px_rgba(168,85,247,0.8)]' :
-                                            event.type === 'deadline' ? 'bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.8)]' :
-                                                event.type === 'habit' ? 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.8)]' :
-                                                    event.type === 'task' ? 'bg-orange-500 shadow-[0_0_5px_rgba(249,115,22,0.8)]' :
-                                                        'bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.8)]'
+                                        event.type === 'deadline' ? 'bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.8)]' :
+                                            event.type === 'habit' ? 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.8)]' :
+                                                event.type === 'task' ? 'bg-orange-500 shadow-[0_0_5px_rgba(249,115,22,0.8)]' :
+                                                    'bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.8)]'
                                         }`} />
                                     <span className={`text-[8px] font-mono truncate text-theme-primary/80 ${event.status === 'completed' ? 'line-through' : ''}`}>
                                         {event.title}
@@ -355,7 +343,7 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
         const isToday = isSameDay(selectedDate, new Date());
 
         return (
-            <div className="w-full md:w-96 border-l border-theme/20 bg-theme-primary/95 backdrop-blur-xl p-0 flex flex-col h-full absolute right-0 top-0 bottom-0 shadow-2xl z-30 transition-all duration-500 ease-in-out transform translate-x-0">
+            <div className="w-96 border-l border-theme/20 bg-theme-primary/95 backdrop-blur-xl p-0 flex flex-col h-full shadow-2xl z-30">
                 {/* Header */}
                 <div className="p-6 border-b border-theme/10 bg-theme-secondary/10">
                     <h3 className="text-xs font-bold uppercase tracking-widest text-theme-muted mb-1">
@@ -389,8 +377,8 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
                             ) : (
                                 selectedEvents.map(event => (
                                     <div key={event._id} className={`group relative p-3 rounded-md border transition-all ${event.status === 'completed'
-                                            ? 'bg-theme-secondary/10 border-theme/5 opacity-60'
-                                            : 'bg-theme-secondary/20 border-theme/10 hover:border-accent/30 hover:bg-theme-secondary/40'
+                                        ? 'bg-theme-secondary/10 border-theme/5 opacity-60'
+                                        : 'bg-theme-secondary/20 border-theme/10 hover:border-accent/30 hover:bg-theme-secondary/40'
                                         }`}>
                                         <div className="flex items-start gap-3">
                                             {/* Checkbox / Status Toggle */}
@@ -425,16 +413,16 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
                                                         </h4>
                                                         <div className="flex items-center gap-2">
                                                             <span className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded border border-theme/10 flex items-center gap-1 ${event.type === 'milestone' ? 'bg-purple-500/20 text-purple-400' :
-                                                                    event.type === 'deadline' ? 'bg-red-500/20 text-red-400' :
-                                                                        event.type === 'habit' ? 'bg-green-500/20 text-green-400' :
-                                                                            event.type === 'task' ? 'bg-orange-500/20 text-orange-400' :
-                                                                                'bg-blue-500/20 text-blue-400'
+                                                                event.type === 'deadline' ? 'bg-red-500/20 text-red-400' :
+                                                                    event.type === 'habit' ? 'bg-green-500/20 text-green-400' :
+                                                                        event.type === 'task' ? 'bg-orange-500/20 text-orange-400' :
+                                                                            'bg-blue-500/20 text-blue-400'
                                                                 }`}>
                                                                 <div className={`w-1 h-1 rounded-full ${event.type === 'milestone' ? 'bg-purple-500' :
-                                                                        event.type === 'deadline' ? 'bg-red-500' :
-                                                                            event.type === 'habit' ? 'bg-green-500' :
-                                                                                event.type === 'task' ? 'bg-orange-500' :
-                                                                                    'bg-blue-500'
+                                                                    event.type === 'deadline' ? 'bg-red-500' :
+                                                                        event.type === 'habit' ? 'bg-green-500' :
+                                                                            event.type === 'task' ? 'bg-orange-500' :
+                                                                                'bg-blue-500'
                                                                     }`} />
                                                                 {event.type}
                                                             </span>
@@ -454,7 +442,10 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
                                                         <Edit2 size={14} />
                                                     </button>
                                                     <button
-                                                        onClick={(e) => handleDeleteEvent(event._id, e)}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setItemToDelete({ id: event._id, type: 'event' });
+                                                        }}
                                                         className="p-1 text-theme-muted hover:text-red-500 transition-all"
                                                         title="Delete Event"
                                                     >
@@ -497,7 +488,7 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
                                 <button
                                     type="submit"
                                     disabled={!newNote.trim()}
-                                    className="w-full py-1.5 bg-accent text-theme-primary text-xs font-bold uppercase tracking-wider rounded hover:opacity-90 disabled:opacity-50 transition-all"
+                                    className="w-full py-2 bg-theme-primary border border-accent text-accent hover:bg-accent hover:text-theme-primary text-xs font-bold uppercase tracking-wider rounded transition-all"
                                 >
                                     Save Entry
                                 </button>
@@ -541,8 +532,8 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
                                 key={t}
                                 onClick={() => setQuickType(t)}
                                 className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-[10px] uppercase font-bold tracking-wider transition-all border ${quickType === t
-                                        ? 'bg-theme-primary text-theme-secondary border-accent shadow-[0_0_10px_rgba(var(--accent-rgb),0.2)]'
-                                        : 'bg-theme-secondary text-theme-muted border-theme/10 hover:bg-theme-tertiary hover:text-theme-primary'
+                                    ? 'bg-theme-primary text-theme-secondary border-accent shadow-[0_0_10px_rgba(var(--accent-rgb),0.2)]'
+                                    : 'bg-theme-secondary text-theme-muted border-theme/10 hover:bg-theme-tertiary hover:text-theme-primary'
                                     }`}
                             >
                                 <div className={`w-1.5 h-1.5 rounded-full ${t === 'task' ? 'bg-orange-500' : t === 'session' ? 'bg-blue-500' : 'bg-red-500'
@@ -564,8 +555,8 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
                             type="submit"
                             disabled={!quickTitle}
                             className={`px-4 rounded-lg font-bold uppercase tracking-wider text-xs transition-all flex items-center gap-2 ${quickTitle
-                                    ? 'bg-accent text-theme-primary opacity-100 hover:scale-105'
-                                    : 'bg-theme-secondary text-theme-muted opacity-50 cursor-not-allowed'
+                                ? 'bg-accent text-theme-primary opacity-100 hover:scale-105'
+                                : 'bg-theme-secondary text-theme-muted opacity-50 cursor-not-allowed'
                                 }`}
                         >
                             <Plus size={16} />
@@ -594,42 +585,35 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
                 </div>
                 <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
 
-                {/* Main Content (Calendar) */}
-                <div className="flex-1 p-8 pr-96 md:pr-[26rem] z-10 flex flex-col h-full">
-                    {/* The padding-right reserves space for the absolute positioned sidebar */}
-                    {renderHeader()}
+                {/* Main Content Layout (Flexbox) */}
+                <div className="flex w-full h-full relative z-10">
+                    {/* Calendar Grid Section */}
+                    <div className="flex-1 p-8 flex flex-col h-full min-w-0">
+                        {renderHeader()}
 
-                    {loading ? (
-                        <div className="flex-1 flex items-center justify-center">
-                            <Loader className="animate-spin text-accent" size={40} />
-                        </div>
-                    ) : (
-                        renderCalendarGrid()
-                    )}
-
-                    {/* Quick Notes Access (Bottom List) */}
-                    <div className="mt-4 pt-4 border-t border-theme/10">
-                        <div className="flex items-center gap-2 mb-2">
-                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-theme-muted flex items-center gap-1">
-                                <FileText size={10} /> Recent Notes
-                            </h4>
-                        </div>
-                        <div className="flex gap-4 overflow-x-auto pb-2 custom-scrollbar">
-                            {recentNotes.map(note => (
-                                <div key={note._id} className="min-w-[200px] p-3 rounded bg-theme-tertiary/20 border border-theme/5 hover:bg-theme-tertiary/40 transition-all cursor-pointer truncate">
-                                    <span className="text-xs text-theme-secondary block truncate">{note.content}</span>
-                                    <span className="text-[9px] text-theme-muted mt-1 block">{format(parseISO(note.date || note.createdAt), "MMM d, h:mm a")}</span>
-                                </div>
-                            ))}
-                            {recentNotes.length === 0 && (
-                                <span className="text-xs text-theme-muted/40 italic">No recent notes found.</span>
-                            )}
-                        </div>
+                        {loading ? (
+                            <div className="flex-1 flex items-center justify-center">
+                                <Loader className="animate-spin text-accent" size={40} />
+                            </div>
+                        ) : (
+                            renderCalendarGrid()
+                        )}
                     </div>
+
+                    {/* Side Panel Section */}
+                    {renderSidePanel()}
                 </div>
 
-                {/* Side Panel (Tasks & Details) */}
-                {renderSidePanel()}
+                {/* Confirm Delete Modal */}
+                <ConfirmationModal
+                    isOpen={!!itemToDelete}
+                    onClose={() => setItemToDelete(null)}
+                    onConfirm={confirmDeleteEvent}
+                    title="DELETE EVENT"
+                    message="Are you sure you want to delete this event? This action cannot be undone."
+                    confirmText="DELETE"
+                    isDangerous={true}
+                />
             </div>
         </div>
     );
