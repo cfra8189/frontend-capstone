@@ -231,13 +231,25 @@ export default function Generator() {
         </table>
       `;
     } else {
+      const isMaster = template.id === 'master-license';
       content += `
+        <div style="margin-bottom: 30px; border: 1px solid #000; padding: 15px;">
+          <h3 style="margin-top: 0; margin-bottom: 10px; font-size: 14px; text-transform: uppercase; border-bottom: 1px solid #000; padding-bottom: 5px;">Financial Terms</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px;">
+            ${isMaster ? `
+              <div><strong>BUYOUT FEE:</strong> ${formData.buyoutFee || '$0.00'}</div>
+              <div><strong>MASTER SHARE:</strong> ${formData.masterShare || '100%'}</div>
+            ` : `
+              <div><strong>FLAT FEE:</strong> ${formData.fee || '$0.00'}</div>
+              <div><strong>ROYALTY %:</strong> ${formData.royalty || '0%'}</div>
+            `}
+            <div><strong>JURISDICTION:</strong> ${formData.jurisdiction || 'NEW YORK, NY'}</div>
+          </div>
+        </div>
+
         <h3 style="background: #000; color: #fff; padding: 5px; font-size: 14px; text-transform: uppercase;">Terms</h3>
         <p style="font-size: 12px; line-height: 1.6;">${template.terms}</p>
         ${formData.additionalDetails ? `<div style="margin-top: 15px;"><strong>ADDITIONAL DETAILS:</strong><p style="font-size: 12px;">${formData.additionalDetails}</p></div>` : ''}
-        <div style="margin: 20px 0; border: 1px solid #eee; padding: 10px;">
-          <strong>JURISDICTION:</strong> ${formData.jurisdiction || 'New York, NY'}
-        </div>
       `;
     }
 
