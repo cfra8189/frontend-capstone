@@ -24,8 +24,28 @@
   font-family: 'Chicago', 'JetBrains Mono', monospace;
 }
 
-:root,
-:root.dark {
+:root.light {
+  --bg-primary: #d1d5db;
+  /* Light grey background */
+  --bg-secondary: #e5e7eb;
+  /* Slightly lighter gray for cards */
+  --bg-tertiary: #f3f4f6;
+  /* Very light accent */
+  --text-primary: #1f2937;
+  /* Dark gray text */
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
+  --border-color: #9ca3af;
+  --accent: #111827;
+  /* Near black accent for contrast in light mode */
+  --accent-contrast: #ffffff;
+  --particle-color: 75, 85, 99;
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  --card-shadow-hover: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+:root.dark,
+:root {
   --bg-primary: #050505;
   --bg-secondary: #0a0a0a;
   --bg-tertiary: #111111;
@@ -40,24 +60,11 @@
   --card-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.9);
 }
 
-:root.light {
-  --bg-primary: #f8f9fa;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #e9ecef;
-  --text-primary: #1a1a1a;
-  --text-secondary: #495057;
-  --text-muted: #adb5bd;
-  --border-color: #dee2e6;
-  --accent: #212529;
-  --accent-contrast: #ffffff;
-  --particle-color: 100, 116, 139;
-  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  --card-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.08);
-}
-
+html,
 body {
   background: var(--bg-primary);
   color: var(--text-primary);
+  min-height: 100vh;
 }
 
 /* Premium Custom Scrollbar */
@@ -334,9 +341,9 @@ body {
   animation: sync-voltage-search 4s infinite;
 }
 
-/* When background GIF is active, make page background transparent so GIF shows through */
+/* Let background GIF show through but keep theme background as base */
 body.has-bg-gif {
-  background: transparent !important;
+  background: var(--bg-primary);
 }
 
 /* ── Global Placeholder Contrast ── */

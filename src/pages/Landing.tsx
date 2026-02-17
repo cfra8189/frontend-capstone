@@ -184,14 +184,14 @@ export default function Landing() {
   }
 
   return (
-    <div className="min-h-screen flex bg-theme-primary/50">
+    <div className="min-h-screen flex bg-theme-primary transition-colors duration-300">
       <div className="hidden lg:flex lg:w-1/2 bg-theme-primary/10 p-12 flex-col justify-between">
         <div>
           <div className="flex items-center gap-3 mb-16">
             <img src="/box-logo.png" alt="BOX" className="w-10 h-10" />
-            <span className="text-2xl brand-font tracking-wider">BOX</span>
+            <span className="text-2xl brand-font tracking-wider text-theme-primary">BOX</span>
           </div>
-          <h1 className="text-4xl lg:text-5xl font-bold mb-6 leading-tight">
+          <h1 className="text-4xl lg:text-5xl font-bold mb-6 leading-tight text-theme-primary">
             Your Creative Work,{" "}
             <span className="text-accent">Protected.</span>
           </h1>
@@ -208,7 +208,7 @@ export default function Landing() {
         <div className="max-w-md w-full">
           <div className="lg:hidden flex items-center justify-center gap-2 sm:gap-3 mb-6 sm:mb-8">
             <img src="/box-logo.png" alt="BOX" className="w-8 h-8 sm:w-10 sm:h-10" />
-            <span className="text-xl sm:text-2xl brand-font tracking-wider">BOX</span>
+            <span className="text-xl sm:text-2xl brand-font tracking-wider text-theme-primary">BOX</span>
           </div>
 
           <button
@@ -219,7 +219,7 @@ export default function Landing() {
           </button>
 
           <div className="text-center mb-4 sm:mb-6">
-            <h2 className="text-xl sm:text-2xl font-bold mb-2">
+            <h2 className="text-xl sm:text-2xl font-bold mb-2 text-theme-primary">
               {mode === "login" ? "Welcome Back" : "Create Account"}
             </h2>
             <p className="text-sm sm:text-base text-theme-secondary">
@@ -258,7 +258,7 @@ export default function Landing() {
           ) : (
             <a
               href="/api/auth/google"
-              className="flex items-center justify-center gap-3 w-full bg-white text-black font-bold py-3 px-8 rounded-lg transition-colors hover:bg-gray-100 text-center mb-3"
+              className="flex items-center justify-center gap-3 w-full bg-theme-secondary text-theme-primary font-bold py-3 px-8 rounded-lg transition-all hover:bg-theme-tertiary text-center mb-3 shadow-sm border border-theme"
             >
               <svg width="20" height="20" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
@@ -443,7 +443,7 @@ export default function Landing() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-theme-tertiary text-theme-primary font-bold py-4 rounded-lg hover:opacity-80 transition-colors disabled:opacity-50"
+              className="w-full bg-accent text-accent-contrast font-bold py-4 rounded-lg hover:opacity-90 transition-all disabled:opacity-50 shadow-lg"
             >
               {loading ? "Please wait..." : mode === "login" ? "Sign In" : "Create Account"}
             </button>
@@ -468,7 +468,7 @@ export default function Landing() {
           </p>
 
           <div className="mt-8 pt-6 border-t border-theme">
-            <h3 className="text-sm font-bold text-theme-secondary mb-4 text-center">Features</h3>
+            <h3 className="text-sm font-bold text-theme-secondary mb-4 text-center">App Features</h3>
             <div className="grid grid-cols-2 gap-3 text-left">
               <div className="p-3 bg-theme-secondary rounded-lg">
                 <p className="font-bold text-sm mb-1">Project Tracking</p>
