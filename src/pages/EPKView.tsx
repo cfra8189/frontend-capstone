@@ -216,7 +216,7 @@ export default function EPKView() {
       )}
 
       {/* ── Navigation ── */}
-      <nav className={`fixed left-0 right-0 z-50 transition-all duration-500 ${isOwner ? 'top-[34px]' : 'top-0'} ${scrolled ? "bg-black/80 backdrop-blur-md py-4 border-b border-white/5" : "bg-transparent py-6"}`}>
+      <nav className={`fixed left-0 right-0 z-50 transition-all duration-500 ${isOwner ? 'top-[32px]' : 'top-0'} ${scrolled ? "bg-black/80 backdrop-blur-md py-4 border-b border-white/5" : "bg-transparent py-6"}`}>
         <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
           <a href="#" className="text-lg font-bold tracking-[0.2em] uppercase mix-blend-difference">{artist.displayName}</a>
 

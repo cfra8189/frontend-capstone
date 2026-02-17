@@ -66,11 +66,18 @@ function App() {
     );
   }
 
-  if (location.startsWith("/epk/")) {
+  if (location.startsWith("/epk") || location === "/mock" || location === "/test") {
     return (
       <>
         <GlobalEffects showParticles={false} showGif={false} />
-        <Route path="/epk/:boxCode" component={EPKView} />
+        <Switch location={location}>
+          <Route path="/epk" component={EPKEditor} />
+          <Route path="/epk/editor" component={EPKEditor} />
+          <Route path="/epk/:boxCode" component={EPKView} />
+          <Route path="/mock" component={EPKView} />
+          <Route path="/test" component={EPKView} />
+        </Switch>
+        <GlobalAudioPlayer />
       </>
     );
   }
