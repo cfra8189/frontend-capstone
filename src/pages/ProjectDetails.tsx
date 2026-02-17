@@ -46,6 +46,7 @@ const workflowSteps = [
       { key: "pro_member_id", label: "Member ID", type: "text", placeholder: "Your PRO member ID" },
       { key: "pro_work_id", label: "PRO Work ID", type: "text", placeholder: "Work registration ID from your PRO" },
       { key: "pro_work_title", label: "Registered Title", type: "text", placeholder: "Title as registered with PRO" },
+      { key: "track_duration", label: "Track Duration", type: "text", placeholder: "e.g., 3:45" },
     ]
   },
   {
@@ -55,6 +56,8 @@ const workflowSteps = [
     description: "Get ISWC from your PRO",
     fields: [
       { key: "iswc", label: "ISWC", type: "text", placeholder: "e.g., T-123.456.789-0" },
+      { key: "publisher_name", label: "Publisher Name", type: "text", placeholder: "Your publishing company" },
+      { key: "publisher_number", label: "Publisher # / P#", type: "text", placeholder: "Optional: Your Publisher ID" },
     ]
   },
   {
@@ -65,7 +68,7 @@ const workflowSteps = [
     fields: [
       { key: "distributor", label: "Distributor", type: "text", placeholder: "DistroKid, TuneCore, CD Baby..." },
       { key: "isrc", label: "ISRC", type: "text", placeholder: "e.g., USRC12345678" },
-      { key: "upc", label: "UPC", type: "text", placeholder: "e.g., 012345678901" },
+      { key: "upc", label: "UPC (Optional)", type: "text", placeholder: "e.g., 012345678901" },
     ]
   },
   {
@@ -87,6 +90,7 @@ export default function ProjectDetails() {
   const [expandedStep, setExpandedStep] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [localWorkflow, setLocalWorkflow] = useState<Record<string, any>>({});
+  const [localWriters, setLocalWriters] = useState<string[]>([]);
 
   useEffect(() => {
     loadProject();
@@ -99,6 +103,7 @@ export default function ProjectDetails() {
         const data = await res.json();
         setProject(data.project);
         setLocalWorkflow(data.project?.metadata?.workflow || {});
+        setLocalWriters(data.project?.metadata?.writers || []);
       }
     } catch (error) {
       console.error("Failed to load project:", error);
@@ -107,13 +112,34 @@ export default function ProjectDetails() {
     }
   }
 
+  function syncMetadata(workflow: Record<string, any>) {
+    const syncMap: Record<string, string> = {
+      iswc: "iswc",
+      isrc: "isrc",
+      upc: "upc",
+      track_duration: "duration",
+      pro_work_id: "proWorkId",
+      copyright_reg_number: "copyrightNumber",
+      publisher_name: "publisherName",
+      publisher_number: "publisherNumber",
+    };
+
+    const updates: Record<string, any> = {};
+    Object.entries(syncMap).forEach(([workflowKey, metadataKey]) => {
+      updates[metadataKey] = workflow[workflowKey] || "";
+    });
+
+    return updates;
+  }
+
   async function toggleStepComplete(stepId: string) {
     if (!project) return;
     const next = { ...localWorkflow, [`${stepId}_complete`]: !localWorkflow[`${stepId}_complete`] };
     setLocalWorkflow(next);
     setSaving(true);
     try {
-      const newMetadata = { ...project.metadata, workflow: next };
+      const syncUpdates = syncMetadata(next);
+      const newMetadata = { ...project.metadata, ...syncUpdates, workflow: next };
       const res = await fetch(`/api/projects/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -130,16 +156,37 @@ export default function ProjectDetails() {
     }
   }
 
+  async function saveWorkflowDetails() {
+    if (!project) return;
+    setSaving(true);
+    try {
+      const syncUpdates = syncMetadata(localWorkflow);
+      const newMetadata = { ...project.metadata, ...syncUpdates, workflow: localWorkflow };
+      const res = await fetch(`/api/projects/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ metadata: newMetadata }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProject(data.project);
+      }
+    } catch (error) {
+      console.error("Failed to save workflow details:", error);
+    } finally {
+      setSaving(false);
+    }
+  }
+
   function handleFieldChange(_stepId: string, fieldKey: string, value: string) {
     setLocalWorkflow(prev => ({ ...prev, [fieldKey]: value }));
   }
 
-  async function updateWriters(writers: string[]) {
+  async function saveWriters() {
     if (!project) return;
-    setProject({ ...project, metadata: { ...project.metadata, writers } });
     setSaving(true);
     try {
-      const newMetadata = { ...project.metadata, writers };
+      const newMetadata = { ...project.metadata, writers: localWriters };
       const res = await fetch(`/api/projects/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -298,16 +345,28 @@ export default function ProjectDetails() {
                               ))}
                             </div>
 
-                            <button
-                              onClick={() => toggleStepComplete(step.id)}
-                              disabled={saving}
-                              className={`mt-4 w-full py-2 px-4 rounded text-sm font-medium transition-colors ${isComplete
-                                ? "bg-theme-tertiary text-theme-secondary hover:bg-red-900/30 hover:text-red-400"
-                                : "bg-accent text-accent-contrast hover:opacity-90"
-                                }`}
-                            >
-                              {saving ? "Saving..." : isComplete ? "Mark as Incomplete" : "Mark as Complete"}
-                            </button>
+                            <div className="mt-4 flex gap-2">
+                              <button
+                                onClick={() => toggleStepComplete(step.id)}
+                                disabled={saving}
+                                className={`flex-1 py-2 px-4 rounded text-sm font-medium transition-colors ${isComplete
+                                  ? "bg-theme-tertiary text-theme-secondary hover:bg-red-900/30 hover:text-red-400"
+                                  : "bg-accent text-accent-contrast hover:opacity-90"
+                                  }`}
+                              >
+                                {saving ? "Saving..." : isComplete ? "Mark as Incomplete" : "Mark as Complete"}
+                              </button>
+
+                              {step.fields.some(f => localWorkflow[f.key] !== (project.metadata?.workflow?.[f.key] || "")) && (
+                                <button
+                                  onClick={saveWorkflowDetails}
+                                  disabled={saving}
+                                  className="py-2 px-6 rounded text-sm font-bold bg-green-600 text-white hover:bg-green-500 transition-colors animate-in fade-in slide-in-from-right-4"
+                                >
+                                  {saving ? "..." : "Save Details"}
+                                </button>
+                              )}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -322,28 +381,37 @@ export default function ProjectDetails() {
                       <h2 className="text-lg font-bold text-accent">Writers & Collaborators</h2>
                       <p className="text-theme-muted text-sm">Add everyone who contributed to this work.</p>
                     </div>
-                    <button
-                      onClick={() => {
-                        const currentWriters = project.metadata?.writers || [];
-                        const nextWriters = [...currentWriters, ""];
-                        updateWriters(nextWriters);
-                      }}
-                      className="btn-primary px-3 py-1.5 rounded text-xs font-bold"
-                    >
-                      + Add Writer
-                    </button>
+                    <div className="flex gap-2">
+                      {JSON.stringify(localWriters) !== JSON.stringify(project.metadata?.writers || []) && (
+                        <button
+                          onClick={saveWriters}
+                          disabled={saving}
+                          className="bg-green-600 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-green-500 transition-colors shadow-lg animate-in fade-in slide-in-from-right-2"
+                        >
+                          {saving ? "..." : "Save Changes"}
+                        </button>
+                      )}
+                      <button
+                        onClick={() => {
+                          setLocalWriters([...localWriters, ""]);
+                        }}
+                        className="btn-primary px-3 py-1.5 rounded text-xs font-bold"
+                      >
+                        + Add Writer
+                      </button>
+                    </div>
                   </div>
 
                   <div className="space-y-3">
-                    {(project.metadata?.writers || []).map((writer: string, index: number) => (
+                    {localWriters.map((writer: string, index: number) => (
                       <div key={index} className="flex gap-2 items-center bg-theme-tertiary/20 p-3 rounded-lg border border-theme/10 group">
                         <div className="flex-1">
                           <input
                             value={writer}
                             onChange={(e) => {
-                              const currentWriters = [...(project.metadata?.writers || [])];
-                              currentWriters[index] = e.target.value;
-                              updateWriters(currentWriters);
+                              const next = [...localWriters];
+                              next[index] = e.target.value;
+                              setLocalWriters(next);
                             }}
                             placeholder="Full Name (e.g., John Doe)"
                             className="w-full bg-transparent border-b border-theme/30 focus:border-accent text-theme-primary outline-none text-sm py-1"
@@ -351,9 +419,9 @@ export default function ProjectDetails() {
                         </div>
                         <button
                           onClick={() => {
-                            const currentWriters = [...(project.metadata?.writers || [])];
-                            currentWriters.splice(index, 1);
-                            updateWriters(currentWriters);
+                            const next = [...localWriters];
+                            next.splice(index, 1);
+                            setLocalWriters(next);
                           }}
                           className="p-2 text-theme-muted hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
                         >
@@ -361,7 +429,7 @@ export default function ProjectDetails() {
                         </button>
                       </div>
                     ))}
-                    {(project.metadata?.writers || []).length === 0 && (
+                    {localWriters.length === 0 && (
                       <div className="text-center p-8 border border-dashed border-theme/20 rounded-lg">
                         <p className="text-theme-muted text-sm italic">No writers added yet.</p>
                       </div>

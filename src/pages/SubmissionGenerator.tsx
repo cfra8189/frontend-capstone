@@ -18,6 +18,8 @@ interface Project {
     duration?: string;
     writers?: string[];
     publishers?: string[];
+    publisherName?: string;
+    publisherNumber?: string;
     genre?: string;
     bpm?: string;
   } | null;
@@ -148,7 +150,7 @@ export default function SubmissionGenerator() {
       p.title,
       p.metadata?.iswc || "",
       (p.metadata?.writers || []).join("; "),
-      (p.metadata?.publishers || []).join("; "),
+      p.metadata?.publisherName || (p.metadata?.publishers || []).join("; "),
       "100",
       p.metadata?.proWorkId || "",
       ""
@@ -209,34 +211,34 @@ export default function SubmissionGenerator() {
       if (writers.length === 0) {
         rows.push([
           p.title,
-          "-",
-          "-",
-          "100",
-          p.metadata?.isrc || "-",
-          user?.displayName || "-",
           "",
-          ""
+          "",
+          "100",
+          p.metadata?.isrc || "",
+          user?.displayName || "",
+          "",
+          p.metadata?.publisherNumber || ""
         ]);
       } else {
         const sharePerWriter = Math.floor(100 / writers.length);
         writers.forEach((writer) => {
           const cleanName = (writer || '').trim();
           if (!cleanName) {
-            rows.push([p.title, "-", "-", String(sharePerWriter), p.metadata?.isrc || "-", user?.displayName || "-", "", ""]);
+            rows.push([p.title, "", "", String(sharePerWriter), p.metadata?.isrc || "", user?.displayName || "", "", p.metadata?.publisherNumber || ""]);
             return;
           }
           const nameParts = cleanName.split(/\s+/);
-          const firstName = nameParts[0] || "-";
-          const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "-";
+          const firstName = nameParts[0] || "";
+          const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
           rows.push([
             p.title,
             firstName,
             lastName,
             String(sharePerWriter),
-            p.metadata?.isrc || "-",
-            user?.displayName || "-",
+            p.metadata?.isrc || "",
+            user?.displayName || "",
             "",
-            ""
+            p.metadata?.publisherNumber || ""
           ]);
         });
       }
@@ -272,11 +274,11 @@ export default function SubmissionGenerator() {
           headers: ["Work Title", "ISWC", "Writers", "Publishers", "Ownership %", "PRO Work ID"],
           rows: selectedData.map(p => [
             p.title,
-            p.metadata?.iswc || "-",
-            (p.metadata?.writers || []).join("; ") || "-",
-            (p.metadata?.publishers || []).join("; ") || "-",
+            p.metadata?.iswc || "",
+            (p.metadata?.writers || []).join("; ") || "",
+            p.metadata?.publisherName || (p.metadata?.publishers || []).join("; ") || "",
             "100%",
-            p.metadata?.proWorkId || "-"
+            p.metadata?.proWorkId || ""
           ])
         };
       case "ascap_bmi":
@@ -284,11 +286,11 @@ export default function SubmissionGenerator() {
           headers: ["Work Title", "Writers", "Publishers", "ISWC", "Duration", "Genre"],
           rows: selectedData.map(p => [
             p.title,
-            (p.metadata?.writers || []).join("; ") || "-",
-            (p.metadata?.publishers || []).join("; ") || "-",
-            p.metadata?.iswc || "-",
-            p.metadata?.duration || "-",
-            p.metadata?.genre || "-"
+            (p.metadata?.writers || []).join("; ") || "",
+            p.metadata?.publisherName || (p.metadata?.publishers || []).join("; ") || "",
+            p.metadata?.iswc || "",
+            p.metadata?.duration || "",
+            p.metadata?.genre || ""
           ])
         };
       case "music_reports":
@@ -296,11 +298,11 @@ export default function SubmissionGenerator() {
           headers: ["Song Title", "ISRC", "ISWC", "Writers", "Release Date", "UPC"],
           rows: selectedData.map(p => [
             p.title,
-            p.metadata?.isrc || "-",
-            p.metadata?.iswc || "-",
-            (p.metadata?.writers || []).join("; ") || "-",
-            p.metadata?.releaseDate || "-",
-            p.metadata?.upc || "-"
+            p.metadata?.isrc || "",
+            p.metadata?.iswc || "",
+            (p.metadata?.writers || []).join("; ") || "",
+            p.metadata?.releaseDate || "",
+            p.metadata?.upc || ""
           ])
         };
       case "soundexchange":
@@ -308,11 +310,11 @@ export default function SubmissionGenerator() {
           headers: ["Recording Title", "ISRC", "Artist", "Release Date", "Duration", "UPC"],
           rows: selectedData.map(p => [
             p.title,
-            p.metadata?.isrc || "-",
-            user?.displayName || "-",
-            p.metadata?.releaseDate || "-",
-            p.metadata?.duration || "-",
-            p.metadata?.upc || "-"
+            p.metadata?.isrc || "",
+            user?.displayName || "",
+            p.metadata?.releaseDate || "",
+            p.metadata?.duration || "",
+            p.metadata?.upc || ""
           ])
         };
       case "hfa":
@@ -321,12 +323,12 @@ export default function SubmissionGenerator() {
           rows: selectedData.flatMap(p => {
             const writers = p.metadata?.writers || [];
             if (writers.length === 0) {
-              return [[p.title, "-", "-", "100", p.metadata?.isrc || "-", user?.displayName || "-"]];
+              return [[p.title, "", "", "100", p.metadata?.isrc || "", user?.displayName || ""]];
             }
             const sharePerWriter = Math.floor(100 / writers.length);
             return writers.map(w => {
-              const parts = (w || '').trim().split(" ");
-              return [p.title, parts[0] || "-", parts.slice(1).join(" ") || "-", String(sharePerWriter), p.metadata?.isrc || "-", user?.displayName || "-"];
+              const parts = (w || '').trim().split(/\s+/);
+              return [p.title, parts[0] || "", parts.slice(1).join(" ") || "", String(sharePerWriter), p.metadata?.isrc || "", user?.displayName || ""];
             });
           })
         };
@@ -460,13 +462,13 @@ export default function SubmissionGenerator() {
                     key={project.id}
                     onClick={() => toggleProject(project.id)}
                     className={`card p-4 rounded-lg cursor-pointer transition-all flex items-center gap-4 ${selectedProjects.includes(project.id)
-                        ? "border-2 border-accent bg-theme-secondary"
-                        : "border border-theme hover:border-theme-muted"
+                      ? "border-2 border-accent bg-theme-secondary"
+                      : "border border-theme hover:border-theme-muted"
                       }`}
                   >
                     <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${selectedProjects.includes(project.id)
-                        ? "border-accent bg-accent"
-                        : "border-theme-muted bg-transparent"
+                      ? "border-accent bg-accent"
+                      : "border-theme-muted bg-transparent"
                       }`}>
                       {selectedProjects.includes(project.id) && (
                         <span className="text-black text-xs font-bold">✓</span>
