@@ -72,6 +72,10 @@ function DashboardContent() {
       status: formData.get("status") as string,
       description: formData.get("description") as string,
       folderId: selectedFolderId,
+      startDate: formData.get("startDate") ? new Date(formData.get("startDate") as string) : null,
+      deadline: formData.get("deadline") ? new Date(formData.get("deadline") as string) : null,
+      releaseDate: formData.get("releaseDate") ? new Date(formData.get("releaseDate") as string) : null,
+      registrationDate: formData.get("registrationDate") ? new Date(formData.get("registrationDate") as string) : null,
     };
 
     const url = editingProject ? `/api/projects/${editingProject.id}` : "/api/projects";
@@ -201,6 +205,48 @@ function DashboardContent() {
                       <option value="review">Review</option>
                       <option value="published">Published</option>
                     </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase text-theme-muted mb-1 tracking-widest">Start Date</label>
+                    <input
+                      type="date"
+                      name="startDate"
+                      defaultValue={editingProject?.startDate ? new Date(editingProject.startDate).toISOString().split('T')[0] : ""}
+                      className="w-full bg-theme-primary border border-theme p-2 text-sm text-theme-primary font-mono outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase text-theme-muted mb-1 tracking-widest">Deadline</label>
+                    <input
+                      type="date"
+                      name="deadline"
+                      defaultValue={editingProject?.deadline ? new Date(editingProject.deadline).toISOString().split('T')[0] : ""}
+                      className="w-full bg-theme-primary border border-theme p-2 text-sm text-theme-primary font-mono outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase text-theme-muted mb-1 tracking-widest">Release Date</label>
+                    <input
+                      type="date"
+                      name="releaseDate"
+                      defaultValue={editingProject?.releaseDate ? new Date(editingProject.releaseDate).toISOString().split('T')[0] : ""}
+                      className="w-full bg-theme-primary border border-theme p-2 text-sm text-theme-primary font-mono outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold uppercase text-theme-muted mb-1 tracking-widest">Registration Date</label>
+                    <input
+                      type="date"
+                      name="registrationDate"
+                      defaultValue={editingProject?.registrationDate ? new Date(editingProject.registrationDate).toISOString().split('T')[0] : ""}
+                      className="w-full bg-theme-primary border border-theme p-2 text-sm text-theme-primary font-mono outline-none"
+                    />
                   </div>
                 </div>
                 <div>

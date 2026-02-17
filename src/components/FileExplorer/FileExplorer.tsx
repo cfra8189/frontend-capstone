@@ -19,13 +19,14 @@ import {
 import {
     sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
-import { FileText, Plus, FolderPlus, Check, Search, FileJson, AlignLeft } from 'lucide-react';
+import { FileText, Plus, FolderPlus, Check, Search, FileJson, AlignLeft, Calendar } from 'lucide-react';
 import { ProjectGrid } from './ProjectGrid';
 import { Sidebar } from './Sidebar';
 import { useFolderContext } from '../../context/FolderContext';
 import { Project, Folder } from '../../types/folder';
 import { CreateFolderModal } from './modals/CreateFolderModal';
 import { MoveToFolderModal } from './modals/MoveToFolderModal';
+import { CalendarModal } from '../modals/CalendarModal'; // Imported
 import CreativeSpaceContent from '../Creative/CreativeSpaceContent';
 import { useNotifications, Notifications } from '../Notifications';
 
@@ -54,6 +55,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     const [movingProjectTitle, setMovingProjectTitle] = useState<string>('');
     const [view, setView] = useState<'files' | 'creative'>(initialView);
     const [folderToDelete, setFolderToDelete] = useState<Folder | null>(null);
+    const [showCalendar, setShowCalendar] = useState(false);
 
     const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
@@ -134,6 +136,11 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                 onSuccess={onRefresh}
             />
 
+            <CalendarModal
+                isOpen={showCalendar}
+                onClose={() => setShowCalendar(false)}
+            />
+
             <div className="w-full bg-theme-secondary/10 backdrop-blur-3xl text-theme-primary rounded-sm border border-theme/15 shadow-2xl relative z-10 transition-all duration-500 flex flex-col h-[calc(100vh-140px)] md:h-[calc(100vh-180px)] overflow-hidden">
                 {/* Tabs */}
                 <div className="flex border-b border-theme/10 bg-theme-primary/5 backdrop-blur-md">
@@ -192,6 +199,14 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                                     </span>
                                 </div>
                                 <div className="flex gap-1.5 sm:gap-2">
+                                    <button
+                                        onClick={() => setShowCalendar(true)}
+                                        className="flex items-center gap-1.5 px-2 py-1 border border-theme/20 hover:border-theme-primary/50 hover:bg-theme-secondary/30 transition-all text-[8px] sm:text-[9px] font-mono uppercase tracking-widest group"
+                                        title="Calendar"
+                                    >
+                                        <Calendar size={10} className="text-theme-muted group-hover:text-theme-primary transition-colors" />
+                                        <span>CALENDAR</span>
+                                    </button>
                                     <button
                                         onClick={() => setShowCreateFolder(true)}
                                         className="flex items-center gap-1.5 px-2 py-1 border border-theme/20 hover:border-theme-primary/50 hover:bg-theme-secondary/30 transition-all text-[8px] sm:text-[9px] font-mono uppercase tracking-widest group"

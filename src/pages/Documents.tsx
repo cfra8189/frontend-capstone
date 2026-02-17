@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import { ConfirmationModal } from "../components/modals/ConfirmationModal";
+import { CueSheetModal } from "../components/modals/CueSheetModal";
 import { useAuth } from "../hooks/use-auth";
 import { useLocation } from "wouter";
 
@@ -19,6 +20,7 @@ export default function Documents() {
   const [selectedHtml, setSelectedHtml] = useState<string | null>(null);
   const [selectedTitle, setSelectedTitle] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [showCueSheet, setShowCueSheet] = useState(false);
 
   const [location, setLocation] = useLocation();
   const [query, setQuery] = useState("");
@@ -113,6 +115,36 @@ export default function Documents() {
     }
   }
 
+  async function handleSaveCueSheet(title: string, html: string) {
+    try {
+      const res = await fetch("/api/documents", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          html,
+          templateId: "CUE-SHEET"
+        })
+      });
+      if (!res.ok) throw new Error("Failed to save cue sheet");
+
+      // Refresh list
+      const params = new URLSearchParams();
+      params.set("page", "1");
+      params.set("limit", String(limit));
+      const loadRes = await fetch(`/api/documents?${params.toString()}`);
+      if (loadRes.ok) {
+        const data = await loadRes.json();
+        setDocs((data.documents || []).map((d: any) => ({ id: d.id, title: d.title, templateId: d.templateId, createdAt: d.createdAt })));
+        setTotal(data.total || 0);
+      }
+      setShowCueSheet(false);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to save cue sheet");
+    }
+  }
+
   const [docToDelete, setDocToDelete] = useState<string | null>(null);
 
   function requestDelete(id: string) {
@@ -183,6 +215,12 @@ export default function Documents() {
                       className="bg-transparent border-none text-sm text-theme-primary placeholder:text-theme-muted/30 focus:outline-none flex-1 uppercase font-mono tracking-tight"
                     />
                     <div className="text-[10px] font-mono font-bold text-theme-muted uppercase bg-theme-secondary px-2 py-1 border border-theme">{total} RECORDS</div>
+                    <button
+                      onClick={() => setShowCueSheet(true)}
+                      className="ml-2 px-3 py-1 bg-accent text-theme-primary font-bold text-[10px] uppercase tracking-widest hover:bg-accent/80 transition-colors"
+                    >
+                      + New Cue Sheet
+                    </button>
                   </div>
                 </div>
 
@@ -261,6 +299,12 @@ export default function Documents() {
         message="Are you sure you want to delete this saved agreement? This action cannot be undone."
         confirmText="DELETE"
         isDangerous={true}
+      />
+
+      <CueSheetModal
+        isOpen={showCueSheet}
+        onClose={() => setShowCueSheet(false)}
+        onSave={handleSaveCueSheet}
       />
     </div>
   );

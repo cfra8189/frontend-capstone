@@ -26,6 +26,10 @@ export interface Project {
   folderPath: string;
   rootFolder: string;
   folderId?: string;
+  startDate?: string;
+  deadline?: string;
+  releaseDate?: string;
+  registrationDate?: string;
   createdAt: string;
   updatedAt: string;
 }
