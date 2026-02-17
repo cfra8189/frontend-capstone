@@ -144,11 +144,23 @@ export const CueSheetModal: React.FC<CueSheetModalProps> = ({ isOpen, onClose, o
         onClose();
     };
 
+    const handleBackdropClick = (e: React.MouseEvent) => {
+        if (e.target === e.currentTarget) {
+            onClose();
+        }
+    };
+
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[200] flex items-center justify-center p-4">
-            <div className="bg-theme-secondary/90 border border-theme w-full max-w-5xl h-full max-h-[90vh] flex flex-col shadow-2xl rounded-lg overflow-hidden relative">
+        <div
+            className="fixed inset-0 bg-theme-primary/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
+            onClick={handleBackdropClick}
+        >
+            <div
+                className="bg-theme-primary border border-theme w-full max-w-5xl h-full max-h-[90vh] flex flex-col shadow-2xl rounded-lg overflow-hidden relative animate-in fade-in zoom-in-95 duration-200"
+                onClick={(e) => e.stopPropagation()}
+            >
                 <div className="p-6 border-b border-theme/20 bg-theme-primary/50 flex justify-between items-center">
                     <div>
                         <h2 className="text-xl font-bold font-mono uppercase tracking-widest text-theme-primary flex items-center gap-2">
