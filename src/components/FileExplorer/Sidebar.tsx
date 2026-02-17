@@ -171,6 +171,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ className, onRenameFolder, onD
 
                 {renderTree(folderTree.folders)}
             </div>
+
+            {/* Brand Footer */}
+            <div className="p-4 mt-auto border-t border-theme/10">
+                <p className="text-[8px] font-mono text-theme-muted/30 uppercase tracking-[0.3em] text-center select-none hover:text-theme-primary/50 transition-colors">
+                    NO EGO. JUST WORK.
+                </p>
+            </div>
         </div>
     );
 };
