@@ -28,6 +28,7 @@ import { CreateFolderModal } from './modals/CreateFolderModal';
 import { MoveToFolderModal } from './modals/MoveToFolderModal';
 import { CalendarModal } from '../modals/CalendarModal'; // Imported
 import CreativeSpaceContent from '../Creative/CreativeSpaceContent';
+import MusicPulseContent from '../MusicPulse/MusicPulseContent';
 import { useNotifications, Notifications } from '../Notifications';
 
 interface FileExplorerProps {
@@ -36,7 +37,7 @@ interface FileExplorerProps {
     onProjectEdit: (project: Project) => void;
     onProjectDelete: (id: string) => void;
     onRefresh: () => void;
-    initialView?: 'files' | 'creative';
+    initialView?: 'files' | 'creative' | 'pulse';
 }
 
 export const FileExplorer: React.FC<FileExplorerProps> = ({
@@ -53,7 +54,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
     const [showCreateFolder, setShowCreateFolder] = useState(false);
     const [movingProjectId, setMovingProjectId] = useState<string | null>(null);
     const [movingProjectTitle, setMovingProjectTitle] = useState<string>('');
-    const [view, setView] = useState<'files' | 'creative'>(initialView);
+    const [view, setView] = useState<'files' | 'creative' | 'pulse'>(initialView);
     const [folderToDelete, setFolderToDelete] = useState<Folder | null>(null);
     const [showCalendar, setShowCalendar] = useState(false);
 
@@ -156,6 +157,12 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                     >
                         CREATIVE_SPACE
                     </button>
+                    <button
+                        onClick={() => setView('pulse')}
+                        className={`flex-1 py-2 text-[9px] font-bold uppercase tracking-[0.3em] transition-all hover:bg-theme-secondary/10 ${view === 'pulse' ? 'text-accent border-b border-accent bg-accent/5' : 'text-theme-muted border-b border-transparent'}`}
+                    >
+                        MUSIC_PULSE
+                    </button>
                 </div>
 
                 {view === 'files' ? (
@@ -239,8 +246,10 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                             </div>
                         </div>
                     </div>
-                ) : (
+                ) : view === 'creative' ? (
                     <CreativeSpaceContent />
+                ) : (
+                    <MusicPulseContent />
                 )}
             </div>
 
