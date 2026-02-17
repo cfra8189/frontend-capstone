@@ -9,7 +9,7 @@ import { ConfirmationModal } from "../modals/ConfirmationModal";
 import { Play, FolderOpen } from "lucide-react";
 
 interface Note {
-    id: number;
+    id: string;
     content: string;
     category: string;
     is_pinned: boolean;
@@ -29,7 +29,7 @@ interface Folder {
 
 interface Submission {
     id: number;
-    noteId: number;
+    noteId: string;
     userId: string;
     status: string;
     created_at: string;
@@ -54,7 +54,7 @@ export default function CreativeSpaceContent() {
     const [uploadedMediaUrl, setUploadedMediaUrl] = useState<string>("");
     const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
     const [draggedNote, setDraggedNote] = useState<Note | null>(null);
-    const [dragOverId, setDragOverId] = useState<number | null>(null);
+    const [dragOverId, setDragOverId] = useState<string | null>(null);
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -133,7 +133,7 @@ export default function CreativeSpaceContent() {
         }
     }
 
-    async function shareNote(noteId: number) {
+    async function shareNote(noteId: string) {
         try {
             const res = await fetch("/api/community/submit", {
                 method: "POST",
@@ -152,7 +152,7 @@ export default function CreativeSpaceContent() {
         }
     }
 
-    function getSubmissionStatus(noteId: number): string | null {
+    function getSubmissionStatus(noteId: string): string | null {
         const sub = submissions.find(s => s.noteId === noteId);
         return sub?.status || null;
     }
@@ -191,9 +191,9 @@ export default function CreativeSpaceContent() {
         }
     }
 
-    const [noteToDelete, setNoteToDelete] = useState<number | null>(null);
+    const [noteToDelete, setNoteToDelete] = useState<string | null>(null);
 
-    async function deleteNote(id: number) {
+    async function deleteNote(id: string) {
         setNoteToDelete(id);
     }
 
@@ -209,22 +209,18 @@ export default function CreativeSpaceContent() {
         }
     }
 
-    async function togglePin(id: number) {
+    async function togglePin(id: string) {
         try {
             // Optimistic update
-            const targetNote = notes.find(note => note.id === id);
-            if (!targetNote) return;
-            const newSortOrder = targetNote.sortOrder + 1;
-            const reorderedNotes = notes.map(note =>
-                note.id === id ? { ...note, sortOrder: newSortOrder, is_pinned: !note.is_pinned } : note
+            const updatedNotes = notes.map(note =>
+                note.id === id ? { ...note, is_pinned: !note.is_pinned } : note
             );
+            setNotes(updatedNotes);
 
             const res = await fetch(`/api/creative/notes/${id}/pin`, { method: "POST" });
             if (!res.ok) {
                 // Revert on failure
-                setNotes(prev => prev.map(noteItem =>
-                    noteItem.id === id ? { ...noteItem, sortOrder: newSortOrder, is_pinned: !noteItem.is_pinned } : noteItem
-                ));
+                loadNotes();
             }
         } catch (error) {
             console.error("Failed to toggle pin:", error);
@@ -237,7 +233,7 @@ export default function CreativeSpaceContent() {
         e.dataTransfer.effectAllowed = "move";
     }
 
-    function handleDragOver(e: React.DragEvent, noteId: number) {
+    function handleDragOver(e: React.DragEvent, noteId: string) {
         e.preventDefault();
         setDragOverId(noteId);
     }
