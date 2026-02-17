@@ -125,7 +125,7 @@ export default function BiosBoot({ onComplete }: BiosBootProps) {
                 {/* ASCII Art & Logo Header */}
                 <div className="mb-0 text-center opacity-80 border-b border-gray-800/50 pb-6 relative overflow-hidden">
                     <div className="flex items-center justify-center gap-6">
-                        <pre className="text-[6px] sm:text-[8px] md:text-[10px] leading-[6px] sm:leading-[8px] md:leading-[10px] text-accent font-bold whitespace-pre overflow-x-hidden opacity-50 select-none pointer-events-none">
+                        <pre className="text-[10px] sm:text-[12px] md:text-[14px] leading-tight text-accent font-bold whitespace-pre overflow-x-hidden opacity-90 select-none pointer-events-none drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
                             {`
                                                                        
  _|_|_|    _|_|_|_|  _|      _|  _|_|_|_|  _|_|_|    _|_|_|  _|_|_|_|  
@@ -164,13 +164,14 @@ export default function BiosBoot({ onComplete }: BiosBootProps) {
                                             type="password"
                                             value={input}
                                             onChange={(e) => setInput(e.target.value)}
-                                            className="bg-transparent border-b border-gray-700 focus:border-white transition-colors outline-none text-white w-full font-mono text-xl py-1 tracking-widest placeholder-gray-800"
+                                            className="bg-transparent border-b border-gray-700 focus:border-white transition-colors outline-none text-white w-full font-mono text-xl py-1 tracking-widest placeholder-gray-800 !bg-none"
                                             autoComplete="off"
                                             autoFocus
                                             placeholder="••••••"
                                             style={{
                                                 caretColor: 'transparent',
-                                                color: 'transparent'
+                                                color: 'transparent',
+                                                backgroundColor: 'transparent'
                                             }}
                                         />
                                         <span className="absolute left-0 font-mono text-xl tracking-widest pointer-events-none">

@@ -41,18 +41,18 @@
 }
 
 :root.light {
-  --bg-primary: #a3a3a3;
-  --bg-secondary: #b5b5b5;
-  --bg-tertiary: #8f8f8f;
-  --text-primary: #0a0a0a;
-  --text-secondary: #262626;
-  --text-muted: #404040;
-  --border-color: #666666;
-  --accent: #000000;
+  --bg-primary: #f8f9fa;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e9ecef;
+  --text-primary: #1a1a1a;
+  --text-secondary: #495057;
+  --text-muted: #adb5bd;
+  --border-color: #dee2e6;
+  --accent: #212529;
   --accent-contrast: #ffffff;
-  --particle-color: 0, 0, 0;
-  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  --card-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.2);
+  --particle-color: 100, 116, 139;
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --card-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.08);
 }
 
 body {
@@ -363,15 +363,15 @@ body.has-bg-gif {
 input,
 textarea,
 select {
-  background-color: var(--bg-secondary) !important;
-  color: var(--text-primary) !important;
-  border-color: var(--border-color) !important;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
 }
 
 input:focus,
 textarea:focus,
 select:focus {
-  border-color: var(--accent) !important;
+  border-color: var(--accent);
   outline: none;
 }
 
