@@ -88,7 +88,7 @@ export default function EPKEditor() {
   async function saveEPK(publish = false) {
     setSaving(true);
     setMessage(null);
-    
+
     try {
       const res = await fetch("/api/epk", {
         method: "POST",
@@ -193,7 +193,7 @@ export default function EPKEditor() {
     <div className="min-h-screen bg-theme-primary">
       <Header />
 
-      <main className="max-w-4xl mx-auto p-6">
+      <main className="max-w-4xl mx-auto p-6 pb-32">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold">Electronic Press Kit</h1>
@@ -226,14 +226,13 @@ export default function EPKEditor() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 rounded-t-lg text-sm transition-colors ${
-                activeTab === tab ? "bg-theme-tertiary text-accent font-bold" : "text-theme-muted hover:text-theme-primary"
-              }`}
+              className={`px-4 py-2 rounded-t-lg text-sm transition-colors ${activeTab === tab ? "bg-theme-tertiary text-accent font-bold" : "text-theme-muted hover:text-theme-primary"
+                }`}
             >
-              {tab === "bio" ? "Biography" : 
-               tab === "media" ? "Media & Music" :
-               tab === "achievements" ? "Press & Awards" :
-               tab === "contact" ? "Contact" : "Technical"}
+              {tab === "bio" ? "Biography" :
+                tab === "media" ? "Media & Music" :
+                  tab === "achievements" ? "Press & Awards" :
+                    tab === "contact" ? "Contact" : "Technical"}
             </button>
           ))}
         </div>
