@@ -261,7 +261,7 @@ export default function Header({ showNav = true }: HeaderProps) {
                   </div>
                   <button
                     onClick={() => setMenuOpen(!menuOpen)}
-                    className="p-2 transition-all text-theme-primary"
+                    className="p-2 transition-all text-theme-primary xl:hidden"
                   >
                     <div className="space-y-1.5 w-5 sm:w-6 transition-all group">
                       <span className={`block h-[1px] bg-current transition-all ${menuOpen ? 'rotate-45 translate-y-2' : ''}`} />

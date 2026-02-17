@@ -154,7 +154,7 @@ function DashboardContent() {
             onClick={() => setShowModal(false)}
           >
             <div
-              className="bg-theme-secondary/80 border border-theme p-6 max-w-lg w-full shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-md"
+              className="bg-theme-primary border border-theme p-6 max-w-lg w-full shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-md"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-6">
@@ -170,21 +170,21 @@ function DashboardContent() {
               </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-theme-muted mb-1 tracking-widest">Title</label>
+                  <label className="block text-[10px] font-bold uppercase text-theme-primary mb-1 tracking-widest">Title</label>
                   <input
                     name="title"
                     defaultValue={editingProject?.title}
                     required
-                    className="w-full bg-theme-primary border border-theme p-2 text-sm text-theme-primary font-mono outline-none"
+                    className="w-full bg-theme-secondary border border-theme p-2 text-sm text-theme-primary font-mono outline-none focus:border-accent transition-colors"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[10px] font-bold uppercase text-theme-muted mb-1 tracking-widest">Type</label>
+                    <label className="block text-[10px] font-bold uppercase text-theme-primary mb-1 tracking-widest">Type</label>
                     <select
                       name="type"
                       defaultValue={editingProject?.type || "single"}
-                      className="w-full bg-theme-primary border border-theme p-2 text-sm text-theme-primary font-mono outline-none"
+                      className="w-full bg-theme-secondary border border-theme p-2 text-sm text-theme-primary font-mono outline-none focus:border-accent transition-colors"
                     >
                       <option value="single">Single</option>
                       <option value="ep">EP</option>
@@ -194,11 +194,11 @@ function DashboardContent() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold uppercase text-theme-muted mb-1 tracking-widest">Status</label>
+                    <label className="block text-[10px] font-bold uppercase text-theme-primary mb-1 tracking-widest">Status</label>
                     <select
                       name="status"
                       defaultValue={editingProject?.status || "concept"}
-                      className="w-full bg-theme-primary border border-theme p-2 text-sm text-theme-primary font-mono outline-none"
+                      className="w-full bg-theme-secondary border border-theme p-2 text-sm text-theme-primary font-mono outline-none focus:border-accent transition-colors"
                     >
                       <option value="concept">Concept</option>
                       <option value="development">Development</option>
@@ -210,52 +210,52 @@ function DashboardContent() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[10px] font-bold uppercase text-theme-muted mb-1 tracking-widest">Start Date</label>
+                    <label className="block text-[10px] font-bold uppercase text-theme-primary mb-1 tracking-widest">Start Date</label>
                     <input
                       type="date"
                       name="startDate"
                       defaultValue={editingProject?.startDate ? new Date(editingProject.startDate).toISOString().split('T')[0] : ""}
-                      className="w-full bg-theme-primary border border-theme p-2 text-sm text-theme-primary font-mono outline-none"
+                      className="w-full bg-theme-secondary border border-theme p-2 text-sm text-theme-primary font-mono outline-none focus:border-accent transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold uppercase text-theme-muted mb-1 tracking-widest">Deadline</label>
+                    <label className="block text-[10px] font-bold uppercase text-theme-primary mb-1 tracking-widest">Deadline</label>
                     <input
                       type="date"
                       name="deadline"
                       defaultValue={editingProject?.deadline ? new Date(editingProject.deadline).toISOString().split('T')[0] : ""}
-                      className="w-full bg-theme-primary border border-theme p-2 text-sm text-theme-primary font-mono outline-none"
+                      className="w-full bg-theme-secondary border border-theme p-2 text-sm text-theme-primary font-mono outline-none focus:border-accent transition-colors"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[10px] font-bold uppercase text-theme-muted mb-1 tracking-widest">Release Date</label>
+                    <label className="block text-[10px] font-bold uppercase text-theme-primary mb-1 tracking-widest">Release Date</label>
                     <input
                       type="date"
                       name="releaseDate"
                       defaultValue={editingProject?.releaseDate ? new Date(editingProject.releaseDate).toISOString().split('T')[0] : ""}
-                      className="w-full bg-theme-primary border border-theme p-2 text-sm text-theme-primary font-mono outline-none"
+                      className="w-full bg-theme-secondary border border-theme p-2 text-sm text-theme-primary font-mono outline-none focus:border-accent transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold uppercase text-theme-muted mb-1 tracking-widest">Registration Date</label>
+                    <label className="block text-[10px] font-bold uppercase text-theme-primary mb-1 tracking-widest">Registration Date</label>
                     <input
                       type="date"
                       name="registrationDate"
                       defaultValue={editingProject?.registrationDate ? new Date(editingProject.registrationDate).toISOString().split('T')[0] : ""}
-                      className="w-full bg-theme-primary border border-theme p-2 text-sm text-theme-primary font-mono outline-none"
+                      className="w-full bg-theme-secondary border border-theme p-2 text-sm text-theme-primary font-mono outline-none focus:border-accent transition-colors"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold uppercase text-theme-muted mb-1 tracking-widest">Description</label>
+                  <label className="block text-[10px] font-bold uppercase text-theme-primary mb-1 tracking-widest">Description</label>
                   <textarea
                     name="description"
                     defaultValue={editingProject?.description || ""}
                     rows={3}
-                    className="w-full bg-theme-primary border border-theme p-2 text-sm text-theme-primary font-mono outline-none"
+                    className="w-full bg-theme-secondary border border-theme p-2 text-sm text-theme-primary font-mono outline-none focus:border-accent transition-colors"
                   />
                 </div>
                 <button
