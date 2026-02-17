@@ -101,7 +101,7 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
                         </span>
                     </div>
 
-                    <div className="flex gap-2 items-center bg-black/20 p-1 rounded-full border border-theme/10 backdrop-blur-sm">
+                    <div className="flex gap-2 items-center bg-theme-secondary/20 p-1 rounded-full border border-theme/10 backdrop-blur-sm">
                         <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-2 hover:bg-theme-secondary/50 rounded-full text-theme-muted hover:text-theme-primary transition-all">
                             <ChevronLeft size={16} />
                         </button>
@@ -156,7 +156,7 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
                     <div
                         className={`
                             relative h-28 p-2 border border-theme/5 transition-all duration-300 cursor-pointer overflow-hidden group
-                            ${!isCurrentMonth ? "bg-black/40 text-theme-muted/10 opacity-50" : "bg-theme-secondary/10 hover:bg-theme-secondary/20"}
+                            ${!isCurrentMonth ? "bg-theme-tertiary/20 text-theme-muted/20 opacity-50" : "bg-theme-secondary/10 hover:bg-theme-secondary/20"}
                             ${isSelected ? "ring-2 ring-accent/50 bg-accent/5 z-10 shadow-[0_0_20px_rgba(var(--accent-rgb),0.2)]" : ""}
                             ${isToday ? "bg-theme-primary/10" : ""}
                         `}
@@ -175,13 +175,13 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
                         {/* Event Dots/Bars */}
                         <div className="mt-6 space-y-1">
                             {dayEvents.slice(0, 3).map((event, idx) => (
-                                <div key={idx} className="flex items-center gap-1.5 px-1.5 py-0.5 rounded-sm bg-black/20 backdrop-blur-[1px] border border-white/5">
+                                <div key={idx} className="flex items-center gap-1.5 px-1.5 py-0.5 rounded-sm bg-theme-secondary/50 backdrop-blur-[1px] border border-white/5">
                                     <div className={`w-1 h-1 rounded-full ${event.type === 'milestone' ? 'bg-purple-500 shadow-[0_0_5px_rgba(168,85,247,0.8)]' :
-                                            event.type === 'deadline' ? 'bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.8)]' :
-                                                event.type === 'habit' ? 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.8)]' :
-                                                    'bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.8)]'
+                                        event.type === 'deadline' ? 'bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.8)]' :
+                                            event.type === 'habit' ? 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.8)]' :
+                                                'bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.8)]'
                                         }`} />
-                                    <span className="text-[8px] font-mono truncate text-white/70">{event.title}</span>
+                                    <span className="text-[8px] font-mono truncate text-theme-primary/80">{event.title}</span>
                                 </div>
                             ))}
                             {dayEvents.length > 3 && (
@@ -208,7 +208,7 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
         return (
             <div className="flex-1 overflow-hidden flex flex-col">
                 <div className="grid grid-cols-7 border-b border-theme/10">{weekDays}</div>
-                <div className="flex-1 border border-theme/10 rounded-lg overflow-hidden bg-black/20 backdrop-blur-sm">
+                <div className="flex-1 border border-theme/10 rounded-lg overflow-hidden bg-theme-secondary/5 backdrop-blur-sm">
                     {rows}
                 </div>
             </div>
@@ -246,14 +246,14 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
                             <div key={event._id} className="group relative p-3 rounded-md bg-theme-secondary/20 border border-theme/10 hover:border-accent/30 hover:bg-theme-secondary/40 transition-all">
                                 <div className="flex items-start gap-3">
                                     <div className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 ${event.type === 'milestone' ? 'bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.6)]' :
-                                            event.type === 'deadline' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]' :
-                                                event.type === 'habit' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' :
-                                                    event.type === 'task' ? 'bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]' :
-                                                        'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]'
+                                        event.type === 'deadline' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]' :
+                                            event.type === 'habit' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' :
+                                                event.type === 'task' ? 'bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]' :
+                                                    'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]'
                                         }`} />
                                     <div>
                                         <h4 className="text-sm font-bold text-theme-primary leading-tight mb-1 group-hover:text-accent transition-colors">{event.title}</h4>
-                                        <span className="text-[9px] font-mono text-theme-muted uppercase px-1.5 py-0.5 rounded bg-black/20 border border-white/5">
+                                        <span className="text-[9px] font-mono text-theme-muted uppercase px-1.5 py-0.5 rounded bg-theme-tertiary border border-theme/10">
                                             {event.type}
                                         </span>
                                     </div>
@@ -272,7 +272,7 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
                         </label>
 
                         {/* Type Toggle for Quick Add */}
-                        <div className="flex bg-black/20 rounded p-0.5">
+                        <div className="flex bg-theme-secondary rounded p-0.5">
                             {(['task', 'session', 'deadline'] as const).map(t => (
                                 <button
                                     key={t}
@@ -293,7 +293,7 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
                             value={quickTitle}
                             onChange={(e) => setQuickTitle(e.target.value)}
                             placeholder="Add a task..."
-                            className="w-full bg-black/30 border border-theme/20 text-sm p-3 rounded-lg text-theme-primary placeholder:text-theme-muted/50 focus:outline-none focus:border-accent/50 focus:bg-black/50 transition-all"
+                            className="w-full bg-theme-secondary border border-theme/20 text-sm p-3 rounded-lg text-theme-primary placeholder:text-theme-muted/50 focus:outline-none focus:border-accent/50 focus:bg-theme-tertiary transition-all"
                         />
                         <button
                             type="submit"
@@ -312,7 +312,7 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
 
     return (
         <div
-            className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
+            className="fixed inset-0 bg-theme-primary/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
             onClick={handleBackdropClick}
         >
             <div
