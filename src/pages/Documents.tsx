@@ -217,7 +217,8 @@ export default function Documents() {
                     <div className="text-[10px] font-mono font-bold text-theme-muted uppercase bg-theme-secondary px-2 py-1 border border-theme">{total} RECORDS</div>
                     <button
                       onClick={() => setShowCueSheet(true)}
-                      className="ml-2 px-3 py-1 bg-accent text-theme-primary font-bold text-[10px] uppercase tracking-widest hover:bg-accent/80 transition-colors"
+                      className="ml-2 px-3 py-1 bg-white text-black font-bold text-[10px] uppercase tracking-widest hover:bg-gray-200 transition-colors"
+                      title="Create New Cue Sheet"
                     >
                       + New Cue Sheet
                     </button>

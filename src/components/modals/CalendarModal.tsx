@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { X, ChevronLeft, ChevronRight, Loader, Plus, CheckCircle, AlertCircle, Clock, Calendar as CalendarIcon, Filter, Layers, Zap } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { X, ChevronLeft, ChevronRight, Loader, Plus, CheckCircle, AlertCircle, Clock, Calendar as CalendarIcon, Filter, Layers, Zap, Trash2, Edit2, Play, CheckSquare, Square, FileText, StickyNote, Save } from "lucide-react";
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, isSameDay, addDays, parseISO } from "date-fns";
 import { useAuth } from "../../hooks/use-auth";
 import ParticleNetwork from "../ParticleNetwork";
@@ -13,6 +13,14 @@ interface CalendarEvent {
     projectId?: string;
 }
 
+interface CreativeNote {
+    _id: string;
+    content: string;
+    date: string;
+    tags: string[];
+    createdAt: string;
+}
+
 interface CalendarModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -23,17 +31,34 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [events, setEvents] = useState<CalendarEvent[]>([]);
+    const [dayNotes, setDayNotes] = useState<CreativeNote[]>([]);
+    const [recentNotes, setRecentNotes] = useState<CreativeNote[]>([]);
     const [loading, setLoading] = useState(false);
 
     // Quick Add State
     const [quickTitle, setQuickTitle] = useState("");
     const [quickType, setQuickType] = useState<CalendarEvent["type"]>("task");
 
+    // Note State
+    const [newNote, setNewNote] = useState("");
+    const [isAddingNote, setIsAddingNote] = useState(false);
+
+    // Edit State
+    const [editingEventId, setEditingEventId] = useState<string | null>(null);
+    const [editTitle, setEditTitle] = useState("");
+
     useEffect(() => {
         if (isOpen) {
             fetchEvents();
+            fetchRecentNotes();
         }
     }, [isOpen]);
+
+    useEffect(() => {
+        if (isOpen) {
+            fetchNotesForDate(selectedDate);
+        }
+    }, [selectedDate, isOpen]); // Fetch notes when selected date changes
 
     const fetchEvents = async () => {
         setLoading(true);
@@ -54,6 +79,30 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
         }
     };
 
+    const fetchNotesForDate = async (date: Date) => {
+        try {
+            const res = await fetch(`/api/creative/notes?date=${date.toISOString()}`);
+            if (res.ok) {
+                const data = await res.json();
+                setDayNotes(data.notes);
+            }
+        } catch (error) {
+            console.error("Failed to fetch notes", error);
+        }
+    };
+
+    const fetchRecentNotes = async () => {
+        try {
+            const res = await fetch(`/api/creative/notes?limit=10`);
+            if (res.ok) {
+                const data = await res.json();
+                setRecentNotes(data.notes);
+            }
+        } catch (error) {
+            console.error("Failed to fetch recent notes", error);
+        }
+    };
+
     const handleQuickAdd = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!quickTitle.trim()) return;
@@ -65,7 +114,7 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
                 body: JSON.stringify({
                     title: quickTitle,
                     startDate: selectedDate,
-                    type: quickType, // Defaulting to 'task' or user selection
+                    type: quickType,
                     status: "pending"
                 })
             });
@@ -75,6 +124,89 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
             }
         } catch (error) {
             console.error("Failed to create event", error);
+        }
+    };
+
+    const handleToggleStatus = async (event: CalendarEvent) => {
+        const newStatus = event.status === "completed" ? "pending" : "completed";
+        // Optimistic update
+        setEvents(prev => prev.map(e => e._id === event._id ? { ...e, status: newStatus } : e));
+
+        try {
+            await fetch(`/api/calendar/${event._id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: newStatus })
+            });
+        } catch (error) {
+            console.error("Failed to update status", error);
+            fetchEvents(); // Revert on error
+        }
+    };
+
+    const handleDeleteEvent = async (id: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!confirm("Delete this event?")) return;
+
+        // Optimistic update
+        setEvents(prev => prev.filter(e => e._id !== id));
+
+        try {
+            await fetch(`/api/calendar/${id}`, { method: "DELETE" });
+        } catch (error) {
+            console.error("Failed to delete event", error);
+            fetchEvents();
+        }
+    };
+
+    const startEditing = (event: CalendarEvent, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setEditingEventId(event._id);
+        setEditTitle(event.title);
+    };
+
+    const saveEdit = async (id: string) => {
+        if (!editTitle.trim()) return;
+
+        // Optimistic
+        setEvents(prev => prev.map(e => e._id === id ? { ...e, title: editTitle } : e));
+        setEditingEventId(null);
+
+        try {
+            await fetch(`/api/calendar/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title: editTitle })
+            });
+        } catch (error) {
+            console.error("Failed to update title", error);
+            fetchEvents();
+        }
+    };
+
+    const handleSaveNote = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newNote.trim()) return;
+
+        try {
+            const res = await fetch("/api/creative/notes", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    content: newNote,
+                    category: "journal",
+                    date: selectedDate,
+                    tags: ["calendar"]
+                })
+            });
+            if (res.ok) {
+                setNewNote("");
+                setIsAddingNote(false);
+                fetchNotesForDate(selectedDate);
+                fetchRecentNotes(); // Refresh recent if adding for today/recent date
+            }
+        } catch (error) {
+            console.error("Failed to save note", error);
         }
     };
 
@@ -150,7 +282,6 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
                 const isCurrentMonth = isSameMonth(day, monthStart);
                 const isToday = isSameDay(day, new Date());
                 const dayEvents = getEventsForDate(day);
-                const hasEvents = dayEvents.length > 0;
 
                 days.push(
                     <div
@@ -175,13 +306,17 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
                         {/* Event Dots/Bars */}
                         <div className="mt-6 space-y-1">
                             {dayEvents.slice(0, 3).map((event, idx) => (
-                                <div key={idx} className="flex items-center gap-1.5 px-1.5 py-0.5 rounded-sm bg-theme-secondary/50 backdrop-blur-[1px] border border-white/5">
+                                <div key={idx} className={`flex items-center gap-1.5 px-1.5 py-0.5 rounded-sm backdrop-blur-[1px] border border-theme/5 ${event.status === 'completed' ? 'opacity-50 grayscale' : 'bg-theme-secondary/50'
+                                    }`}>
                                     <div className={`w-1 h-1 rounded-full ${event.type === 'milestone' ? 'bg-purple-500 shadow-[0_0_5px_rgba(168,85,247,0.8)]' :
-                                        event.type === 'deadline' ? 'bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.8)]' :
-                                            event.type === 'habit' ? 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.8)]' :
-                                                'bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.8)]'
+                                            event.type === 'deadline' ? 'bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.8)]' :
+                                                event.type === 'habit' ? 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.8)]' :
+                                                    event.type === 'task' ? 'bg-orange-500 shadow-[0_0_5px_rgba(249,115,22,0.8)]' :
+                                                        'bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.8)]'
                                         }`} />
-                                    <span className="text-[8px] font-mono truncate text-theme-primary/80">{event.title}</span>
+                                    <span className={`text-[8px] font-mono truncate text-theme-primary/80 ${event.status === 'completed' ? 'line-through' : ''}`}>
+                                        {event.title}
+                                    </span>
                                 </div>
                             ))}
                             {dayEvents.length > 3 && (
@@ -220,8 +355,9 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
         const isToday = isSameDay(selectedDate, new Date());
 
         return (
-            <div className="w-full md:w-80 border-l border-theme/20 bg-theme-primary/80 backdrop-blur-xl p-6 flex flex-col h-full absolute right-0 top-0 bottom-0 shadow-2xl z-30 transition-all duration-500 ease-in-out transform translate-x-0">
-                <div className="mb-6">
+            <div className="w-full md:w-96 border-l border-theme/20 bg-theme-primary/95 backdrop-blur-xl p-0 flex flex-col h-full absolute right-0 top-0 bottom-0 shadow-2xl z-30 transition-all duration-500 ease-in-out transform translate-x-0">
+                {/* Header */}
+                <div className="p-6 border-b border-theme/10 bg-theme-secondary/10">
                     <h3 className="text-xs font-bold uppercase tracking-widest text-theme-muted mb-1">
                         {isToday ? "Today's Agenda" : "Selected Date"}
                     </h3>
@@ -230,77 +366,210 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
                         <span className="text-lg font-normal text-theme-muted opacity-60">{format(selectedDate, "MMM")}</span>
                     </div>
                     <div className="text-sm text-theme-secondary/80 font-mono mt-1">
-                        {format(selectedDate, "EEEE")}
+                        {format(selectedDate, "EEEE, yyyy")}
                     </div>
                 </div>
 
-                {/* Event List */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar space-y-3 mb-6 pr-2">
-                    {selectedEvents.length === 0 ? (
-                        <div className="h-32 flex flex-col items-center justify-center text-theme-muted/30 border-2 border-dashed border-theme/10 rounded-lg">
-                            <Layers size={24} className="mb-2 opacity-50" />
-                            <span className="text-[10px] uppercase tracking-widest">No Events</span>
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
+
+                    {/* Events Section */}
+                    <div>
+                        <div className="flex items-center justify-between mb-3">
+                            <h4 className="text-xs font-bold uppercase tracking-widest text-theme-muted flex items-center gap-2">
+                                <CheckCircle size={12} /> Tasks & Events
+                            </h4>
+                            <span className="text-[10px] text-theme-muted/50 font-mono">{selectedEvents.length} items</span>
                         </div>
-                    ) : (
-                        selectedEvents.map(event => (
-                            <div key={event._id} className="group relative p-3 rounded-md bg-theme-secondary/20 border border-theme/10 hover:border-accent/30 hover:bg-theme-secondary/40 transition-all">
-                                <div className="flex items-start gap-3">
-                                    <div className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 ${event.type === 'milestone' ? 'bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.6)]' :
-                                        event.type === 'deadline' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]' :
-                                            event.type === 'habit' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' :
-                                                event.type === 'task' ? 'bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]' :
-                                                    'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]'
-                                        }`} />
-                                    <div>
-                                        <h4 className="text-sm font-bold text-theme-primary leading-tight mb-1 group-hover:text-accent transition-colors">{event.title}</h4>
-                                        <span className="text-[9px] font-mono text-theme-muted uppercase px-1.5 py-0.5 rounded bg-theme-tertiary border border-theme/10">
-                                            {event.type}
-                                        </span>
-                                    </div>
+
+                        <div className="space-y-2">
+                            {selectedEvents.length === 0 ? (
+                                <div className="p-4 text-center text-theme-muted/40 text-xs italic border border-dashed border-theme/10 rounded-lg">
+                                    No events scheduled
                                 </div>
-                            </div>
-                        ))
-                    )}
+                            ) : (
+                                selectedEvents.map(event => (
+                                    <div key={event._id} className={`group relative p-3 rounded-md border transition-all ${event.status === 'completed'
+                                            ? 'bg-theme-secondary/10 border-theme/5 opacity-60'
+                                            : 'bg-theme-secondary/20 border-theme/10 hover:border-accent/30 hover:bg-theme-secondary/40'
+                                        }`}>
+                                        <div className="flex items-start gap-3">
+                                            {/* Checkbox / Status Toggle */}
+                                            <button
+                                                onClick={() => handleToggleStatus(event)}
+                                                className={`mt-0.5 transition-colors ${event.status === 'completed' ? 'text-green-500' : 'text-theme-muted hover:text-theme-primary'}`}
+                                            >
+                                                {event.status === 'completed' ? <CheckSquare size={16} /> : <Square size={16} />}
+                                            </button>
+
+                                            <div className="flex-1 min-w-0">
+                                                {editingEventId === event._id ? (
+                                                    <div className="flex items-center gap-2">
+                                                        <input
+                                                            value={editTitle}
+                                                            onChange={(e) => setEditTitle(e.target.value)}
+                                                            className="flex-1 bg-black/20 border border-theme/20 rounded px-2 py-1 text-sm text-theme-primary focus:outline-none focus:border-accent"
+                                                            autoFocus
+                                                        />
+                                                        <button onClick={() => saveEdit(event._id)} className="p-1 text-green-500 hover:bg-green-500/10 rounded">
+                                                            <Save size={14} />
+                                                        </button>
+                                                        <button onClick={() => setEditingEventId(null)} className="p-1 text-red-500 hover:bg-red-500/10 rounded">
+                                                            <X size={14} />
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <>
+                                                        <h4 className={`text-sm font-bold leading-tight mb-1 transition-colors ${event.status === 'completed' ? 'text-theme-muted line-through' : 'text-theme-primary group-hover:text-accent'
+                                                            }`}>
+                                                            {event.title}
+                                                        </h4>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded border border-theme/10 flex items-center gap-1 ${event.type === 'milestone' ? 'bg-purple-500/20 text-purple-400' :
+                                                                    event.type === 'deadline' ? 'bg-red-500/20 text-red-400' :
+                                                                        event.type === 'habit' ? 'bg-green-500/20 text-green-400' :
+                                                                            event.type === 'task' ? 'bg-orange-500/20 text-orange-400' :
+                                                                                'bg-blue-500/20 text-blue-400'
+                                                                }`}>
+                                                                <div className={`w-1 h-1 rounded-full ${event.type === 'milestone' ? 'bg-purple-500' :
+                                                                        event.type === 'deadline' ? 'bg-red-500' :
+                                                                            event.type === 'habit' ? 'bg-green-500' :
+                                                                                event.type === 'task' ? 'bg-orange-500' :
+                                                                                    'bg-blue-500'
+                                                                    }`} />
+                                                                {event.type}
+                                                            </span>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+
+                                            {/* Action Buttons */}
+                                            {!editingEventId && (
+                                                <div className="flex items-center gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-all">
+                                                    <button
+                                                        onClick={(e) => startEditing(event, e)}
+                                                        className="p-1 text-theme-muted hover:text-accent transition-all"
+                                                        title="Edit Event"
+                                                    >
+                                                        <Edit2 size={14} />
+                                                    </button>
+                                                    <button
+                                                        onClick={(e) => handleDeleteEvent(event._id, e)}
+                                                        className="p-1 text-theme-muted hover:text-red-500 transition-all"
+                                                        title="Delete Event"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="h-px bg-theme/10 w-full" />
+
+                    {/* Journal/Notes Section */}
+                    <div>
+                        <div className="flex items-center justify-between mb-3">
+                            <h4 className="text-xs font-bold uppercase tracking-widest text-theme-muted flex items-center gap-2">
+                                <StickyNote size={12} /> Daily Journal
+                            </h4>
+                            <button
+                                onClick={() => setIsAddingNote(!isAddingNote)}
+                                className="text-[10px] text-accent hover:underline uppercase tracking-wider font-bold"
+                            >
+                                {isAddingNote ? "Cancel" : "+ Add Entry"}
+                            </button>
+                        </div>
+
+                        {isAddingNote && (
+                            <form onSubmit={handleSaveNote} className="mb-4 animate-in fade-in slide-in-from-top-2">
+                                <textarea
+                                    value={newNote}
+                                    onChange={(e) => setNewNote(e.target.value)}
+                                    placeholder="Write your thoughts for today..."
+                                    className="w-full bg-black/20 border border-theme/20 rounded-md p-3 text-sm text-theme-primary placeholder:text-theme-muted/50 focus:outline-none focus:border-accent/50 min-h-[100px] resize-none mb-2"
+                                    autoFocus
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={!newNote.trim()}
+                                    className="w-full py-1.5 bg-accent text-theme-primary text-xs font-bold uppercase tracking-wider rounded hover:opacity-90 disabled:opacity-50 transition-all"
+                                >
+                                    Save Entry
+                                </button>
+                            </form>
+                        )}
+
+                        <div className="space-y-3">
+                            {dayNotes.length === 0 ? (
+                                <div className="p-4 text-center text-theme-muted/30 text-xs italic">
+                                    No journal entries for this day.
+                                </div>
+                            ) : (
+                                dayNotes.map(note => (
+                                    <div key={note._id} className="bg-theme-tertiary/30 border border-theme/5 rounded-md p-3 text-sm text-theme-secondary">
+                                        <p className="whitespace-pre-wrap leading-relaxed">{note.content}</p>
+                                        <div className="mt-2 flex items-center gap-2 text-[10px] text-theme-muted/60">
+                                            <Clock size={10} />
+                                            {format(parseISO(note.date || note.createdAt), "h:mm a")}
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+
                 </div>
 
-                {/* Quick Add Form */}
-                <div className="mt-auto">
+                {/* Quick Add Form (Fixed Bottom) */}
+                <div className="mt-auto p-4 bg-theme-secondary/10 border-t border-theme/10">
                     <div className="mb-2 flex items-center justify-between">
                         <label className="text-[10px] font-bold uppercase tracking-widest text-theme-muted flex items-center gap-1">
                             <Zap size={10} className="text-accent" />
                             Quick Add
                         </label>
-
-                        {/* Type Toggle for Quick Add */}
-                        <div className="flex bg-theme-secondary rounded p-0.5">
-                            {(['task', 'session', 'deadline'] as const).map(t => (
-                                <button
-                                    key={t}
-                                    onClick={() => setQuickType(t)}
-                                    className={`w-4 h-4 rounded-sm flex items-center justify-center transition-all ${quickType === t ? 'bg-theme-primary shadow-sm' : 'text-theme-muted hover:text-white'}`}
-                                    title={t}
-                                >
-                                    <div className={`w-1.5 h-1.5 rounded-full ${t === 'task' ? 'bg-orange-500' : t === 'session' ? 'bg-blue-500' : 'bg-red-500'
-                                        }`} />
-                                </button>
-                            ))}
-                        </div>
                     </div>
 
-                    <form onSubmit={handleQuickAdd} className="relative group">
+                    {/* Clearer Type Selectors */}
+                    <div className="flex gap-2 mb-3">
+                        {(['task', 'session', 'deadline'] as const).map(t => (
+                            <button
+                                key={t}
+                                onClick={() => setQuickType(t)}
+                                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-[10px] uppercase font-bold tracking-wider transition-all border ${quickType === t
+                                        ? 'bg-theme-primary text-theme-secondary border-accent shadow-[0_0_10px_rgba(var(--accent-rgb),0.2)]'
+                                        : 'bg-theme-secondary text-theme-muted border-theme/10 hover:bg-theme-tertiary hover:text-theme-primary'
+                                    }`}
+                            >
+                                <div className={`w-1.5 h-1.5 rounded-full ${t === 'task' ? 'bg-orange-500' : t === 'session' ? 'bg-blue-500' : 'bg-red-500'
+                                    }`} />
+                                {t}
+                            </button>
+                        ))}
+                    </div>
+
+                    <form onSubmit={handleQuickAdd} className="relative group flex gap-2">
                         <input
                             type="text"
                             value={quickTitle}
                             onChange={(e) => setQuickTitle(e.target.value)}
-                            placeholder="Add a task..."
-                            className="w-full bg-theme-secondary border border-theme/20 text-sm p-3 rounded-lg text-theme-primary placeholder:text-theme-muted/50 focus:outline-none focus:border-accent/50 focus:bg-theme-tertiary transition-all"
+                            placeholder={`Add a new ${quickType}...`}
+                            className="flex-1 bg-theme-secondary border border-theme/20 text-sm p-3 rounded-lg text-theme-primary placeholder:text-theme-muted/50 focus:outline-none focus:border-accent/50 focus:bg-theme-tertiary transition-all"
                         />
                         <button
                             type="submit"
                             disabled={!quickTitle}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-accent text-theme-primary rounded-md opacity-0 group-hover:opacity-100 focus:opacity-100 disabled:opacity-0 transition-all hover:scale-105"
+                            className={`px-4 rounded-lg font-bold uppercase tracking-wider text-xs transition-all flex items-center gap-2 ${quickTitle
+                                    ? 'bg-accent text-theme-primary opacity-100 hover:scale-105'
+                                    : 'bg-theme-secondary text-theme-muted opacity-50 cursor-not-allowed'
+                                }`}
                         >
-                            <Plus size={14} />
+                            <Plus size={16} />
+                            Add
                         </button>
                     </form>
                 </div>
@@ -326,7 +595,7 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
                 <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
 
                 {/* Main Content (Calendar) */}
-                <div className="flex-1 p-8 pr-80 md:pr-[22rem] z-10 flex flex-col h-full">
+                <div className="flex-1 p-8 pr-96 md:pr-[26rem] z-10 flex flex-col h-full">
                     {/* The padding-right reserves space for the absolute positioned sidebar */}
                     {renderHeader()}
 
@@ -337,6 +606,26 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
                     ) : (
                         renderCalendarGrid()
                     )}
+
+                    {/* Quick Notes Access (Bottom List) */}
+                    <div className="mt-4 pt-4 border-t border-theme/10">
+                        <div className="flex items-center gap-2 mb-2">
+                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-theme-muted flex items-center gap-1">
+                                <FileText size={10} /> Recent Notes
+                            </h4>
+                        </div>
+                        <div className="flex gap-4 overflow-x-auto pb-2 custom-scrollbar">
+                            {recentNotes.map(note => (
+                                <div key={note._id} className="min-w-[200px] p-3 rounded bg-theme-tertiary/20 border border-theme/5 hover:bg-theme-tertiary/40 transition-all cursor-pointer truncate">
+                                    <span className="text-xs text-theme-secondary block truncate">{note.content}</span>
+                                    <span className="text-[9px] text-theme-muted mt-1 block">{format(parseISO(note.date || note.createdAt), "MMM d, h:mm a")}</span>
+                                </div>
+                            ))}
+                            {recentNotes.length === 0 && (
+                                <span className="text-xs text-theme-muted/40 italic">No recent notes found.</span>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Side Panel (Tasks & Details) */}
