@@ -34,6 +34,7 @@ export default function Header({ showNav = true }: HeaderProps) {
     { type: "page", title: "Agreements", subtitle: "Generate contracts", href: "/generator" },
     { type: "page", title: "Saved Agreements", subtitle: "Your saved contracts", href: "/documents" },
     { type: "page", title: "Community", subtitle: "Shared content", href: "/community" },
+    { type: "page", title: "Docs", subtitle: "IP & Copyright Guide", href: "/docs" },
   ];
 
   useEffect(() => {
@@ -133,7 +134,6 @@ export default function Header({ showNav = true }: HeaderProps) {
     { href: "/documents", label: "Documents" },
     { href: "/submissions", label: "Submissions" },
     { href: "/epk", label: "EPK" },
-    { href: "/docs", label: "Docs" },
     { href: "/settings", label: "Settings" },
   ];
 
