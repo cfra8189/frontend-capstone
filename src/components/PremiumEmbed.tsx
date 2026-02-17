@@ -8,6 +8,7 @@ interface EmbedData {
     provider_name?: string;
     html?: string;
     type?: string;
+    video_url?: string;
 }
 
 interface PremiumEmbedProps {
@@ -126,7 +127,19 @@ export default function PremiumEmbed({ url }: PremiumEmbedProps) {
         >
             {/* Media Content */}
             <div className={`relative overflow-hidden ${isVideo && !isTwitter ? 'aspect-video' : 'aspect-auto min-h-[100px]'}`}>
-                {isImage && data.thumbnail_url ? (
+                {/* Direct video or Pinterest Video */}
+                {(isVideo || (isPinterest && data.video_url)) && !isTwitter ? (
+                    <video
+                        src={data.video_url || url}
+                        poster={data.thumbnail_url}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        controls={false}
+                        className="w-full h-full object-cover pointer-events-none"
+                    />
+                ) : isImage && data.thumbnail_url ? (
                     <a href={url} target="_blank" rel="noreferrer">
                         <img
                             src={data.thumbnail_url}

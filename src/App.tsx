@@ -18,7 +18,6 @@ import Portfolio from "./pages/Portfolio";
 import SubmissionGenerator from "./pages/SubmissionGenerator";
 import EPKEditor from "./pages/EPKEditor";
 import EPKView from "./pages/EPKView";
-import EPK from "./pages/EPK";
 import CapstoneDoc from "./pages/CapstoneDoc";
 import TrackReview from "./pages/TrackReview";
 import GlobalEffects from "./components/GlobalEffects"; // Changed import
@@ -120,7 +119,9 @@ function App() {
             <Route path="/generator" component={Generator} />
             <Route path="/documents" component={Documents} />
             <Route path="/submissions" component={SubmissionGenerator} />
-            <Route path="/epk" component={EPK} />
+            <Route path="/epk" component={EPKEditor} />
+            <Route path="/epk/editor" component={EPKEditor} />
+            <Route path="/epk/:boxCode" component={EPKView} />
             <Route path="/settings" component={Settings} />
             <Route path="/studio" component={StudioDashboard} />
             <Route>

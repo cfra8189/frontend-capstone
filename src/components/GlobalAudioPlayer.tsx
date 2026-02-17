@@ -1,5 +1,6 @@
 import { useAudioPlayer } from "../context/AudioPlayerContext";
 import { Play, Pause, X, Volume2 } from "lucide-react";
+import ParticleNetwork from "./ParticleNetwork";
 
 export default function GlobalAudioPlayer() {
     const { currentTrack, isPlaying, currentTime, duration, togglePlay, seekTo, close } = useAudioPlayer();
@@ -23,8 +24,13 @@ export default function GlobalAudioPlayer() {
             {/* Subtle top border glow */}
             <div className="h-px bg-gradient-to-r from-transparent via-theme-muted/30 to-transparent" />
 
-            <div className="bg-theme-secondary/95 backdrop-blur-xl border-t border-theme/20 px-4 py-2.5">
-                <div className="max-w-6xl mx-auto flex items-center gap-3">
+            <div className="bg-theme-secondary/95 backdrop-blur-xl border-t border-theme/20 px-4 py-2.5 relative overflow-hidden">
+                {/* Particle Background */}
+                <div className="absolute inset-0 opacity-20 pointer-events-none">
+                    <ParticleNetwork />
+                </div>
+
+                <div className="max-w-6xl mx-auto flex items-center gap-3 relative z-10">
 
                     {/* Play/Pause */}
                     <button
@@ -55,19 +61,20 @@ export default function GlobalAudioPlayer() {
 
                         {/* Progress bar */}
                         <div
-                            className="flex-1 h-1 bg-theme-primary/15 rounded-full cursor-pointer group relative"
+                            className="flex-1 h-1 bg-theme-primary/20 rounded-full cursor-pointer group relative py-2 -my-2 bg-clip-content"
                             onClick={(e) => {
                                 const rect = e.currentTarget.getBoundingClientRect();
                                 const x = e.clientX - rect.left;
-                                const pct = x / rect.width;
+                                const pct = Math.max(0, Math.min(1, x / rect.width));
                                 seekTo(pct * duration);
                             }}
                         >
+                            <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-1 bg-theme-primary/20 rounded-full" />
                             <div
-                                className="h-full bg-theme-primary/60 rounded-full transition-all relative"
+                                className="absolute top-1/2 -translate-y-1/2 left-0 h-1 bg-theme-primary rounded-full transition-all"
                                 style={{ width: `${progress}%` }}
                             >
-                                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-theme-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-theme-primary shadow-[0_0_10px_rgba(var(--theme-primary-rgb),0.5)] transform translate-x-1/2" />
                             </div>
                         </div>
 
