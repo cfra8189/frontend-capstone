@@ -15,6 +15,7 @@ interface TrackedTrack {
     currentLikes: number;
     currentComments: number;
     growth7d: number;
+    publishedAt?: string;
     status: string;
     promoRecommendation: string;
     dateAdded: string;
@@ -36,6 +37,29 @@ const TRACK_COLORS = [
     '#ffffff', '#e5e5e5', '#d4d4d4', '#a3a3a3', '#737373',
     '#525252', '#404040', '#262626', '#171717', '#0a0a0a',
 ];
+
+// ---------- Helpers ----------
+function calculateAge(publishedAt?: string): string {
+    if (!publishedAt) return '—';
+    const pubDate = new Date(publishedAt);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - pubDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 30) return `${diffDays} days`;
+    if (diffDays < 365) return `${Math.floor(diffDays / 30)} months`;
+    return `${Math.floor(diffDays / 365)} years`;
+}
+
+function calculateLifetimeAvg(plays: number, publishedAt?: string): string {
+    if (!publishedAt || plays === 0) return '0';
+    const pubDate = new Date(publishedAt);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - pubDate.getTime());
+    const diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+    const avg = plays / diffDays;
+    return avg >= 1000 ? `${(avg / 1000).toFixed(1)}k` : Math.round(avg).toString();
+}
 
 // ---------- Main Component ----------
 export default function MusicPulseContent() {
@@ -232,7 +256,7 @@ export default function MusicPulseContent() {
                                     const d = new Date(label);
                                     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
                                 }}
-                                formatter={(value: number, name: string) => [`${value.toLocaleString()} views`, name]}
+                                formatter={(value: number | string | undefined) => [value !== undefined ? `${Number(value).toLocaleString()} views` : '0 views']}
                             />
                             <Legend
                                 wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }}
@@ -322,6 +346,7 @@ export default function MusicPulseContent() {
                                     <th className="text-right p-3">Likes</th>
                                     <th className="text-right p-3">Comments</th>
                                     <th className="text-right p-3">7d Growth</th>
+                                    <th className="text-right p-3">Lifetime</th>
                                     <th className="text-center p-3">Status</th>
                                     <th className="text-left p-3">Recommendation</th>
                                     <th className="text-center p-3">Actions</th>
@@ -352,6 +377,10 @@ export default function MusicPulseContent() {
                                             <span className={`${track.growth7d > 5 ? 'text-emerald-400' : track.growth7d < -5 ? 'text-red-400' : 'text-theme-muted'}`}>
                                                 {track.growth7d > 0 ? '+' : ''}{track.growth7d}%
                                             </span>
+                                        </td>
+                                        <td className="text-right p-3 font-mono whitespace-nowrap">
+                                            <div className="text-theme-primary">{calculateAge(track.publishedAt)}</div>
+                                            <div className="text-[8px] text-theme-muted">{calculateLifetimeAvg(track.currentPlays, track.publishedAt)} views/day</div>
                                         </td>
                                         <td className="text-center p-3 text-sm">{track.status}</td>
                                         <td className="text-left p-3 text-[10px] text-theme-muted leading-relaxed">{track.promoRecommendation}</td>
