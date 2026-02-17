@@ -61,7 +61,7 @@ function App() {
     return (
       <>
         <GlobalEffects showParticles={false} />
-        <Portfolio />
+        <Route path="/portfolio/:id" component={Portfolio} />
       </>
     );
   }
@@ -70,7 +70,7 @@ function App() {
     return (
       <>
         <GlobalEffects showParticles={false} />
-        <EPKView />
+        <Route path="/epk/:boxCode" component={EPKView} />
       </>
     );
   }

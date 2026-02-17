@@ -22,6 +22,7 @@ interface EPKData {
     bookingEmail: string;
     technicalRider: string;
     stagePlot: string;
+    isPublished: boolean;
   };
   artist: {
     id: number;
@@ -71,7 +72,8 @@ const MOCK_EPK: EPKData = {
     contactName: "Management Team",
     bookingEmail: "booking@agency.com",
     technicalRider: "Standard Rider",
-    stagePlot: "Standard Plot"
+    stagePlot: "Standard Plot",
+    isPublished: true
   },
   artist: {
     id: 0,
@@ -132,14 +134,14 @@ export default function EPKView() {
     }
 
     try {
+      setData(null); // Clear previous data
       const res = await fetch(`/api/epk/${boxCode}`);
       if (res.ok) {
         const epkData = await res.json();
         setData(epkData);
-        setIsOwner(user?.id === epkData.artist.id || user?.boxCode === boxCode);
+        // Strict owner check using both ID and boxCode
+        setIsOwner(!!(user?.id === epkData.artist.id || (user?.boxCode && user.boxCode.toUpperCase() === boxCode.toUpperCase())));
       } else {
-        // Only fallback if this is a development/test environment and the user explicitly asked for it
-        // Otherwise, show an empty state or 404
         setData(null);
       }
     } catch (err) {
@@ -193,16 +195,19 @@ export default function EPKView() {
       {/* ── CRT Scanline Texture ── */}
       <div className="fixed inset-0 pointer-events-none z-[100] opacity-[0.02] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
 
-      {/* ── Owner Preview Banner ── */}
+      {/* Owner Preview Banner */}
       {isOwner && (
-        <div className="fixed top-0 left-0 right-0 z-[60] bg-accent/90 text-black py-2 px-4 shadow-2xl flex items-center justify-between backdrop-blur-md">
-          <div className="flex items-center gap-3">
-            <span className="font-mono text-[10px] font-black border border-black/20 px-1.5 rounded">PREVIEW_MODE</span>
-            <span className="text-xs font-bold uppercase tracking-wider">This is your public EPK. Only information you've added is visible.</span>
+        <div className="bg-accent text-black py-2 px-4 flex items-center justify-between sticky top-0 z-[100] font-mono text-[10px] uppercase tracking-[0.2em] font-bold shadow-xl">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-black animate-pulse"></span>
+              <span>PREVIEW_MODE // {epk.isPublished ? "LIVE_ON_NETWORK" : "DRAFT_STATE_OFFLINE"}</span>
+            </div>
           </div>
           <Link href="/epk">
-            <button className="bg-black text-white px-4 py-1.5 rounded-sm text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-neutral-900 transition-all">
-              <Edit3 size={12} /> Edit Profile
+            <button className="flex items-center gap-2 hover:opacity-70 transition-opacity">
+              <Edit3 size={12} />
+              <span>EDIT_PROFILE</span>
             </button>
           </Link>
         </div>
