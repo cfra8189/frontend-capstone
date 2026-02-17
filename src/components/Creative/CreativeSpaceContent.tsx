@@ -18,11 +18,12 @@ interface Note {
     updated_at: string;
     media_url?: string;
     tags?: string[];
-    folder_id?: number | null;
+    folder_id?: string | null;
 }
 
 interface Folder {
-    id: number;
+    _id: string;
+    id?: string;
     name: string;
 }
 
@@ -50,7 +51,7 @@ export default function CreativeSpaceContent() {
     );
     const [editingNote, setEditingNote] = useState<Note | null>(null);
     const [uploadedMediaUrl, setUploadedMediaUrl] = useState<string>("");
-    const [selectedFolderId, setSelectedFolderId] = useState<number | null>(null);
+    const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
     const [draggedNote, setDraggedNote] = useState<Note | null>(null);
     const [dragOverId, setDragOverId] = useState<number | null>(null);
     const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -311,9 +312,10 @@ export default function CreativeSpaceContent() {
         return url.includes("drive.google.com") && (url.includes("/file/d/") || url.includes("id="));
     }
 
-    function getFolderName(folderId: number | null | undefined): string | null {
+    function getFolderName(folderId: string | number | null | undefined): string | null {
         if (!folderId) return null;
-        const folder = folders.find(f => f.id === folderId);
+        const fid = folderId.toString();
+        const folder = folders.find(f => (f._id === fid) || (f.id === fid));
         return folder?.name || null;
     }
 
@@ -585,13 +587,14 @@ export default function CreativeSpaceContent() {
                             <div>
                                 <label className="block text-[10px] font-bold text-theme-muted mb-1 uppercase tracking-widest">Link to Folder</label>
                                 <select
+                                    name="folder_id"
                                     value={selectedFolderId ?? ""}
-                                    onChange={(e) => setSelectedFolderId(e.target.value ? Number(e.target.value) : null)}
+                                    onChange={(e) => setSelectedFolderId(e.target.value || null)}
                                     className="w-full bg-theme-primary border border-theme p-2 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-colors uppercase"
                                 >
                                     <option value="">No folder</option>
                                     {folders.map(f => (
-                                        <option key={f.id} value={f.id}>{f.name}</option>
+                                        <option key={f._id || f.id} value={f._id || f.id}>{f.name}</option>
                                     ))}
                                 </select>
                             </div>
