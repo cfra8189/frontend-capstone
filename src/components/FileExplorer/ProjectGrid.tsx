@@ -82,6 +82,17 @@ const ProjectRow: React.FC<{
 
     const statuses = ['concept', 'development', 'demo', 'published', 'planning'];
 
+    const getTypeLabel = (type?: string) => {
+        switch (type) {
+            case 'track_review': return 'REVIEW';
+            case 'album': return 'ALBUM';
+            case 'ep': return 'EP';
+            case 'beat': return 'BEAT';
+            case 'sample': return 'SAMPLE';
+            default: return 'PROJECT';
+        }
+    };
+
     return (
         <div
             ref={setNodeRef}
@@ -108,7 +119,7 @@ const ProjectRow: React.FC<{
             </div>
 
             {/* Title Column - Flexible width */}
-            <div className="flex-1 min-w-0 pr-4 flex items-center">
+            <div className="flex-[1.5] min-w-0 pr-4 flex items-center">
                 {project.type === 'track_review' ? (
                     <span
                         onClick={() => {
@@ -133,6 +144,13 @@ const ProjectRow: React.FC<{
                         {project.title}
                     </Link>
                 )}
+            </div>
+
+            {/* Type Column */}
+            <div className="w-20 hidden sm:flex items-center">
+                <span className={`text-[9px] font-mono font-bold uppercase tracking-wider ${project.type === 'track_review' ? 'text-green-500/80' : 'text-theme-muted/60'}`}>
+                    {getTypeLabel(project.type)}
+                </span>
             </div>
 
 
@@ -176,12 +194,12 @@ const ProjectRow: React.FC<{
             </div>
 
             {/* Date Column */}
-            <div className="w-32 hidden md:flex items-center justify-center text-[9px] font-mono text-theme-muted/40 uppercase tracking-wider">
+            <div className="w-32 hidden md:flex items-center justify-start pl-4 text-[9px] font-mono text-theme-muted/40 uppercase tracking-wider">
                 {new Date(project.updatedAt).toLocaleDateString()}
             </div>
 
             {/* Notes Field (Input) - Flex to fill remaining space */}
-            <div className="flex-1 hidden lg:block min-w-0">
+            <div className="flex-1 hidden lg:block min-w-0 pl-4">
                 <div className="relative group/notes">
                     <input
                         type="text"
@@ -341,7 +359,7 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, loading, onE
                 </div>
 
                 <div
-                    className="flex-1 cursor-pointer hover:text-theme-primary transition-colors flex items-center gap-2 group min-w-0"
+                    className="flex-[1.5] cursor-pointer hover:text-theme-primary transition-colors flex items-center gap-2 group min-w-0"
                     onClick={() => handleSort('title')}
                 >
                     <span className="whitespace-nowrap">NAME</span>
@@ -354,10 +372,12 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, loading, onE
                     </span>
                 </div>
 
+                <div className="w-20 hidden sm:flex items-center text-left">TYPE</div>
+
                 <div className="w-28 hidden sm:flex items-center justify-center text-center">STATUS</div>
 
                 <div
-                    className="w-32 hidden md:flex items-center justify-center gap-1.5 cursor-pointer hover:text-theme-primary transition-colors group min-w-0"
+                    className="w-32 hidden md:flex items-center justify-start pl-4 gap-1.5 cursor-pointer hover:text-theme-primary transition-colors group min-w-0"
                     onClick={() => handleSort('updatedAt')}
                 >
                     <span className="whitespace-nowrap uppercase tracking-widest text-[7px] sm:text-[8px]">Updated</span>
@@ -370,7 +390,7 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({ projects, loading, onE
                     </span>
                 </div>
 
-                <div className="flex-1 hidden lg:block">NOTES</div>
+                <div className="flex-1 hidden lg:block pl-4">NOTES</div>
                 <div className="w-8"></div>
             </div>
 
