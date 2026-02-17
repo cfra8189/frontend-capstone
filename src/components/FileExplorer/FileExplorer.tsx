@@ -181,7 +181,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
                                     w-64 flex-shrink-0 transition-transform duration-300 ease-in-out
                                     ${showMobileSidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
                                     bg-theme-secondary/95 md:bg-transparent backdrop-blur-2xl md:backdrop-blur-none
-                                    border-r border-theme/20 md:border-r-0
+                                    border-r border-theme/20
                                 `}
                             onDeleteFolder={(folder) => setFolderToDelete(folder)}
                             onRenameFolder={() => { }} // Sidebar handles its own renaming state
