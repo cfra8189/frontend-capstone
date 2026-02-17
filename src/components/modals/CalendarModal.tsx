@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { X, ChevronLeft, ChevronRight, Loader, Plus, CheckCircle, AlertCircle, Clock } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Loader, Plus, CheckCircle, AlertCircle, Clock, Calendar as CalendarIcon, Filter, Layers, Zap } from "lucide-react";
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameMonth, isSameDay, addDays, parseISO } from "date-fns";
 import { useAuth } from "../../hooks/use-auth";
+import ParticleNetwork from "../ParticleNetwork";
 
 interface CalendarEvent {
     _id: string;
     title: string;
     date: string; // ISO string
-    type: "session" | "habit" | "deadline" | "milestone";
+    type: "session" | "habit" | "deadline" | "milestone" | "task";
     status: "pending" | "completed" | "missed";
     projectId?: string;
 }
@@ -20,14 +21,13 @@ interface CalendarModalProps {
 export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose }) => {
     const { user } = useAuth();
     const [currentMonth, setCurrentMonth] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState(new Date());
     const [events, setEvents] = useState<CalendarEvent[]>([]);
     const [loading, setLoading] = useState(false);
-    const [showAddForm, setShowAddForm] = useState(false);
-    const [newEvent, setNewEvent] = useState({
-        title: "",
-        date: format(new Date(), "yyyy-MM-dd"),
-        type: "session" as CalendarEvent["type"],
-    });
+
+    // Quick Add State
+    const [quickTitle, setQuickTitle] = useState("");
+    const [quickType, setQuickType] = useState<CalendarEvent["type"]>("task");
 
     useEffect(() => {
         if (isOpen) {
@@ -41,10 +41,9 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
             const res = await fetch("/api/calendar");
             if (res.ok) {
                 const data = await res.json();
-                // Merge events and milestones
-                const allEvents = [...data.events, ...data.milestones].map((e: any) => ({
+                const allEvents = [...data.events, ...(data.milestones || [])].map((e: any) => ({
                     ...e,
-                    date: e.startDate || e.date // normalization
+                    date: e.startDate || e.date
                 }));
                 setEvents(allEvents);
             }
@@ -55,22 +54,23 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
         }
     };
 
-    const handleAddEvent = async (e: React.FormEvent) => {
+    const handleQuickAdd = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!quickTitle.trim()) return;
+
         try {
             const res = await fetch("/api/calendar", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    title: newEvent.title,
-                    startDate: new Date(newEvent.date),
-                    type: newEvent.type,
+                    title: quickTitle,
+                    startDate: selectedDate,
+                    type: quickType, // Defaulting to 'task' or user selection
                     status: "pending"
                 })
             });
             if (res.ok) {
-                setShowAddForm(false);
-                setNewEvent({ title: "", date: format(new Date(), "yyyy-MM-dd"), type: "session" });
+                setQuickTitle("");
                 fetchEvents();
             }
         } catch (error) {
@@ -78,111 +78,120 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
         }
     };
 
+    const handleBackdropClick = (e: React.MouseEvent) => {
+        if (e.target === e.currentTarget) {
+            onClose();
+        }
+    };
+
+    const getEventsForDate = (date: Date) => {
+        return events.filter(e => isSameDay(parseISO(e.date), date));
+    };
+
     const renderHeader = () => {
         return (
-            <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                    <h2 className="text-2xl font-bold font-mono uppercase tracking-widest text-theme-primary">
-                        {format(currentMonth, "MMMM yyyy")}
-                    </h2>
-                    <div className="flex gap-1">
-                        <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-1 hover:bg-theme-secondary/20 rounded text-theme-muted hover:text-theme-primary transition-colors">
-                            <ChevronLeft size={20} />
+            <div className="flex items-center justify-between mb-8 relative z-20">
+                <div className="flex items-center gap-6">
+                    <div className="flex flex-col">
+                        <h2 className="text-4xl font-black font-mono uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-theme-primary via-accent to-theme-primary animate-pulse">
+                            {format(currentMonth, "MMMM")}
+                        </h2>
+                        <span className="text-sm font-mono text-theme-muted uppercase tracking-[0.5em] ml-1">
+                            {format(currentMonth, "yyyy")}
+                        </span>
+                    </div>
+
+                    <div className="flex gap-2 items-center bg-black/20 p-1 rounded-full border border-theme/10 backdrop-blur-sm">
+                        <button onClick={() => setCurrentMonth(subMonths(currentMonth, 1))} className="p-2 hover:bg-theme-secondary/50 rounded-full text-theme-muted hover:text-theme-primary transition-all">
+                            <ChevronLeft size={16} />
                         </button>
-                        <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-1 hover:bg-theme-secondary/20 rounded text-theme-muted hover:text-theme-primary transition-colors">
-                            <ChevronRight size={20} />
+                        <div className="w-px h-4 bg-theme/20" />
+                        <button onClick={() => setCurrentMonth(addMonths(currentMonth, 1))} className="p-2 hover:bg-theme-secondary/50 rounded-full text-theme-muted hover:text-theme-primary transition-all">
+                            <ChevronRight size={16} />
                         </button>
                     </div>
                 </div>
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => setShowAddForm(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-accent/10 border border-accent/20 text-accent hover:bg-accent hover:text-theme-primary transition-all font-mono text-xs font-bold uppercase tracking-widest"
-                    >
-                        <Plus size={14} /> Add Event
-                    </button>
-                    <button onClick={onClose} className="text-theme-muted hover:text-theme-primary">
-                        <X size={24} />
+
+                <div className="flex items-center gap-4">
+                    <button onClick={onClose} className="group p-2 hover:bg-red-500/10 rounded-full transition-all">
+                        <X size={24} className="text-theme-muted group-hover:text-red-500 transition-colors" />
                     </button>
                 </div>
             </div>
         );
     };
 
-    const renderDays = () => {
-        const dateFormat = "eeee";
-        const days = [];
-        let startDate = startOfWeek(currentMonth);
-
-        for (let i = 0; i < 7; i++) {
-            days.push(
-                <div className="text-center font-mono text-[10px] uppercase tracking-widest text-theme-muted py-2 border-b border-theme/20" key={i}>
-                    {format(addDays(startDate, i), dateFormat)}
-                </div>
-            );
-        }
-        return <div className="grid grid-cols-7 mb-2">{days}</div>;
-    };
-
-    const renderCells = () => {
+    const renderCalendarGrid = () => {
         const monthStart = startOfMonth(currentMonth);
         const monthEnd = endOfMonth(monthStart);
         const startDate = startOfWeek(monthStart);
         const endDate = endOfWeek(monthEnd);
-
         const dateFormat = "d";
         const rows = [];
         let days = [];
         let day = startDate;
         let formattedDate = "";
 
+        // Days Header
+        const weekDays = [];
+        for (let i = 0; i < 7; i++) {
+            weekDays.push(
+                <div className="text-center font-mono text-[9px] uppercase tracking-widest text-theme-muted/50 py-3" key={i}>
+                    {format(addDays(startDate, i), "eeee")}
+                </div>
+            );
+        }
+
         while (day <= endDate) {
             for (let i = 0; i < 7; i++) {
                 formattedDate = format(day, dateFormat);
                 const cloneDay = day;
-
-                const dayEvents = events.filter(e => isSameDay(parseISO(e.date), cloneDay));
+                const isSelected = isSameDay(day, selectedDate);
+                const isCurrentMonth = isSameMonth(day, monthStart);
+                const isToday = isSameDay(day, new Date());
+                const dayEvents = getEventsForDate(day);
+                const hasEvents = dayEvents.length > 0;
 
                 days.push(
                     <div
-                        className={`min-h-[100px] p-2 border border-theme/10 relative group hover:bg-theme-secondary/5 transition-colors ${!isSameMonth(day, monthStart)
-                                ? "text-theme-muted/20 bg-black/20"
-                                : isSameDay(day, new Date()) ? "bg-accent/5 ring-1 ring-inset ring-accent/30" : "bg-theme-secondary/10"
-                            }`}
+                        className={`
+                            relative h-28 p-2 border border-theme/5 transition-all duration-300 cursor-pointer overflow-hidden group
+                            ${!isCurrentMonth ? "bg-black/40 text-theme-muted/10 opacity-50" : "bg-theme-secondary/10 hover:bg-theme-secondary/20"}
+                            ${isSelected ? "ring-2 ring-accent/50 bg-accent/5 z-10 shadow-[0_0_20px_rgba(var(--accent-rgb),0.2)]" : ""}
+                            ${isToday ? "bg-theme-primary/10" : ""}
+                        `}
                         key={day.toString()}
+                        onClick={() => setSelectedDate(cloneDay)}
                     >
-                        <span className={`text-xs font-mono font-bold ${!isSameMonth(day, monthStart) ? "text-theme-muted/20" : "text-theme-muted"}`}>{formattedDate}</span>
+                        {/* Date Number */}
+                        <span className={`
+                            absolute top-2 left-2 text-xs font-mono font-bold transition-all
+                            ${isSelected ? "text-accent scale-110" : isCurrentMonth ? "text-theme-muted" : "text-theme-muted/20"}
+                            ${isToday && !isSelected ? "text-theme-primary" : ""}
+                        `}>
+                            {formattedDate}
+                        </span>
 
-                        <div className="mt-2 space-y-1">
-                            {dayEvents.map((event, idx) => (
-                                <div
-                                    key={event._id || idx}
-                                    className={`text-[9px] px-1.5 py-0.5 rounded border truncate flex items-center gap-1.5
-                    ${event.type === 'milestone' ? 'bg-purple-500/10 border-purple-500/30 text-purple-400' :
-                                            event.type === 'deadline' ? 'bg-red-500/10 border-red-500/30 text-red-400' :
-                                                event.type === 'habit' ? 'bg-green-500/10 border-green-500/30 text-green-400' :
-                                                    'bg-blue-500/10 border-blue-500/30 text-blue-400'}
-                  `}
-                                    title={event.title}
-                                >
-                                    {event.type === 'milestone' && <CheckCircle size={8} />}
-                                    {event.type === 'deadline' && <AlertCircle size={8} />}
-                                    {event.type === 'session' && <Clock size={8} />}
-                                    <span className="truncate">{event.title}</span>
+                        {/* Event Dots/Bars */}
+                        <div className="mt-6 space-y-1">
+                            {dayEvents.slice(0, 3).map((event, idx) => (
+                                <div key={idx} className="flex items-center gap-1.5 px-1.5 py-0.5 rounded-sm bg-black/20 backdrop-blur-[1px] border border-white/5">
+                                    <div className={`w-1 h-1 rounded-full ${event.type === 'milestone' ? 'bg-purple-500 shadow-[0_0_5px_rgba(168,85,247,0.8)]' :
+                                            event.type === 'deadline' ? 'bg-red-500 shadow-[0_0_5px_rgba(239,68,68,0.8)]' :
+                                                event.type === 'habit' ? 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.8)]' :
+                                                    'bg-blue-500 shadow-[0_0_5px_rgba(59,130,246,0.8)]'
+                                        }`} />
+                                    <span className="text-[8px] font-mono truncate text-white/70">{event.title}</span>
                                 </div>
                             ))}
+                            {dayEvents.length > 3 && (
+                                <div className="text-[8px] text-theme-muted pl-1">+ {dayEvents.length - 3} more</div>
+                            )}
                         </div>
 
-                        {isSameMonth(day, monthStart) && (
-                            <button
-                                onClick={() => {
-                                    setNewEvent({ ...newEvent, date: format(cloneDay, "yyyy-MM-dd") });
-                                    setShowAddForm(true);
-                                }}
-                                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-0.5 hover:bg-theme-primary rounded text-theme-muted hover:text-theme-primary transition-all"
-                            >
-                                <Plus size={12} />
-                            </button>
+                        {/* Selection Highlight */}
+                        {isSelected && (
+                            <div className="absolute inset-0 bg-accent/5 pointer-events-none" />
                         )}
                     </div>
                 );
@@ -195,78 +204,143 @@ export const CalendarModal: React.FC<CalendarModalProps> = ({ isOpen, onClose })
             );
             days = [];
         }
-        return <div className="border border-theme/20 bg-theme-primary/40 backdrop-blur-sm rounded-sm overflow-hidden">{rows}</div>;
+
+        return (
+            <div className="flex-1 overflow-hidden flex flex-col">
+                <div className="grid grid-cols-7 border-b border-theme/10">{weekDays}</div>
+                <div className="flex-1 border border-theme/10 rounded-lg overflow-hidden bg-black/20 backdrop-blur-sm">
+                    {rows}
+                </div>
+            </div>
+        );
+    };
+
+    const renderSidePanel = () => {
+        const selectedEvents = getEventsForDate(selectedDate);
+        const isToday = isSameDay(selectedDate, new Date());
+
+        return (
+            <div className="w-full md:w-80 border-l border-theme/20 bg-theme-primary/80 backdrop-blur-xl p-6 flex flex-col h-full absolute right-0 top-0 bottom-0 shadow-2xl z-30 transition-all duration-500 ease-in-out transform translate-x-0">
+                <div className="mb-6">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-theme-muted mb-1">
+                        {isToday ? "Today's Agenda" : "Selected Date"}
+                    </h3>
+                    <div className="text-3xl font-black font-mono text-theme-primary flex items-baseline gap-2">
+                        {format(selectedDate, "dd")}
+                        <span className="text-lg font-normal text-theme-muted opacity-60">{format(selectedDate, "MMM")}</span>
+                    </div>
+                    <div className="text-sm text-theme-secondary/80 font-mono mt-1">
+                        {format(selectedDate, "EEEE")}
+                    </div>
+                </div>
+
+                {/* Event List */}
+                <div className="flex-1 overflow-y-auto custom-scrollbar space-y-3 mb-6 pr-2">
+                    {selectedEvents.length === 0 ? (
+                        <div className="h-32 flex flex-col items-center justify-center text-theme-muted/30 border-2 border-dashed border-theme/10 rounded-lg">
+                            <Layers size={24} className="mb-2 opacity-50" />
+                            <span className="text-[10px] uppercase tracking-widest">No Events</span>
+                        </div>
+                    ) : (
+                        selectedEvents.map(event => (
+                            <div key={event._id} className="group relative p-3 rounded-md bg-theme-secondary/20 border border-theme/10 hover:border-accent/30 hover:bg-theme-secondary/40 transition-all">
+                                <div className="flex items-start gap-3">
+                                    <div className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 ${event.type === 'milestone' ? 'bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.6)]' :
+                                            event.type === 'deadline' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]' :
+                                                event.type === 'habit' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' :
+                                                    event.type === 'task' ? 'bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]' :
+                                                        'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]'
+                                        }`} />
+                                    <div>
+                                        <h4 className="text-sm font-bold text-theme-primary leading-tight mb-1 group-hover:text-accent transition-colors">{event.title}</h4>
+                                        <span className="text-[9px] font-mono text-theme-muted uppercase px-1.5 py-0.5 rounded bg-black/20 border border-white/5">
+                                            {event.type}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+
+                {/* Quick Add Form */}
+                <div className="mt-auto">
+                    <div className="mb-2 flex items-center justify-between">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-theme-muted flex items-center gap-1">
+                            <Zap size={10} className="text-accent" />
+                            Quick Add
+                        </label>
+
+                        {/* Type Toggle for Quick Add */}
+                        <div className="flex bg-black/20 rounded p-0.5">
+                            {(['task', 'session', 'deadline'] as const).map(t => (
+                                <button
+                                    key={t}
+                                    onClick={() => setQuickType(t)}
+                                    className={`w-4 h-4 rounded-sm flex items-center justify-center transition-all ${quickType === t ? 'bg-theme-primary shadow-sm' : 'text-theme-muted hover:text-white'}`}
+                                    title={t}
+                                >
+                                    <div className={`w-1.5 h-1.5 rounded-full ${t === 'task' ? 'bg-orange-500' : t === 'session' ? 'bg-blue-500' : 'bg-red-500'
+                                        }`} />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <form onSubmit={handleQuickAdd} className="relative group">
+                        <input
+                            type="text"
+                            value={quickTitle}
+                            onChange={(e) => setQuickTitle(e.target.value)}
+                            placeholder="Add a task..."
+                            className="w-full bg-black/30 border border-theme/20 text-sm p-3 rounded-lg text-theme-primary placeholder:text-theme-muted/50 focus:outline-none focus:border-accent/50 focus:bg-black/50 transition-all"
+                        />
+                        <button
+                            type="submit"
+                            disabled={!quickTitle}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-accent text-theme-primary rounded-md opacity-0 group-hover:opacity-100 focus:opacity-100 disabled:opacity-0 transition-all hover:scale-105"
+                        >
+                            <Plus size={14} />
+                        </button>
+                    </form>
+                </div>
+            </div>
+        );
     };
 
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[200] flex items-center justify-center p-4 md:p-8">
-            <div className="bg-theme-secondary/90 border border-theme w-full max-w-6xl h-full max-h-[90vh] flex flex-col shadow-2xl rounded-lg overflow-hidden relative">
-                {/* CRT Overlay */}
-                <div className="absolute inset-0 pointer-events-none opacity-[0.02] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
+        <div
+            className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
+            onClick={handleBackdropClick}
+        >
+            <div
+                className="bg-theme-secondary/95 border border-theme/30 w-full max-w-6xl h-[85vh] flex shadow-2xl rounded-2xl overflow-hidden relative animate-in fade-in zoom-in-95 duration-200"
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Background Effects */}
+                <div className="absolute inset-0 z-0 opacity-40 pointer-events-none">
+                    <ParticleNetwork />
+                </div>
+                <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
 
-                <div className="p-6 flex-1 overflow-y-auto custom-scrollbar relative z-10">
+                {/* Main Content (Calendar) */}
+                <div className="flex-1 p-8 pr-80 md:pr-[22rem] z-10 flex flex-col h-full">
+                    {/* The padding-right reserves space for the absolute positioned sidebar */}
                     {renderHeader()}
+
                     {loading ? (
-                        <div className="h-64 flex items-center justify-center">
-                            <Loader className="animate-spin text-accent" size={32} />
+                        <div className="flex-1 flex items-center justify-center">
+                            <Loader className="animate-spin text-accent" size={40} />
                         </div>
                     ) : (
-                        <>
-                            {renderDays()}
-                            {renderCells()}
-                        </>
+                        renderCalendarGrid()
                     )}
                 </div>
 
-                {/* Add Event Modal Overlay */}
-                {showAddForm && (
-                    <div className="absolute inset-0 bg-black/60 z-20 flex items-center justify-center">
-                        <div className="bg-theme-primary border border-theme p-6 w-full max-w-sm shadow-xl">
-                            <h3 className="text-lg font-bold text-theme-primary mb-4 uppercase">New Event</h3>
-                            <form onSubmit={handleAddEvent} className="space-y-4">
-                                <div>
-                                    <label className="block text-[10px] uppercase font-bold text-theme-muted mb-1">Title</label>
-                                    <input
-                                        required
-                                        value={newEvent.title}
-                                        onChange={e => setNewEvent({ ...newEvent, title: e.target.value })}
-                                        className="w-full bg-theme-secondary border border-theme p-2 text-sm text-theme-primary outline-none"
-                                        autoFocus
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-[10px] uppercase font-bold text-theme-muted mb-1">Date</label>
-                                    <input
-                                        type="date"
-                                        required
-                                        value={newEvent.date}
-                                        onChange={e => setNewEvent({ ...newEvent, date: e.target.value })}
-                                        className="w-full bg-theme-secondary border border-theme p-2 text-sm text-theme-primary outline-none"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-[10px] uppercase font-bold text-theme-muted mb-1">Type</label>
-                                    <select
-                                        value={newEvent.type}
-                                        onChange={e => setNewEvent({ ...newEvent, type: e.target.value as any })}
-                                        className="w-full bg-theme-secondary border border-theme p-2 text-sm text-theme-primary outline-none"
-                                    >
-                                        <option value="session">Session</option>
-                                        <option value="habit">Habit</option>
-                                        <option value="deadline">Deadline</option>
-                                        <option value="milestone">Milestone</option>
-                                    </select>
-                                </div>
-                                <div className="flex gap-2 pt-2">
-                                    <button type="button" onClick={() => setShowAddForm(false)} className="flex-1 py-2 border border-theme text-theme-muted hover:bg-theme-secondary transition-colors text-xs font-bold uppercase">Cancel</button>
-                                    <button type="submit" className="flex-1 py-2 bg-accent text-theme-primary font-bold text-xs uppercase hover:bg-accent/80 transition-colors">Add</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                )}
+                {/* Side Panel (Tasks & Details) */}
+                {renderSidePanel()}
             </div>
         </div>
     );
