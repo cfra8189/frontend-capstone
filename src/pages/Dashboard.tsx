@@ -21,8 +21,22 @@ function DashboardContent() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [showTrackReviewModal, setShowTrackReviewModal] = useState(false);
+  const [activeReviewId, setActiveReviewId] = useState<string | null>(
+    () => new URLSearchParams(window.location.search).get("reviewId")
+  );
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [filter, setFilter] = useState("all");
+
+  // Listen for popstate events (fired by ProjectGrid when opening a track review)
+  useEffect(() => {
+    function handlePopState() {
+      const params = new URLSearchParams(window.location.search);
+      const rid = params.get("reviewId");
+      setActiveReviewId(rid);
+    }
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   useEffect(() => {
     loadProjects();
@@ -222,17 +236,18 @@ function DashboardContent() {
 
       {/* Track Review Modal */}
       <TrackReviewModal
-        isOpen={!!new URLSearchParams(window.location.search).get("reviewId") || showTrackReviewModal}
+        isOpen={!!activeReviewId || showTrackReviewModal}
         onClose={() => {
           setShowTrackReviewModal(false);
+          setActiveReviewId(null);
           // Remove query param if present
           const url = new URL(window.location.href);
           if (url.searchParams.has("reviewId")) {
             url.searchParams.delete("reviewId");
-            window.history.pushState({}, "", url.toString());
+            window.history.replaceState({}, "", url.toString());
           }
         }}
-        reviewId={new URLSearchParams(window.location.search).get("reviewId")}
+        reviewId={activeReviewId}
       />
     </PageTransition>
   );

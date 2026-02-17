@@ -35,12 +35,26 @@ export default function CreativeSpaceContent() {
     const [activeCategory, setActiveCategory] = useState("all");
     const [showModal, setShowModal] = useState(false);
     const [showTrackReviewModal, setShowTrackReviewModal] = useState(false);
+    const [activeReviewId, setActiveReviewId] = useState<string | null>(
+        () => new URLSearchParams(window.location.search).get("reviewId")
+    );
     const [editingNote, setEditingNote] = useState<Note | null>(null);
     const [uploadedMediaUrl, setUploadedMediaUrl] = useState<string>("");
     const [draggedNote, setDraggedNote] = useState<Note | null>(null);
     const [dragOverId, setDragOverId] = useState<number | null>(null);
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Listen for popstate events (fired by ProjectGrid when opening a track review)
+    useEffect(() => {
+        function handlePopState() {
+            const params = new URLSearchParams(window.location.search);
+            const rid = params.get("reviewId");
+            setActiveReviewId(rid);
+        }
+        window.addEventListener("popstate", handlePopState);
+        return () => window.removeEventListener("popstate", handlePopState);
+    }, []);
 
     const { uploadFile, isUploading, progress } = useUpload({
         onSuccess: (response) => {
@@ -518,16 +532,17 @@ export default function CreativeSpaceContent() {
 
             {/* Track Review Modal */}
             <TrackReviewModal
-                isOpen={!!new URLSearchParams(window.location.search).get("reviewId") || showTrackReviewModal}
+                isOpen={!!activeReviewId || showTrackReviewModal}
                 onClose={() => {
                     setShowTrackReviewModal(false);
+                    setActiveReviewId(null);
                     const url = new URL(window.location.href);
                     if (url.searchParams.has("reviewId")) {
                         url.searchParams.delete("reviewId");
-                        window.history.pushState({}, "", url.toString());
+                        window.history.replaceState({}, "", url.toString());
                     }
                 }}
-                reviewId={new URLSearchParams(window.location.search).get("reviewId")}
+                reviewId={activeReviewId}
             />
 
             <ConfirmationModal

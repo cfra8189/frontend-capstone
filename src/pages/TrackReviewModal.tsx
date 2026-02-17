@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../hooks/use-auth";
-import { useNotifications } from "../components/Notifications"; // Assuming usage of the notification system
-import { X, Save, Download, Play, Pause, Plus, Trash2, Mic2 } from "lucide-react";
-import { useLocation } from "wouter";
+import { useNotifications } from "../components/Notifications";
+import { X, Save, Download, Play, Pause, Plus, Trash2, Mic2, Music, Loader2 } from "lucide-react";
 
 interface StructureMarker {
     timestamp: number;
@@ -40,7 +39,6 @@ interface TrackReviewModalProps {
 export default function TrackReviewModal({ isOpen, onClose, reviewId, initialFolderId }: TrackReviewModalProps) {
     const { user } = useAuth();
     const { success, error: notifyError } = useNotifications();
-    const [_, setLocation] = useLocation();
 
     const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -58,8 +56,8 @@ export default function TrackReviewModal({ isOpen, onClose, reviewId, initialFol
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const [saving, setSaving] = useState(false);
+    const [audioLoading, setAudioLoading] = useState(false);
 
-    // Internal state to track if we're editing an existing review found via ID
     const [currentReviewId, setCurrentReviewId] = useState<string | null>(reviewId || null);
 
     useEffect(() => {
@@ -68,12 +66,10 @@ export default function TrackReviewModal({ isOpen, onClose, reviewId, initialFol
             if (reviewId) {
                 loadReview(reviewId);
             } else {
-                // Reset form for new review
                 resetForm();
                 if (initialFolderId) setSelectedFolder(initialFolderId);
             }
         } else {
-            // Stop audio when closed
             if (audioRef.current) {
                 audioRef.current.pause();
                 setIsPlaying(false);
@@ -95,6 +91,7 @@ export default function TrackReviewModal({ isOpen, onClose, reviewId, initialFol
         setIsPlaying(false);
         setCurrentTime(0);
         setDuration(0);
+        setAudioLoading(false);
         if (audioRef.current) {
             audioRef.current.src = "";
         }
@@ -126,7 +123,6 @@ export default function TrackReviewModal({ isOpen, onClose, reviewId, initialFol
                 setComments(data.comments || []);
                 setSelectedFolder(data.folderId || "");
                 setCurrentReviewId(id);
-                // Auto load audio if present
                 if (data.audioUrl) {
                     setTimeout(() => loadAudio(data.audioUrl), 500);
                 }
@@ -137,20 +133,20 @@ export default function TrackReviewModal({ isOpen, onClose, reviewId, initialFol
         }
     }
 
+    function resolveAudioSrc(url: string): string {
+        // Route Google Drive links through our backend proxy to avoid CORS
+        if (url.includes("drive.google.com")) {
+            return `/api/audio-proxy?url=${encodeURIComponent(url)}`;
+        }
+        return url;
+    }
+
     function loadAudio(urlOverride?: string) {
         const srcToLoad = urlOverride || audioUrl;
         if (audioRef.current && srcToLoad) {
-            let src = srcToLoad;
-
-            // Handle Google Drive links
-            if (src.includes("drive.google.com")) {
-                const idMatch = src.match(/[-\w]{25,}/);
-                if (idMatch) {
-                    src = `https://drive.google.com/uc?export=download&id=${idMatch[0]}`;
-                }
-            }
-
-            audioRef.current.src = src;
+            setAudioLoading(true);
+            const resolvedSrc = resolveAudioSrc(srcToLoad);
+            audioRef.current.src = resolvedSrc;
             audioRef.current.load();
         }
     }
@@ -175,6 +171,7 @@ export default function TrackReviewModal({ isOpen, onClose, reviewId, initialFol
     function handleLoadedMetadata() {
         if (audioRef.current) {
             setDuration(audioRef.current.duration);
+            setAudioLoading(false);
         }
     }
 
@@ -258,8 +255,6 @@ export default function TrackReviewModal({ isOpen, onClose, reviewId, initialFol
                 success("Track review saved successfully!");
                 if (!currentReviewId && data.reviewId) {
                     setCurrentReviewId(data.reviewId);
-                    // Update URL without reloading if not already there
-                    // setLocation(`/track-review?id=${data.reviewId}`); // Don't change location in modal mode
                 }
             } else {
                 notifyError("Failed to save track review");
@@ -297,293 +292,311 @@ export default function TrackReviewModal({ isOpen, onClose, reviewId, initialFol
 
     if (!isOpen) return null;
 
-    return (
+    const sectionLabels = ["Intro", "Verse", "Pre-Chorus", "Hook", "Chorus", "Bridge", "Outro"];
+
     return (
         <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/70 backdrop-blur-md z-[200] flex items-start justify-center overflow-y-auto"
             onClick={onClose}
         >
             <div
-                className="bg-theme-secondary/95 border border-theme w-full max-w-6xl h-[90vh] flex flex-col shadow-2xl rounded-sm overflow-hidden relative animate-in fade-in zoom-in-95 duration-200"
+                className="bg-theme-secondary border border-theme w-full max-w-4xl my-6 mx-4 flex flex-col shadow-2xl rounded-sm relative"
                 onClick={(e) => e.stopPropagation()}
+                style={{ minHeight: "min(85vh, 700px)" }}
             >
 
-                {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-theme/20 bg-theme-primary/10">
+                {/* ═══ Header ═══ */}
+                <div className="flex items-center justify-between p-4 border-b border-theme/30 bg-theme-primary/20 flex-shrink-0">
                     <div className="flex items-center gap-3">
-                        <Mic2 className="text-accent" size={18} />
+                        <div className="w-8 h-8 rounded-sm bg-theme-primary/40 border border-theme/20 flex items-center justify-center">
+                            <Mic2 className="text-theme-primary" size={16} />
+                        </div>
                         <div>
                             <h1 className="text-sm font-bold uppercase tracking-[0.2em] text-theme-primary">Track Review</h1>
-                            <p className="text-[10px] text-theme-muted uppercase tracking-widest opacity-80">Audio Analysis & Notes</p>
+                            <p className="text-[10px] text-theme-muted uppercase tracking-widest">Audio Analysis & Notes</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                         <button
                             onClick={exportReview}
                             disabled={!currentReviewId}
-                            className="flex items-center gap-2 bg-theme-primary/20 text-theme-primary border border-theme/20 text-[10px] font-bold px-3 py-1.5 rounded-sm uppercase tracking-widest hover:bg-theme-secondary transition-all disabled:opacity-50"
+                            className="flex items-center gap-1.5 bg-theme-primary/10 text-theme-secondary border border-theme/20 text-[10px] font-bold px-3 py-1.5 rounded-sm uppercase tracking-widest hover:bg-theme-primary/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                         >
-                            <Download size={12} />
+                            <Download size={11} />
                             Export
                         </button>
                         <button
                             onClick={saveReview}
                             disabled={saving}
-                            className="flex items-center gap-2 bg-accent/10 text-accent border border-accent/20 text-[10px] font-bold px-3 py-1.5 rounded-sm uppercase tracking-widest hover:bg-accent hover:text-theme-primary transition-all disabled:opacity-50"
+                            className="flex items-center gap-1.5 bg-theme-primary text-theme-secondary text-[10px] font-bold px-4 py-1.5 rounded-sm uppercase tracking-widest hover:opacity-90 transition-all disabled:opacity-50"
                         >
-                            <Save size={12} />
+                            <Save size={11} />
                             {saving ? "Saving..." : "Save"}
                         </button>
                         <button
                             onClick={onClose}
-                            className="ml-2 text-theme-muted hover:text-red-500 transition-colors"
+                            className="ml-1 w-7 h-7 flex items-center justify-center rounded-sm text-theme-muted hover:text-red-500 hover:bg-red-500/10 transition-all"
                         >
-                            <X size={20} />
+                            <X size={16} />
                         </button>
                     </div>
                 </div>
 
-                {/* Content */}
-                <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
+                {/* ═══ Scrollable Content ═══ */}
+                <div className="flex-1 overflow-y-auto p-5 space-y-5" style={{ maxHeight: "calc(90vh - 72px)" }}>
 
-                        {/* Left Column: Info & Audio (4 cols) */}
-                        <div className="lg:col-span-4 space-y-6">
-                            {/* Track Info */}
-                            <div className="bg-theme-primary/30 border border-theme/20 p-4 rounded-sm">
-                                <h2 className="text-xs font-bold uppercase tracking-wider text-accent mb-3 flex items-center gap-2">
-                                    <span className="w-1 h-1 bg-accent rounded-full"></span> Track Info
-                                </h2>
-                                <div className="space-y-3">
-                                    <div>
-                                        <label className="block text-[9px] font-bold text-theme-muted mb-1 uppercase tracking-widest">Track Name *</label>
-                                        <input
-                                            type="text"
-                                            value={trackName}
-                                            onChange={(e) => setTrackName(e.target.value)}
-                                            className="w-full bg-theme-tertiary border border-theme p-3 text-sm font-mono text-theme-primary outline-none focus:border-accent transition-all placeholder-theme-muted/50 rounded-sm"
-                                            placeholder="Enter track name..."
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div>
-                                            <label className="block text-[9px] font-bold text-theme-muted mb-1 uppercase tracking-widest">Key</label>
-                                            <input
-                                                type="text"
-                                                value={key}
-                                                onChange={(e) => setKey(e.target.value)}
-                                                className="w-full bg-theme-tertiary border border-theme p-3 text-sm font-mono text-theme-primary outline-none focus:border-accent transition-all placeholder-theme-muted/50 rounded-sm"
-                                                placeholder="C# Min"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-[9px] font-bold text-theme-muted mb-1 uppercase tracking-widest">BPM</label>
-                                            <input
-                                                type="number"
-                                                value={bpm}
-                                                onChange={(e) => setBpm(e.target.value)}
-                                                className="w-full bg-theme-tertiary border border-theme p-3 text-sm font-mono text-theme-primary outline-none focus:border-accent transition-all placeholder-theme-muted/50 rounded-sm"
-                                                placeholder="140"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Audio Player */}
-                            <div className="bg-theme-primary/30 border border-theme/20 p-4 rounded-sm">
-                                <h2 className="text-xs font-bold uppercase tracking-wider text-accent mb-3 flex items-center gap-2">
-                                    <span className="w-1 h-1 bg-accent rounded-full"></span> Audio Source
-                                </h2>
-                                <div className="space-y-3">
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="text"
-                                            value={audioUrl}
-                                            onChange={(e) => setAudioUrl(e.target.value)}
-                                            className="flex-1 bg-theme-tertiary border border-theme p-3 text-sm font-mono text-theme-primary outline-none focus:border-accent transition-all placeholder-theme-muted/50 rounded-sm"
-                                            placeholder="Paste audio URL..."
-                                        />
-                                        <button
-                                            onClick={() => loadAudio()}
-                                            className="bg-accent/10 text-accent border border-accent/20 text-[9px] font-bold px-3 py-2 rounded-sm uppercase tracking-widest hover:bg-accent hover:text-theme-primary transition-all"
-                                        >
-                                            Load
-                                        </button>
-                                    </div>
-
-                                    <audio
-                                        ref={audioRef}
-                                        onTimeUpdate={handleTimeUpdate}
-                                        onLoadedMetadata={handleLoadedMetadata}
-                                        onPlay={() => setIsPlaying(true)}
-                                        onPause={() => setIsPlaying(false)}
-                                        className="hidden"
-                                    />
-
-                                    {/* Custom Player Controls */}
-                                    <div className="bg-theme-primary/50 p-3 rounded-sm border border-theme/20">
-                                        <div className="flex items-center gap-3">
-                                            <button
-                                                onClick={togglePlay}
-                                                disabled={!audioUrl}
-                                                className="w-10 h-10 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center hover:bg-accent hover:text-theme-primary transition-all disabled:opacity-50 flex-shrink-0"
-                                            >
-                                                {isPlaying ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
-                                            </button>
-                                            <div className="flex-1 min-w-0">
-                                                <input
-                                                    type="range"
-                                                    min="0"
-                                                    max={duration || 0}
-                                                    value={currentTime}
-                                                    onChange={(e) => seekTo(parseFloat(e.target.value))}
-                                                    className="w-full h-1 bg-theme-secondary rounded-lg appearance-none cursor-pointer accent-accent"
-                                                />
-                                                <div className="flex justify-between text-[9px] text-theme-muted font-mono mt-1">
-                                                    <span>{formatTime(currentTime)}</span>
-                                                    <span>{formatTime(duration)}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Save Location */}
-                            <div className="bg-theme-primary/30 border border-theme/20 p-4 rounded-sm">
-                                <h2 className="text-xs font-bold uppercase tracking-wider text-accent mb-3 flex items-center gap-2">
-                                    <span className="w-1 h-1 bg-accent rounded-full"></span> Location
-                                </h2>
+                    {/* ── Track Info & Location Row ── */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Track Info */}
+                        <div className="bg-theme-primary/20 border border-theme/15 p-4 rounded-sm">
+                            <h2 className="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-3 flex items-center gap-2">
+                                <Music size={10} /> Track Info
+                            </h2>
+                            <div className="space-y-3">
                                 <div>
-                                    <label className="block text-[9px] font-bold text-theme-muted mb-1 uppercase tracking-widest">Select Folder *</label>
-                                    <select
-                                        value={selectedFolder}
-                                        onChange={(e) => setSelectedFolder(e.target.value)}
-                                        className="w-full bg-theme-tertiary border border-theme p-3 text-sm font-mono text-theme-primary outline-none focus:border-accent transition-all rounded-sm appearance-none cursor-pointer"
-                                    >
-                                        <option value="">-- Select --</option>
-                                        {folders.map((folder) => (
-                                            <option key={folder.id} value={folder.id}>
-                                                {folder.path || folder.name}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <label className="block text-[9px] font-bold text-theme-muted mb-1 uppercase tracking-widest">Track Name *</label>
+                                    <input
+                                        type="text"
+                                        value={trackName}
+                                        onChange={(e) => setTrackName(e.target.value)}
+                                        className="placeholder-dark w-full bg-theme-secondary border border-theme/30 p-2.5 text-sm font-mono text-theme-primary outline-none focus:border-theme-primary transition-all rounded-sm"
+                                        placeholder="Enter track name..."
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="block text-[9px] font-bold text-theme-muted mb-1 uppercase tracking-widest">Key</label>
+                                        <input
+                                            type="text"
+                                            value={key}
+                                            onChange={(e) => setKey(e.target.value)}
+                                            className="placeholder-dark w-full bg-theme-secondary border border-theme/30 p-2.5 text-sm font-mono text-theme-primary outline-none focus:border-theme-primary transition-all rounded-sm"
+                                            placeholder="C# Min"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[9px] font-bold text-theme-muted mb-1 uppercase tracking-widest">BPM</label>
+                                        <input
+                                            type="number"
+                                            value={bpm}
+                                            onChange={(e) => setBpm(e.target.value)}
+                                            className="placeholder-dark w-full bg-theme-secondary border border-theme/30 p-2.5 text-sm font-mono text-theme-primary outline-none focus:border-theme-primary transition-all rounded-sm"
+                                            placeholder="140"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Right Column: Structure & Comments (8 cols) */}
-                        <div className="lg:col-span-8 flex flex-col gap-6">
-
-                            {/* Structure */}
-                            <div className="bg-theme-primary/30 border border-theme/20 p-4 rounded-sm flex-1 min-h-[300px]">
-                                <h2 className="text-xs font-bold uppercase tracking-wider text-accent mb-3 flex items-center gap-2">
-                                    <span className="w-1 h-1 bg-accent rounded-full"></span> Structure & Lyrics
-                                </h2>
-                                <div className="flex flex-wrap gap-2 mb-4">
-                                    {["Intro", "Verse", "Pre-Chorus", "Hook", "Chorus", "Bridge", "Outro"].map((label) => (
-                                        <button
-                                            key={label}
-                                            onClick={() => markStructure(label)}
-                                            className="flex items-center gap-1 bg-theme-primary border border-theme/20 text-theme-primary text-[9px] font-bold px-3 py-1.5 rounded-sm uppercase tracking-widest hover:border-accent hover:text-accent transition-all"
-                                        >
-                                            <Plus size={10} /> {label}
-                                        </button>
+                        {/* Save Location */}
+                        <div className="bg-theme-primary/20 border border-theme/15 p-4 rounded-sm flex flex-col">
+                            <h2 className="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-3 flex items-center gap-2">
+                                <Music size={10} /> Save Location
+                            </h2>
+                            <div className="flex-1 flex flex-col justify-center">
+                                <label className="block text-[9px] font-bold text-theme-muted mb-1 uppercase tracking-widest">Select Folder *</label>
+                                <select
+                                    value={selectedFolder}
+                                    onChange={(e) => setSelectedFolder(e.target.value)}
+                                    className="placeholder-dark w-full bg-theme-secondary border border-theme/30 p-2.5 text-sm font-mono text-theme-primary outline-none focus:border-theme-primary transition-all rounded-sm appearance-none cursor-pointer"
+                                >
+                                    <option value="">-- Select Folder --</option>
+                                    {folders.map((folder) => (
+                                        <option key={folder.id} value={folder.id}>
+                                            {folder.path || folder.name}
+                                        </option>
                                     ))}
-                                </div>
-                                <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                                    {structureMarkers.length === 0 ? (
-                                        <div className="text-center py-12 text-theme-muted border-2 border-dashed border-theme/10 rounded-sm">
-                                            <p className="uppercase tracking-widest text-xs mb-1">No Structure Markers</p>
-                                            <p className="text-[10px] opacity-50">Click tags above to mark sections at current timestamp</p>
-                                        </div>
-                                    ) : (
-                                        structureMarkers.sort((a, b) => a.timestamp - b.timestamp).map((marker, index) => (
-                                            <div key={index} className="bg-theme-primary/50 p-4 rounded-sm border border-theme/10 group hover:border-theme/30 transition-colors">
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <div className="flex items-center gap-3">
-                                                        <button
-                                                            onClick={() => seekTo(marker.timestamp)}
-                                                            className="text-[10px] font-mono text-accent hover:underline flex items-center gap-1"
-                                                        >
-                                                            <Play size={8} /> {formatTime(marker.timestamp)}
-                                                        </button>
-                                                        <span className="text-xs text-theme-primary font-bold uppercase tracking-wide bg-theme-secondary/50 px-2 py-0.5 rounded-sm">{marker.label}</span>
-                                                    </div>
-                                                    <button
-                                                        onClick={() => removeStructureMarker(index)}
-                                                        className="text-theme-muted hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
-                                                    >
-                                                        <Trash2 size={14} />
-                                                    </button>
-                                                </div>
-                                                <textarea
-                                                    value={marker.lyrics}
-                                                    onChange={(e) => updateSectionLyrics(index, e.target.value)}
-                                                    rows={3}
-                                                    className="w-full bg-theme-tertiary/50 border border-theme/20 p-3 text-xs font-mono text-theme-primary outline-none focus:border-accent transition-all resize-none placeholder-theme-muted/50 rounded-sm"
-                                                    placeholder={`Write lyrics for ${marker.label}...`}
-                                                />
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ── Audio Player ── */}
+                    <div className="bg-theme-primary/20 border border-theme/15 p-4 rounded-sm">
+                        <h2 className="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-3 flex items-center gap-2">
+                            <Music size={10} /> Audio Source
+                        </h2>
+                        <div className="space-y-3">
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={audioUrl}
+                                    onChange={(e) => setAudioUrl(e.target.value)}
+                                    className="placeholder-dark flex-1 bg-theme-secondary border border-theme/30 p-2.5 text-sm font-mono text-theme-primary outline-none focus:border-theme-primary transition-all rounded-sm"
+                                    placeholder="Paste audio URL or Google Drive link..."
+                                />
+                                <button
+                                    onClick={() => loadAudio()}
+                                    disabled={!audioUrl || audioLoading}
+                                    className="bg-theme-primary text-theme-secondary text-[10px] font-bold px-4 py-2 rounded-sm uppercase tracking-widest hover:opacity-90 transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1.5"
+                                >
+                                    {audioLoading ? <Loader2 size={11} className="animate-spin" /> : null}
+                                    Load
+                                </button>
                             </div>
 
-                            {/* Comments */}
-                            <div className="bg-theme-primary/30 border border-theme/20 p-4 rounded-sm flex-1 min-h-[200px]">
-                                <h2 className="text-xs font-bold uppercase tracking-wider text-accent mb-3 flex items-center gap-2">
-                                    <span className="w-1 h-1 bg-accent rounded-full"></span> Time-synced Notes
-                                </h2>
-                                <div className="flex gap-2 mb-3">
-                                    <input
-                                        type="text"
-                                        value={commentInput}
-                                        onChange={(e) => setCommentInput(e.target.value)}
-                                        onKeyPress={(e) => e.key === "Enter" && addComment()}
-                                        className="flex-1 bg-theme-tertiary border border-theme p-3 text-sm font-mono text-theme-primary outline-none focus:border-accent transition-all placeholder-theme-muted/50 rounded-sm"
-                                        placeholder="Add note at current time..."
-                                    />
+                            <audio
+                                ref={audioRef}
+                                onTimeUpdate={handleTimeUpdate}
+                                onLoadedMetadata={handleLoadedMetadata}
+                                onPlay={() => setIsPlaying(true)}
+                                onPause={() => setIsPlaying(false)}
+                                onError={() => {
+                                    setAudioLoading(false);
+                                    notifyError("Failed to load audio. Check the URL or try a direct link.");
+                                }}
+                                onCanPlay={() => setAudioLoading(false)}
+                                className="hidden"
+                                crossOrigin="anonymous"
+                            />
+
+                            {/* Player Controls */}
+                            <div className="bg-theme-primary/30 p-3 rounded-sm border border-theme/10">
+                                <div className="flex items-center gap-3">
                                     <button
-                                        onClick={addComment}
-                                        className="bg-accent/10 text-accent border border-accent/20 text-[9px] font-bold px-4 py-2 rounded-sm uppercase tracking-widest hover:bg-accent hover:text-theme-primary transition-all"
+                                        onClick={togglePlay}
+                                        disabled={!audioUrl || audioLoading}
+                                        className="w-9 h-9 rounded-full bg-theme-primary/20 border border-theme/20 flex items-center justify-center hover:bg-theme-primary/40 transition-all disabled:opacity-30 flex-shrink-0 text-theme-primary"
                                     >
-                                        Add
+                                        {audioLoading ? (
+                                            <Loader2 size={14} className="animate-spin" />
+                                        ) : isPlaying ? (
+                                            <Pause size={14} />
+                                        ) : (
+                                            <Play size={14} className="ml-0.5" />
+                                        )}
                                     </button>
+                                    <div className="flex-1 min-w-0">
+                                        <input
+                                            type="range"
+                                            min="0"
+                                            max={duration || 0}
+                                            value={currentTime}
+                                            onChange={(e) => seekTo(parseFloat(e.target.value))}
+                                            className="w-full h-1 bg-theme-secondary rounded-lg appearance-none cursor-pointer accent-[var(--text-primary)]"
+                                        />
+                                        <div className="flex justify-between text-[9px] text-theme-muted font-mono mt-1">
+                                            <span>{formatTime(currentTime)}</span>
+                                            <span>{formatTime(duration)}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
-                                    {comments.sort((a, b) => a.timestamp - b.timestamp).map((comment) => (
-                                        <div key={comment.id} className="flex items-start justify-between bg-theme-primary/50 p-2 rounded-sm border border-theme/10 group hover:border-theme/30 transition-colors">
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <button
-                                                        onClick={() => seekTo(comment.timestamp)}
-                                                        className="text-[10px] font-mono text-accent hover:underline"
-                                                    >
-                                                        {formatTime(comment.timestamp)}
-                                                    </button>
-                                                    <span className="text-[9px] text-theme-muted opacity-50">
-                                                        {new Date(comment.createdAt).toLocaleDateString()}
-                                                    </span>
-                                                </div>
-                                                <p className="text-xs text-theme-primary">{comment.text}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ── Structure & Lyrics ── */}
+                    <div className="bg-theme-primary/20 border border-theme/15 p-4 rounded-sm">
+                        <h2 className="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-3 flex items-center gap-2">
+                            <Music size={10} /> Structure & Lyrics
+                        </h2>
+                        <div className="flex flex-wrap gap-1.5 mb-4">
+                            {sectionLabels.map((label) => (
+                                <button
+                                    key={label}
+                                    onClick={() => markStructure(label)}
+                                    className="flex items-center gap-1 bg-theme-secondary border border-theme/20 text-theme-primary text-[9px] font-bold px-2.5 py-1.5 rounded-sm uppercase tracking-widest hover:border-theme-primary/40 hover:bg-theme-primary/10 transition-all"
+                                >
+                                    <Plus size={9} /> {label}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="space-y-3">
+                            {structureMarkers.length === 0 ? (
+                                <div className="text-center py-10 text-theme-muted border border-dashed border-theme/20 rounded-sm">
+                                    <p className="uppercase tracking-widest text-xs mb-1">No Structure Markers</p>
+                                    <p className="text-[10px] opacity-50">Click tags above to mark sections at the current timestamp</p>
+                                </div>
+                            ) : (
+                                structureMarkers.sort((a, b) => a.timestamp - b.timestamp).map((marker, index) => (
+                                    <div key={index} className="bg-theme-primary/30 p-3 rounded-sm border border-theme/10 group hover:border-theme/25 transition-colors">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={() => seekTo(marker.timestamp)}
+                                                    className="text-[10px] font-mono text-theme-secondary hover:text-theme-primary flex items-center gap-1 transition-colors"
+                                                >
+                                                    <Play size={8} /> {formatTime(marker.timestamp)}
+                                                </button>
+                                                <span className="text-[10px] text-theme-primary font-bold uppercase tracking-wide bg-theme-secondary/60 px-2 py-0.5 rounded-sm">{marker.label}</span>
                                             </div>
                                             <button
-                                                onClick={() => removeComment(comment.id)}
-                                                className="text-theme-muted hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all text-[10px]"
+                                                onClick={() => removeStructureMarker(index)}
+                                                className="text-theme-muted hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                                             >
                                                 <Trash2 size={12} />
                                             </button>
                                         </div>
-                                    ))}
-                                </div>
-                            </div>
-
+                                        <textarea
+                                            value={marker.lyrics}
+                                            onChange={(e) => updateSectionLyrics(index, e.target.value)}
+                                            rows={3}
+                                            className="placeholder-dark w-full bg-theme-secondary/40 border border-theme/15 p-2.5 text-xs font-mono text-theme-primary outline-none focus:border-theme-primary/40 transition-all resize-none rounded-sm"
+                                            placeholder={`Write lyrics for ${marker.label}...`}
+                                        />
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
-                </div>
 
+                    {/* ── Time-synced Notes ── */}
+                    <div className="bg-theme-primary/20 border border-theme/15 p-4 rounded-sm">
+                        <h2 className="text-[10px] font-bold uppercase tracking-widest text-theme-muted mb-3 flex items-center gap-2">
+                            <Music size={10} /> Time-synced Notes
+                        </h2>
+                        <div className="flex gap-2 mb-3">
+                            <input
+                                type="text"
+                                value={commentInput}
+                                onChange={(e) => setCommentInput(e.target.value)}
+                                onKeyDown={(e) => e.key === "Enter" && addComment()}
+                                className="placeholder-dark flex-1 bg-theme-secondary border border-theme/30 p-2.5 text-sm font-mono text-theme-primary outline-none focus:border-theme-primary transition-all rounded-sm"
+                                placeholder="Add note at current timestamp..."
+                            />
+                            <button
+                                onClick={addComment}
+                                disabled={!commentInput.trim()}
+                                className="bg-theme-primary text-theme-secondary text-[10px] font-bold px-4 py-2 rounded-sm uppercase tracking-widest hover:opacity-90 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                            >
+                                Add
+                            </button>
+                        </div>
+                        <div className="space-y-2">
+                            {comments.length === 0 ? (
+                                <div className="text-center py-6 text-theme-muted border border-dashed border-theme/20 rounded-sm">
+                                    <p className="text-[10px] opacity-50">No notes yet — type above and press Enter to add a note</p>
+                                </div>
+                            ) : (
+                                comments.sort((a, b) => a.timestamp - b.timestamp).map((comment) => (
+                                    <div key={comment.id} className="flex items-start justify-between bg-theme-primary/30 p-2.5 rounded-sm border border-theme/10 group hover:border-theme/25 transition-colors">
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <button
+                                                    onClick={() => seekTo(comment.timestamp)}
+                                                    className="text-[10px] font-mono text-theme-secondary hover:text-theme-primary transition-colors"
+                                                >
+                                                    {formatTime(comment.timestamp)}
+                                                </button>
+                                                <span className="text-[9px] text-theme-muted opacity-50">
+                                                    {new Date(comment.createdAt).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                            <p className="text-xs text-theme-primary">{comment.text}</p>
+                                        </div>
+                                        <button
+                                            onClick={() => removeComment(comment.id)}
+                                            className="text-theme-muted hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all ml-2 flex-shrink-0"
+                                        >
+                                            <Trash2 size={11} />
+                                        </button>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
     );
