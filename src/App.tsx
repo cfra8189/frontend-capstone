@@ -69,7 +69,7 @@ function App() {
   if (location.startsWith("/epk/")) {
     return (
       <>
-        <GlobalEffects showParticles={false} />
+        <GlobalEffects showParticles={false} showGif={false} />
         <Route path="/epk/:boxCode" component={EPKView} />
       </>
     );

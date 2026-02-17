@@ -258,7 +258,7 @@ export default function EPKView() {
 
         <div className="relative z-10 text-center px-4 max-w-4xl">
           <p className="text-accent uppercase tracking-[0.5em] text-xs mb-4 animate-in fade-in slide-in-from-bottom-4 duration-1000">Electronic Press Kit</p>
-          <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter mb-6 leading-none mix-blend-overlay opacity-90">
+          <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter mb-6 leading-none opacity-90">
             {artist.displayName}
           </h1>
           {epk.shortBio && (

@@ -5,12 +5,13 @@ import ParticleNetwork from './ParticleNetwork';
 interface GlobalEffectsProps {
     opacity?: number;
     showParticles?: boolean;
+    showGif?: boolean;
 }
 
-const GlobalEffects: React.FC<GlobalEffectsProps> = ({ opacity = 0.08, showParticles = true }) => {
+const GlobalEffects: React.FC<GlobalEffectsProps> = ({ opacity = 0.08, showParticles = true, showGif = true }) => {
     return (
         <>
-            <BackgroundGif opacity={opacity} />
+            {showGif && <BackgroundGif opacity={opacity} />}
             {showParticles && <ParticleNetwork opacity={0.15} />}
         </>
     );
