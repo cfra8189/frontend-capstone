@@ -1,5 +1,6 @@
 import React from "react";
 import { X, AlertTriangle } from "lucide-react";
+import ParticleNetwork from "../ParticleNetwork";
 
 interface ConfirmationModalProps {
     isOpen: boolean;
@@ -27,9 +28,10 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[500]" onClick={onClose}>
             <div
-                className="bg-theme-secondary border border-theme p-6 rounded-sm max-w-md w-full shadow-2xl relative animate-in fade-in zoom-in-95 duration-200"
+                className="bg-theme-secondary border border-theme p-6 rounded-sm max-w-md w-full shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
             >
+                <ParticleNetwork opacity={0.1} />
                 <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
                         {isDangerous && <AlertTriangle className="text-red-500" size={20} />}
@@ -59,8 +61,8 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                             onClose();
                         }}
                         className={`px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-white rounded-sm shadow-lg transition-all ${isDangerous
-                                ? "bg-red-600/90 hover:bg-red-500 border border-red-500/50"
-                                : "bg-accent hover:bg-accent/90 border border-accent/50 text-black"
+                            ? "bg-red-600/90 hover:bg-red-500 border border-red-500/50"
+                            : "bg-accent hover:bg-accent/90 border border-accent/50 text-black"
                             }`}
                     >
                         {confirmText}

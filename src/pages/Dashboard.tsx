@@ -9,6 +9,7 @@ import PageTransition from "../components/PageTransition";
 
 import TrackReviewModal from "./TrackReviewModal";
 import { ConfirmationModal } from "../components/modals/ConfirmationModal";
+import ParticleNetwork from "../components/ParticleNetwork";
 
 function DashboardContent() {
   const { user } = useAuth();
@@ -154,9 +155,10 @@ function DashboardContent() {
             onClick={() => setShowModal(false)}
           >
             <div
-              className="bg-theme-primary border border-theme p-6 max-w-lg w-full shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-md"
+              className="bg-theme-primary border border-theme p-6 max-w-lg w-full shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-md relative overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
+              <ParticleNetwork opacity={0.15} />
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-bold text-theme-primary uppercase tracking-widest">
                   {editingProject ? "Update Project" : "Initialize New Project"}

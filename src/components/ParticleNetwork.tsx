@@ -11,10 +11,12 @@ interface Particle {
 interface ParticleNetworkProps {
     opacity?: number;
     color?: string; // e.g., "255, 255, 255"
+    className?: string;
 }
 
-const ParticleNetwork: React.FC<ParticleNetworkProps> = ({ opacity = 0.3, color }) => {
+const ParticleNetwork: React.FC<ParticleNetworkProps> = ({ opacity = 0.3, color, className }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
     const mouseRef = useRef({ x: -1000, y: -1000 });
 
     useEffect(() => {
@@ -28,19 +30,26 @@ const ParticleNetwork: React.FC<ParticleNetworkProps> = ({ opacity = 0.3, color 
         let particles: Particle[] = [];
 
         const resize = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            const parent = canvas.parentElement;
+            if (parent) {
+                canvas.width = parent.clientWidth;
+                canvas.height = parent.clientHeight;
+            } else {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
             initParticles();
         };
 
         const initParticles = () => {
-            const particleCount = Math.min(Math.floor((window.innerWidth * window.innerHeight) / 10000), 100);
+            const area = canvas.width * canvas.height;
+            const particleCount = Math.min(Math.floor(area / 10000), 100);
             particles = [];
             for (let i = 0; i < particleCount; i++) {
                 particles.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    vx: (Math.random() - 0.5) * 1.5, // Increased speed slightly
+                    vx: (Math.random() - 0.5) * 1.5,
                     vy: (Math.random() - 0.5) * 1.5,
                     size: Math.random() * 2 + 1,
                 });
@@ -145,8 +154,8 @@ const ParticleNetwork: React.FC<ParticleNetworkProps> = ({ opacity = 0.3, color 
     return (
         <canvas
             ref={canvasRef}
-            className="fixed inset-0 pointer-events-none z-0"
-            style={{ opacity }} // Apply variable opacity
+            className={`absolute inset-0 pointer-events-none z-0 ${className || ''}`}
+            style={{ opacity }}
         />
     );
 };

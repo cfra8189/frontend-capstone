@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../hooks/use-auth";
 import { useNotifications } from "../components/Notifications";
 import { X, Save, Download, Play, Pause, Plus, Trash2, Mic2, Music, Loader2 } from "lucide-react";
+import ParticleNetwork from "../components/ParticleNetwork";
 
 interface StructureMarker {
     timestamp: number;
@@ -300,10 +301,11 @@ export default function TrackReviewModal({ isOpen, onClose, reviewId, initialFol
             onClick={onClose}
         >
             <div
-                className="bg-theme-secondary border border-theme w-full max-w-4xl my-6 mx-4 flex flex-col shadow-2xl rounded-sm relative"
+                className="bg-theme-secondary border border-theme w-full max-w-4xl my-6 mx-4 flex flex-col shadow-2xl rounded-sm relative overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
                 style={{ minHeight: "min(85vh, 700px)" }}
             >
+                <ParticleNetwork opacity={0.1} />
 
                 {/* ═══ Header ═══ */}
                 <div className="flex items-center justify-between p-4 border-b border-theme/30 bg-theme-primary/20 flex-shrink-0">
