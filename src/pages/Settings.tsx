@@ -101,13 +101,21 @@ export default function Settings() {
                     alert("BOX code copied to clipboard!");
                   }
                 }}
-                className="text-xs bg-theme-tertiary px-3 py-1 rounded hover:opacity-80"
+                className="text-[10px] font-mono bg-theme-tertiary px-3 py-1.5 rounded hover:opacity-80 uppercase tracking-widest transition-all"
               >
                 Copy
               </button>
+              {user?.boxCode && (
+                <a
+                  href={`/epk/${user.boxCode}`}
+                  className="text-[10px] font-mono border border-accent/30 text-accent/80 px-3 py-1.5 rounded hover:bg-accent hover:text-black uppercase tracking-widest transition-all"
+                >
+                  View Profile
+                </a>
+              )}
             </div>
             <p className="text-xs text-theme-muted mt-3">
-              {user?.role === "studio" 
+              {user?.role === "studio"
                 ? "Artists can use this code to join your network when they sign up."
                 : "Share this code with studios or other artists to connect and collaborate."}
             </p>
@@ -116,20 +124,20 @@ export default function Settings() {
 
         <section className="card p-6 rounded-xl mb-6">
           <h2 className="text-lg font-bold mb-4 text-theme-primary">Profile Picture</h2>
-          
+
           <div className="flex items-center gap-6 mb-6">
             <ProfileImageUpload
               currentImageUrl={profileImageUrl}
               onImageUpdate={setProfileImageUrl}
               size="large"
             />
-            
+
             <div>
               <p className="text-sm text-theme-secondary mb-2">
                 Upload a profile picture to personalize your account
               </p>
               <p className="text-xs text-theme-muted">
-                Recommended: Square image, at least 200x200px<br/>
+                Recommended: Square image, at least 200x200px<br />
                 Maximum file size: 5MB
               </p>
             </div>
@@ -174,7 +182,7 @@ export default function Settings() {
         {user?.authType === "email" && (
           <section className="card p-6 rounded-xl">
             <h2 className="text-lg font-bold mb-4 text-theme-primary">Change Password</h2>
-            
+
             {message && (
               <div className={`p-3 rounded mb-4 ${message.type === "success" ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}`}>
                 {message.text}
@@ -225,13 +233,33 @@ export default function Settings() {
         )}
 
         {user?.authType !== "email" && (
-          <section className="card p-6 rounded-xl">
+          <section className="card p-6 rounded-xl mb-6">
             <h2 className="text-lg font-bold mb-4 text-theme-primary">Password</h2>
             <p className="text-theme-muted">
               You signed in with OAuth (Google, GitHub, etc.). Password management is handled by your OAuth provider.
             </p>
           </section>
         )}
+
+        <section className="mt-12 pt-8 border-t border-theme">
+          <h2 className="text-lg font-bold mb-4 text-red-500/80 uppercase tracking-widest">Security & Session</h2>
+          <div className="card p-6 rounded-xl border-red-500/10">
+            <p className="text-sm text-theme-muted mb-6 font-mono uppercase tracking-wider">
+              System ID: {user?.id?.toString().slice(-8).toUpperCase() || "AUTH-CORE-X"} // STATUS: ACTIVE_SESSION
+            </p>
+            <button
+              onClick={() => {
+                const confirmed = window.confirm("Are you sure you want to terminate your current session?");
+                if (confirmed) {
+                  window.location.href = "/api/logout";
+                }
+              }}
+              className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/50 px-6 py-3 rounded-lg font-mono text-xs uppercase tracking-[0.2em] transition-all hover:tracking-[0.3em]"
+            >
+              Terminate Session / Sign Out
+            </button>
+          </div>
+        </section>
       </main>
     </div>
   );

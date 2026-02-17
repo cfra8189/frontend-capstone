@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams } from "wouter";
+import { useParams, Link } from "wouter";
 import { useTheme } from "../context/ThemeContext";
-import { Play, Pause, ExternalLink, Mail, ArrowDown, Share2, Instagram, Twitter, Youtube, Music, Globe } from "lucide-react";
+import { useAuth } from "../hooks/use-auth";
+import { Play, Pause, ExternalLink, Mail, ArrowDown, Share2, Instagram, Twitter, Youtube, Music, Globe, Edit3 } from "lucide-react";
 
 interface EPKData {
   epk: {
@@ -82,6 +83,7 @@ const MOCK_EPK: EPKData = {
 
 export default function EPKView() {
   const { boxCode } = useParams<{ boxCode: string }>();
+  const { user } = useAuth();
   // @ts-ignore - Unused but kept for strict mode compatibility if needed later
   const { theme } = useTheme();
 
@@ -89,6 +91,7 @@ export default function EPKView() {
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState("hero");
   const [scrolled, setScrolled] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
 
   // Refs for scroll spy
   const sectionRefs = {
@@ -104,7 +107,7 @@ export default function EPKView() {
     loadEPK();
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [boxCode]);
+  }, [boxCode, user]);
 
   function handleScroll() {
     setScrolled(window.scrollY > 50);
@@ -132,16 +135,16 @@ export default function EPKView() {
       const res = await fetch(`/api/epk/${boxCode}`);
       if (res.ok) {
         const epkData = await res.json();
-        const hasContent = epkData.epk.shortBio || epkData.epk.mediumBio || epkData.epk.photoUrls.length > 0;
-        // Use Mock data if fetched data is largely empty (for visualization purposes)
-        setData(hasContent ? epkData : MOCK_EPK);
+        setData(epkData);
+        setIsOwner(user?.id === epkData.artist.id || user?.boxCode === boxCode);
       } else {
-        // Fallback to mock data for demo/testing if not found
-        setData(MOCK_EPK);
+        // Only fallback if this is a development/test environment and the user explicitly asked for it
+        // Otherwise, show an empty state or 404
+        setData(null);
       }
     } catch (err) {
-      console.error("Failed to load press kit, using mock data", err);
-      setData(MOCK_EPK);
+      console.error("Failed to load press kit", err);
+      setData(null);
     } finally {
       setLoading(false);
     }
@@ -162,9 +165,27 @@ export default function EPKView() {
     );
   }
 
-  if (!data) return null;
+  if (!data) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] text-white p-6">
+        <div className="text-center max-w-md">
+          <h1 className="text-3xl font-black mb-4 uppercase tracking-tighter">Profile Not Found</h1>
+          <p className="text-gray-500 mb-8 font-mono text-sm">The digital footprint for ID: {boxCode} could not be located in the vault database.</p>
+          <Link href="/">
+            <button className="border border-white/20 px-8 py-3 uppercase tracking-widest text-xs font-bold hover:bg-white hover:text-black transition-all">
+              Return to Control Center
+            </button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const { epk, artist } = data;
+  const hasBio = epk.shortBio || epk.mediumBio || epk.longBio || epk.achievements?.length > 0;
+  const hasMusic = epk.featuredTracks?.length > 0;
+  const hasVisuals = epk.photoUrls?.length > 0;
+  const hasPress = epk.pressQuotes?.length > 0;
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-[#e5e5e5] font-sans selection:bg-white selection:text-black overflow-x-hidden relative">
@@ -172,21 +193,40 @@ export default function EPKView() {
       {/* ── CRT Scanline Texture ── */}
       <div className="fixed inset-0 pointer-events-none z-[100] opacity-[0.02] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
 
+      {/* ── Owner Preview Banner ── */}
+      {isOwner && (
+        <div className="fixed top-0 left-0 right-0 z-[60] bg-accent/90 text-black py-2 px-4 shadow-2xl flex items-center justify-between backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            <span className="font-mono text-[10px] font-black border border-black/20 px-1.5 rounded">PREVIEW_MODE</span>
+            <span className="text-xs font-bold uppercase tracking-wider">This is your public EPK. Only information you've added is visible.</span>
+          </div>
+          <Link href="/epk">
+            <button className="bg-black text-white px-4 py-1.5 rounded-sm text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-neutral-900 transition-all">
+              <Edit3 size={12} /> Edit Profile
+            </button>
+          </Link>
+        </div>
+      )}
+
       {/* ── Navigation ── */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "bg-black/80 backdrop-blur-md py-4 border-b border-white/5" : "bg-transparent py-6"}`}>
+      <nav className={`fixed left-0 right-0 z-50 transition-all duration-500 ${isOwner ? 'top-12' : 'top-0'} ${scrolled ? "bg-black/80 backdrop-blur-md py-4 border-b border-white/5" : "bg-transparent py-6"}`}>
         <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
           <a href="#" className="text-lg font-bold tracking-[0.2em] uppercase mix-blend-difference">{artist.displayName}</a>
 
           <div className="hidden md:flex gap-8">
-            {Object.keys(sectionRefs).filter(k => k !== 'hero').map((key) => (
-              <button
-                key={key}
-                onClick={() => scrollToSection(key as keyof typeof sectionRefs)}
-                className={`text-[10px] font-bold uppercase tracking-[0.2em] transition-all hover:text-white ${activeSection === key ? "text-white opacity-100" : "text-gray-400 opacity-60"}`}
-              >
-                {key}
-              </button>
-            ))}
+            {hasBio && (
+              <button onClick={() => scrollToSection('bio')} className={`text-[10px] font-bold uppercase tracking-[0.2em] transition-all hover:text-white ${activeSection === 'bio' ? "text-white opacity-100" : "text-gray-400 opacity-60"}`}>BIO</button>
+            )}
+            {hasMusic && (
+              <button onClick={() => scrollToSection('music')} className={`text-[10px] font-bold uppercase tracking-[0.2em] transition-all hover:text-white ${activeSection === 'music' ? "text-white opacity-100" : "text-gray-400 opacity-60"}`}>MUSIC</button>
+            )}
+            {hasVisuals && (
+              <button onClick={() => scrollToSection('visuals')} className={`text-[10px] font-bold uppercase tracking-[0.2em] transition-all hover:text-white ${activeSection === 'visuals' ? "text-white opacity-100" : "text-gray-400 opacity-60"}`}>VISUALS</button>
+            )}
+            {hasPress && (
+              <button onClick={() => scrollToSection('press')} className={`text-[10px] font-bold uppercase tracking-[0.2em] transition-all hover:text-white ${activeSection === 'press' ? "text-white opacity-100" : "text-gray-400 opacity-60"}`}>PRESS</button>
+            )}
+            <button onClick={() => scrollToSection('contact')} className={`text-[10px] font-bold uppercase tracking-[0.2em] transition-all hover:text-white ${activeSection === 'contact' ? "text-white opacity-100" : "text-gray-400 opacity-60"}`}>CONTACT</button>
           </div>
 
           <div className="flex gap-4">
@@ -214,13 +254,21 @@ export default function EPKView() {
           <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter mb-6 leading-none mix-blend-overlay opacity-90">
             {artist.displayName}
           </h1>
-          <p className="text-lg md:text-xl text-gray-300 font-light max-w-2xl mx-auto mb-10 leading-relaxed opacity-90">
-            {epk.shortBio}
-          </p>
+          {epk.shortBio && (
+            <p className="text-lg md:text-xl text-gray-300 font-light max-w-2xl mx-auto mb-10 leading-relaxed opacity-90">
+              {epk.shortBio}
+            </p>
+          )}
           <div className="flex justify-center gap-6">
-            <button onClick={() => scrollToSection('music')} className="bg-white text-black px-8 py-3 uppercase tracking-widest text-[10px] font-bold hover:bg-gray-200 transition-colors flex items-center gap-2">
-              <Play size={12} fill="currentColor" /> Listen
-            </button>
+            {hasMusic ? (
+              <button onClick={() => scrollToSection('music')} className="bg-white text-black px-8 py-3 uppercase tracking-widest text-[10px] font-bold hover:bg-gray-200 transition-colors flex items-center gap-2">
+                <Play size={12} fill="currentColor" /> Listen
+              </button>
+            ) : (
+              <button onClick={() => scrollToSection('bio')} className="bg-white text-black px-8 py-3 uppercase tracking-widest text-[10px] font-bold hover:bg-gray-200 transition-colors">
+                Learn More
+              </button>
+            )}
             <button onClick={() => scrollToSection('contact')} className="border border-white/30 text-white px-8 py-3 uppercase tracking-widest text-[10px] font-bold hover:bg-white/10 transition-colors">
               Contact
             </button>
@@ -233,104 +281,104 @@ export default function EPKView() {
       </section>
 
       {/* ── Biography ── */}
-      <section ref={sectionRefs.bio} className="py-24 md:py-32 px-6 container mx-auto max-w-5xl">
-        <div className="grid md:grid-cols-2 gap-16 items-center">
-          <div className="space-y-6">
-            <h2 className="text-3xl font-bold uppercase tracking-wide">The Story</h2>
-            <div className="w-12 h-0.5 bg-accent opacity-50" />
-            <p className="text-gray-400 leading-8 text-lg font-light whitespace-pre-wrap">
-              {epk.mediumBio}
-            </p>
-            {epk.longBio && (
-              <p className="text-gray-500 leading-7 text-sm whitespace-pre-wrap border-l-2 border-white/10 pl-6 italic">
-                "{epk.longBio.slice(0, 150)}..."
-              </p>
-            )}
+      {hasBio && (
+        <section ref={sectionRefs.bio} className="py-24 md:py-32 px-6 container mx-auto max-w-5xl">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <div className="space-y-6">
+              <h2 className="text-3xl font-bold uppercase tracking-wide">The Story</h2>
+              <div className="w-12 h-0.5 bg-accent opacity-50" />
+              {epk.mediumBio && (
+                <p className="text-gray-400 leading-8 text-lg font-light whitespace-pre-wrap">
+                  {epk.mediumBio}
+                </p>
+              )}
+              {epk.longBio && (
+                <p className="text-gray-500 leading-7 text-sm whitespace-pre-wrap border-l-2 border-white/10 pl-6 italic">
+                  "{epk.longBio.slice(0, 150)}..."
+                </p>
+              )}
 
-            <div className="pt-6">
-              <h3 className="text-xs uppercase tracking-widest text-gray-500 mb-3">Stats & Achievements</h3>
-              <ul className="space-y-3">
-                {epk.achievements.slice(0, 4).map((ach, i) => (
-                  <li key={i} className="flex items-center gap-3 text-sm text-gray-300">
-                    <span className="w-1.5 h-1.5 bg-accent rounded-full" />
-                    {ach}
-                  </li>
-                ))}
-              </ul>
+              {epk.achievements?.length > 0 && (
+                <div className="pt-6">
+                  <h3 className="text-xs uppercase tracking-widest text-gray-500 mb-3">Stats & Achievements</h3>
+                  <ul className="space-y-3">
+                    {epk.achievements.slice(0, 4).map((ach, i) => (
+                      <li key={i} className="flex items-center gap-3 text-sm text-gray-300">
+                        <span className="w-1.5 h-1.5 bg-accent rounded-full" />
+                        {ach}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              {epk.photoUrls?.slice(0, 2).map((url, i) => (
+                <img key={i} src={url} alt={`Bio ${i}`} className={`w-full object-cover grayscale hover:grayscale-0 transition-all duration-700 rounded-sm ${i === 1 ? 'mt-12' : ''} h-[400px]`} />
+              ))}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            {epk.photoUrls.slice(0, 2).map((url, i) => (
-              <img key={i} src={url} alt={`Bio ${i}`} className={`w-full object-cover grayscale hover:grayscale-0 transition-all duration-700 rounded-sm ${i === 1 ? 'mt-12' : ''} h-[400px]`} />
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── Music ── */}
-      <section ref={sectionRefs.music} className="py-24 bg-[#0f0f0f]">
-        <div className="container mx-auto px-6 max-w-5xl">
-          <h2 className="text-3xl font-bold uppercase tracking-wide text-center mb-16">Selected Discography</h2>
+      {hasMusic && (
+        <section ref={sectionRefs.music} className="py-24 bg-[#0f0f0f]">
+          <div className="container mx-auto px-6 max-w-5xl">
+            <h2 className="text-3xl font-bold uppercase tracking-wide text-center mb-16">Selected Discography</h2>
 
-          <div className="grid gap-6">
-            {epk.featuredTracks.map((track, i) => (
-              <div key={i} className="group flex items-center justify-between p-6 border border-white/5 hover:border-white/20 bg-white/5 hover:bg-white/10 transition-all rounded-sm">
-                <div className="flex items-center gap-6">
-                  <span className="text-2xl font-black text-white/20 group-hover:text-accent transition-colors">0{i + 1}</span>
-                  <div>
-                    <h3 className="text-xl font-bold group-hover:text-accent transition-colors">{track.title}</h3>
-                    <p className="text-xs text-gray-500 uppercase tracking-widest">{track.platform} Release</p>
+            <div className="grid gap-6">
+              {epk.featuredTracks.map((track, i) => (
+                <div key={i} className="group flex items-center justify-between p-6 border border-white/5 hover:border-white/20 bg-white/5 hover:bg-white/10 transition-all rounded-sm">
+                  <div className="flex items-center gap-6">
+                    <span className="text-2xl font-black text-white/20 group-hover:text-accent transition-colors">0{i + 1}</span>
+                    <div>
+                      <h3 className="text-xl font-bold group-hover:text-accent transition-colors">{track.title}</h3>
+                      <p className="text-xs text-gray-500 uppercase tracking-widest">{track.platform} Release</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4">
+                    <a href={track.url} target="_blank" rel="noreferrer" className="w-10 h-10 flex items-center justify-center border border-white/20 rounded-full hover:bg-white hover:text-black transition-colors">
+                      <Play size={14} fill="currentColor" />
+                    </a>
                   </div>
                 </div>
-                <div className="flex gap-4">
-                  <a href={track.url} target="_blank" rel="noreferrer" className="w-10 h-10 flex items-center justify-center border border-white/20 rounded-full hover:bg-white hover:text-black transition-colors">
-                    <Play size={14} fill="currentColor" />
-                  </a>
-                  <button className="w-10 h-10 flex items-center justify-center border border-white/20 rounded-full hover:bg-white hover:text-black transition-colors">
-                    <Share2 size={14} />
-                  </button>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── Visuals ── */}
+      {hasVisuals && (
+        <section ref={sectionRefs.visuals} className="py-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {epk.photoUrls.map((url, i) => (
+              <div key={i} className="group relative aspect-square overflow-hidden bg-gray-900 cursor-pointer">
+                <img src={url} alt={`Gallery ${i}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-70 group-hover:opacity-100" />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <span className="text-xs uppercase tracking-widest border border-white px-4 py-2 hover:bg-white hover:text-black transition-colors">View High-Res</span>
                 </div>
               </div>
             ))}
           </div>
-
-          <div className="mt-16 text-center">
-            <h3 className="text-xs uppercase tracking-widest text-gray-500 mb-6">Listen on</h3>
-            <div className="flex justify-center gap-8 opacity-50 hover:opacity-100 transition-opacity">
-              <Music size={24} />
-              <Youtube size={24} />
-              <Globe size={24} />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Visuals ── */}
-      <section ref={sectionRefs.visuals} className="py-0">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {epk.photoUrls.map((url, i) => (
-            <div key={i} className="group relative aspect-square overflow-hidden bg-gray-900 cursor-pointer">
-              <img src={url} alt={`Gallery ${i}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-70 group-hover:opacity-100" />
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <span className="text-xs uppercase tracking-widest border border-white px-4 py-2 hover:bg-white hover:text-black transition-colors">View High-Res</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── Press ── */}
-      <section ref={sectionRefs.press} className="py-24 px-6 container mx-auto max-w-4xl text-center">
-        <h2 className="text-xs font-bold uppercase tracking-[0.3em] text-accent mb-12">Press & Acclaim</h2>
-        <div className="grid gap-12">
-          {epk.pressQuotes.map((quote, i) => (
-            <blockquote key={i} className="relative">
-              <p className="text-2xl md:text-4xl font-light leading-tight mb-6">"{quote.quote}"</p>
-              <cite className="text-xs uppercase tracking-widest font-bold text-gray-500 not-italic">— {quote.source}</cite>
-            </blockquote>
-          ))}
-        </div>
-      </section>
+      {hasPress && (
+        <section ref={sectionRefs.press} className="py-24 px-6 container mx-auto max-w-4xl text-center">
+          <h2 className="text-xs font-bold uppercase tracking-[0.3em] text-accent mb-12">Press & Acclaim</h2>
+          <div className="grid gap-12">
+            {epk.pressQuotes.map((quote, i) => (
+              <blockquote key={i} className="relative">
+                <p className="text-2xl md:text-4xl font-light leading-tight mb-6">"{quote.quote}"</p>
+                <cite className="text-xs uppercase tracking-widest font-bold text-gray-500 not-italic">— {quote.source}</cite>
+              </blockquote>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ── Contact ── */}
       <section ref={sectionRefs.contact} className="py-24 bg-[#0a0a0a] border-t border-white/5 pb-40">
@@ -341,13 +389,17 @@ export default function EPKView() {
               <p className="text-gray-400 mb-8 max-w-md">For booking inquiries, press features, or collaboration requests, please contact our team directly.</p>
 
               <div className="space-y-6">
-                <div>
-                  <h3 className="text-xs uppercase tracking-widest text-gray-500 mb-2">Management</h3>
-                  <p className="text-lg font-bold">{epk.contactName}</p>
-                  <a href={`mailto:${epk.contactEmail}`} className="text-accent hover:underline flex items-center gap-2 mt-1">
-                    <Mail size={14} /> {epk.contactEmail}
-                  </a>
-                </div>
+                {(epk.contactName || epk.contactEmail) && (
+                  <div>
+                    <h3 className="text-xs uppercase tracking-widest text-gray-500 mb-2">Management / General</h3>
+                    {epk.contactName && <p className="text-lg font-bold">{epk.contactName}</p>}
+                    {epk.contactEmail && (
+                      <a href={`mailto:${epk.contactEmail}`} className="text-accent hover:underline flex items-center gap-2 mt-1">
+                        <Mail size={14} /> {epk.contactEmail}
+                      </a>
+                    )}
+                  </div>
+                )}
 
                 {epk.bookingEmail && (
                   <div>
@@ -361,7 +413,7 @@ export default function EPKView() {
             </div>
 
             <div className="bg-white/5 p-8 rounded-sm border border-white/5">
-              <h3 className="text-xs uppercase tracking-widest text-gray-500 mb-6">Technical & Assets</h3>
+              <h3 className="text-xs uppercase tracking-widest text-gray-500 mb-6">Resources</h3>
               <div className="space-y-4">
                 <div
                   onClick={() => window.print()}
@@ -370,37 +422,31 @@ export default function EPKView() {
                   <span className="font-bold text-sm">Download Full EPK</span>
                   <ArrowDown size={14} />
                 </div>
-                <div
-                  onClick={() => {
-                    if (epk.technicalRider) {
+                {epk.technicalRider && (
+                  <div
+                    onClick={() => {
                       const element = document.createElement('a');
                       element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(epk.technicalRider));
                       element.setAttribute('download', 'technical-rider.txt');
                       document.body.appendChild(element);
                       element.click();
                       document.body.removeChild(element);
-                    } else {
-                      alert("No technical rider available to download.");
-                    }
-                  }}
-                  className="flex items-center justify-between p-4 bg-black/20 rounded border border-white/5 hover:border-white/20 transition-colors cursor-pointer"
-                >
-                  <span className="font-bold text-sm">Tech Rider</span>
-                  <ArrowDown size={14} />
-                </div>
-                <div
-                  onClick={() => {
-                    if (epk.photoUrls.length > 0) {
-                      window.open(epk.photoUrls[0], '_blank');
-                    } else {
-                      alert("No photos available.");
-                    }
-                  }}
-                  className="flex items-center justify-between p-4 bg-black/20 rounded border border-white/5 hover:border-white/20 transition-colors cursor-pointer"
-                >
-                  <span className="font-bold text-sm">High-Res Photos</span>
-                  <ArrowDown size={14} />
-                </div>
+                    }}
+                    className="flex items-center justify-between p-4 bg-black/20 rounded border border-white/5 hover:border-white/20 transition-colors cursor-pointer"
+                  >
+                    <span className="font-bold text-sm">Tech Rider</span>
+                    <ArrowDown size={14} />
+                  </div>
+                )}
+                {hasVisuals && (
+                  <div
+                    onClick={() => window.open(epk.photoUrls[0], '_blank')}
+                    className="flex items-center justify-between p-4 bg-black/20 rounded border border-white/5 hover:border-white/20 transition-colors cursor-pointer"
+                  >
+                    <span className="font-bold text-sm">Press Assets</span>
+                    <ArrowDown size={14} />
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -408,10 +454,12 @@ export default function EPKView() {
           <div className="mt-24 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 uppercase tracking-widest">
             <p>&copy; {new Date().getFullYear()} {artist.displayName}. All Rights Reserved.</p>
             <div className="flex gap-6 mt-4 md:mt-0">
-              {Object.entries(epk.socialLinks).map(([platform, url]) => (
-                <a key={platform} href={url} target="_blank" rel="noreferrer" className="hover:text-white transition-colors">
-                  {platform}
-                </a>
+              {Object.entries(epk.socialLinks || {}).map(([platform, url]) => (
+                url && (
+                  <a key={platform} href={url} target="_blank" rel="noreferrer" className="hover:text-white transition-colors">
+                    {platform}
+                  </a>
+                )
               ))}
             </div>
           </div>
@@ -420,3 +468,4 @@ export default function EPKView() {
     </div>
   );
 }
+

@@ -23,7 +23,7 @@ export default function Landing() {
 
   // Runtime detection to avoid accidentally initiating OAuth against the
   // production backend when developing locally.
-  const runtimeBackend = (import.meta.env.VITE_BACKEND_URL as string) || (typeof window !== "undefined" ? window.location.origin : "");
+  const runtimeBackend = ((import.meta as any).env.VITE_BACKEND_URL as string) || (typeof window !== "undefined" ? window.location.origin : "");
 
   // If the user just returned from an OAuth provider the URL will usually
   // include `code`/`state` — persist the BIOS-passed flag immediately so the
@@ -323,8 +323,8 @@ export default function Landing() {
                       type="button"
                       onClick={() => setRole("artist")}
                       className={`p-3 rounded-lg border-2 transition-colors text-left ${role === "artist"
-                          ? "border-accent bg-theme-tertiary"
-                          : "border-theme-tertiary bg-theme-secondary"
+                        ? "border-accent bg-theme-tertiary"
+                        : "border-theme-tertiary bg-theme-secondary"
                         }`}
                     >
                       <p className="font-bold text-sm">Artist</p>
@@ -334,8 +334,8 @@ export default function Landing() {
                       type="button"
                       onClick={() => setRole("studio")}
                       className={`p-3 rounded-lg border-2 transition-colors text-left ${role === "studio"
-                          ? "border-accent bg-theme-tertiary"
-                          : "border-theme-tertiary bg-theme-secondary"
+                        ? "border-accent bg-theme-tertiary"
+                        : "border-theme-tertiary bg-theme-secondary"
                         }`}
                     >
                       <p className="font-bold text-sm">Studio</p>
