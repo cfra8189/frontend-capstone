@@ -254,19 +254,22 @@ body.has-bg-gif {
   background: transparent !important;
 }
 
-/* Darker placeholders for visibility in both modes */
+/* ── Global Placeholder Contrast ── */
+/* Dark grey placeholders in light mode, light grey in dark mode */
+::placeholder {
+  opacity: 1 !important;
+}
+
+:root.light ::placeholder {
+  color: #444444 !important;
+}
+
+:root.dark ::placeholder,
+:root ::placeholder {
+  color: #999999 !important;
+}
+
+/* Legacy class alias — still works if applied */
 .placeholder-dark::placeholder {
-  color: var(--text-muted) !important;
-  opacity: 0.8 !important;
-}
-
-:root.light .placeholder-dark::placeholder {
-  color: #333333 !important;
-  opacity: 0.7 !important;
-}
-
-:root.dark .placeholder-dark::placeholder,
-:root .placeholder-dark::placeholder {
-  color: #888888 !important;
-  opacity: 0.7 !important;
+  color: inherit;
 }

@@ -188,7 +188,7 @@ const ProjectRow: React.FC<{
                         value={localDesc}
                         onChange={(e) => setLocalDesc(e.target.value)}
                         placeholder="Add note..."
-                        className="w-full bg-transparent border-b border-transparent hover:border-theme/20 focus:border-theme-primary text-[9px] font-mono text-theme-muted/80 focus:text-theme-primary outline-none px-1 py-1 transition-all placeholder:text-theme-muted/60 placeholder:font-bold"
+                        className="w-full bg-transparent border-b border-transparent hover:border-theme/20 focus:border-theme-primary text-[9px] font-mono text-theme-muted/80 focus:text-theme-primary outline-none px-1 py-1 transition-all"
                         onKeyDown={(e) => e.stopPropagation()}
                         onPointerDown={(e) => e.stopPropagation()}
                         onClick={(e) => e.stopPropagation()}
