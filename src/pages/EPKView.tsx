@@ -327,7 +327,7 @@ export default function EPKView() {
       </section>
 
       {/* ── Contact ── */}
-      <section ref={sectionRefs.contact} className="py-24 bg-[#0a0a0a] border-t border-white/5">
+      <section ref={sectionRefs.contact} className="py-24 bg-[#0a0a0a] border-t border-white/5 pb-40">
         <div className="container mx-auto px-6 max-w-5xl">
           <div className="grid md:grid-cols-2 gap-12">
             <div>
@@ -357,15 +357,41 @@ export default function EPKView() {
             <div className="bg-white/5 p-8 rounded-sm border border-white/5">
               <h3 className="text-xs uppercase tracking-widest text-gray-500 mb-6">Technical & Assets</h3>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-black/20 rounded border border-white/5 hover:border-white/20 transition-colors cursor-pointer">
+                <div
+                  onClick={() => window.print()}
+                  className="flex items-center justify-between p-4 bg-black/20 rounded border border-white/5 hover:border-white/20 transition-colors cursor-pointer"
+                >
                   <span className="font-bold text-sm">Download Full EPK</span>
                   <ArrowDown size={14} />
                 </div>
-                <div className="flex items-center justify-between p-4 bg-black/20 rounded border border-white/5 hover:border-white/20 transition-colors cursor-pointer">
+                <div
+                  onClick={() => {
+                    if (epk.technicalRider) {
+                      const element = document.createElement('a');
+                      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(epk.technicalRider));
+                      element.setAttribute('download', 'technical-rider.txt');
+                      document.body.appendChild(element);
+                      element.click();
+                      document.body.removeChild(element);
+                    } else {
+                      alert("No technical rider available to download.");
+                    }
+                  }}
+                  className="flex items-center justify-between p-4 bg-black/20 rounded border border-white/5 hover:border-white/20 transition-colors cursor-pointer"
+                >
                   <span className="font-bold text-sm">Tech Rider</span>
                   <ArrowDown size={14} />
                 </div>
-                <div className="flex items-center justify-between p-4 bg-black/20 rounded border border-white/5 hover:border-white/20 transition-colors cursor-pointer">
+                <div
+                  onClick={() => {
+                    if (epk.photoUrls.length > 0) {
+                      window.open(epk.photoUrls[0], '_blank');
+                    } else {
+                      alert("No photos available.");
+                    }
+                  }}
+                  className="flex items-center justify-between p-4 bg-black/20 rounded border border-white/5 hover:border-white/20 transition-colors cursor-pointer"
+                >
                   <span className="font-bold text-sm">High-Res Photos</span>
                   <ArrowDown size={14} />
                 </div>
