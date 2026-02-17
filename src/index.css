@@ -249,7 +249,7 @@ body {
 }
 
 /* Synchronized High-Voltage Flicker Aesthetic */
-@keyframes high-voltage-flicker {
+@keyframes sync-voltage-text {
 
   0%,
   19.999%,
@@ -261,8 +261,6 @@ body {
   100% {
     opacity: 1;
     filter: drop-shadow(0 0 8px var(--accent));
-    border-bottom-color: var(--border-color);
-    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.5);
   }
 
   20%,
@@ -273,13 +271,67 @@ body {
   69.999% {
     opacity: 0.4;
     filter: none;
+  }
+}
+
+@keyframes sync-voltage-border {
+
+  0%,
+  19.999%,
+  22%,
+  62.999%,
+  64%,
+  64.999%,
+  70%,
+  100% {
+    border-bottom-color: var(--border-color);
+  }
+
+  20%,
+  21.999%,
+  63%,
+  63.999%,
+  65%,
+  69.999% {
     border-bottom-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+@keyframes sync-voltage-search {
+
+  0%,
+  19.999%,
+  22%,
+  62.999%,
+  64%,
+  64.999%,
+  70%,
+  100% {
+    border-color: var(--border-color);
+    box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.05);
+  }
+
+  20%,
+  21.999%,
+  63%,
+  63.999%,
+  65%,
+  69.999% {
+    border-color: rgba(255, 255, 255, 0.05);
     box-shadow: none;
   }
 }
 
-.animate-flicker-sync {
-  animation: high-voltage-flicker 4s infinite;
+.animate-sync-text {
+  animation: sync-voltage-text 4s infinite;
+}
+
+.animate-sync-border {
+  animation: sync-voltage-border 4s infinite;
+}
+
+.animate-sync-search {
+  animation: sync-voltage-search 4s infinite;
 }
 
 /* When background GIF is active, make page background transparent so GIF shows through */

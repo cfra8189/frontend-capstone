@@ -143,7 +143,7 @@ export default function Header({ showNav = true }: HeaderProps) {
   };
 
   return (
-    <header className="w-full border-b border-theme p-3 sm:p-4 sticky top-0 z-[50] bg-theme-primary/20 backdrop-blur-sm animate-flicker-sync">
+    <header className="w-full border-b border-theme p-3 sm:p-4 sticky top-0 z-[150] bg-theme-primary animate-sync-border">
       <div className="w-full flex items-center justify-between gap-4 px-2 sm:px-6">
         <Link href="/">
           <div className="flex items-center gap-2 sm:gap-4 cursor-pointer group">
@@ -151,7 +151,7 @@ export default function Header({ showNav = true }: HeaderProps) {
               <LogoGif />
             </div>
             <div className="flex flex-col">
-              <h1 className="text-sm sm:text-lg font-bold brand-font tracking-[0.3em] leading-tight text-theme-primary animate-flicker-sync">
+              <h1 className="text-sm sm:text-lg font-bold brand-font tracking-[0.3em] leading-tight text-theme-primary animate-sync-text">
                 BOX
               </h1>
               <div className="flex items-center gap-2">
@@ -176,7 +176,7 @@ export default function Header({ showNav = true }: HeaderProps) {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => setSearchOpen(true)}
-                  className="w-full bg-theme-secondary border border-theme px-3 py-1.5 rounded text-[10px] pl-8 font-mono uppercase tracking-[0.2em] outline-none focus:border-theme-primary transition-all placeholder:text-theme-muted/50"
+                  className="w-full bg-theme-secondary border border-theme px-3 py-1.5 rounded text-[10px] pl-8 font-mono uppercase tracking-[0.2em] outline-none focus:border-theme-primary transition-all placeholder:text-theme-muted/50 animate-sync-search"
                 />
                 <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -248,7 +248,7 @@ export default function Header({ showNav = true }: HeaderProps) {
             <div className="flex items-center gap-2 sm:gap-4">
               <button
                 onClick={toggleTheme}
-                className="text-[9px] sm:text-[10px] font-mono font-bold text-theme-primary px-3 py-1.5 hover:bg-theme-secondary/50 transition-all uppercase tracking-[0.3em] opacity-80 hover:opacity-100"
+                className="text-[9px] sm:text-[10px] font-mono font-bold text-theme-primary px-3 py-1.5 hover:bg-theme-secondary/50 transition-all uppercase tracking-[0.3em] hover:opacity-100"
                 title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
               >
                 [{theme === 'dark' ? 'light' : 'dark'}]
