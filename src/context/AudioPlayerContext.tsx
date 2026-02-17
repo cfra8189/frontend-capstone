@@ -11,6 +11,8 @@ interface AudioPlayerContextType {
     isPlaying: boolean;
     currentTime: number;
     duration: number;
+    volume: number;
+    setVolume: (volume: number) => void;
     playTrack: (url: string, title: string, artist?: string) => void;
     pause: () => void;
     resume: () => void;
@@ -40,6 +42,25 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
+    const [volume, _setVolume] = useState(() => {
+        try {
+            const saved = localStorage.getItem("audio-volume");
+            return saved ? parseFloat(saved) : 1.0;
+        } catch (e) {
+            return 1.0;
+        }
+    });
+
+    const setVolume = useCallback((v: number) => {
+        const clamped = Math.max(0, Math.min(1, v));
+        _setVolume(clamped);
+        if (audioRef.current) {
+            audioRef.current.volume = clamped;
+        }
+        try {
+            localStorage.setItem("audio-volume", clamped.toString());
+        } catch (e) { }
+    }, []);
 
     // Lazily create the audio element (SSR-safe)
     const getAudio = useCallback(() => {
@@ -51,6 +72,7 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
             audio.addEventListener("ended", () => setIsPlaying(false));
             audio.addEventListener("play", () => setIsPlaying(true));
             audio.addEventListener("pause", () => setIsPlaying(false));
+            audio.volume = volume;
             audioRef.current = audio;
         }
         return audioRef.current;
@@ -107,7 +129,7 @@ export function AudioPlayerProvider({ children }: { children: ReactNode }) {
 
     return (
         <AudioPlayerContext.Provider value={{
-            currentTrack, isPlaying, currentTime, duration,
+            currentTrack, isPlaying, currentTime, duration, volume, setVolume,
             playTrack, pause, resume, togglePlay, seekTo, close
         }}>
             {children}

@@ -3,7 +3,7 @@ import { Play, Pause, X, Volume2 } from "lucide-react";
 import ParticleNetwork from "./ParticleNetwork";
 
 export default function GlobalAudioPlayer() {
-    const { currentTrack, isPlaying, currentTime, duration, togglePlay, seekTo, close } = useAudioPlayer();
+    const { currentTrack, isPlaying, currentTime, duration, volume, setVolume, togglePlay, seekTo, close } = useAudioPlayer();
 
     if (!currentTrack) return null;
 
@@ -26,7 +26,7 @@ export default function GlobalAudioPlayer() {
 
             <div className="bg-theme-secondary/95 backdrop-blur-xl border-t border-theme/20 px-4 py-2.5 relative overflow-hidden">
                 {/* Particle Background */}
-                <div className="absolute inset-0 opacity-20 pointer-events-none">
+                <div className="absolute inset-0 opacity-40 pointer-events-none">
                     <ParticleNetwork />
                 </div>
 
@@ -69,18 +69,36 @@ export default function GlobalAudioPlayer() {
                                 seekTo(pct * duration);
                             }}
                         >
-                            <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-1 bg-theme-primary/20 rounded-full" />
+                            <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-1 bg-theme-primary/10 rounded-full" />
                             <div
-                                className="absolute top-1/2 -translate-y-1/2 left-0 h-1 bg-theme-primary rounded-full transition-all"
+                                className="absolute top-1/2 -translate-y-1/2 left-0 h-1 bg-accent rounded-full transition-all"
                                 style={{ width: `${progress}%` }}
                             >
-                                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-theme-primary shadow-[0_0_10px_rgba(var(--theme-primary-rgb),0.5)] transform translate-x-1/2" />
+                                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-accent shadow-[0_0_10px_rgba(255,255,255,0.5)] transform translate-x-1/2" />
                             </div>
                         </div>
 
                         <span className="text-[9px] font-mono text-theme-muted w-8 flex-shrink-0">
                             {formatTime(duration)}
                         </span>
+                    </div>
+
+                    {/* Volume Control */}
+                    <div className="flex items-center gap-2 group/volume px-2 border-l border-theme/10">
+                        <Volume2 size={12} className="text-theme-muted" />
+                        <div className="w-16 h-1 bg-theme-primary/10 rounded-full relative cursor-pointer py-2 -my-2 bg-clip-content"
+                            onClick={(e) => {
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                const x = e.clientX - rect.left;
+                                setVolume(Math.max(0, Math.min(1, x / rect.width)));
+                            }}
+                        >
+                            <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-1 bg-theme-primary/10 rounded-full" />
+                            <div
+                                className="absolute top-1/2 -translate-y-1/2 left-0 h-1 bg-accent rounded-full"
+                                style={{ width: `${volume * 100}%` }}
+                            />
+                        </div>
                     </div>
 
                     {/* Close */}
