@@ -115,6 +115,8 @@ function App() {
             <Route path="/epk" component={EPKEditor} />
             <Route path="/epk/editor" component={EPKEditor} />
             <Route path="/epk/:boxCode" component={EPKView} />
+            <Route path="/mock" component={EPKView} />
+            <Route path="/test" component={EPKView} />
             <Route path="/settings" component={Settings} />
             <Route path="/studio" component={StudioDashboard} />
             <Route>

@@ -258,7 +258,22 @@ export default function Header({ showNav = true }: HeaderProps) {
                 <div className="flex items-center gap-4">
                   <div className="hidden sm:flex flex-col items-end">
                     <span className="text-[10px] font-bold text-accent tracking-widest uppercase">ACCESS_GRANTED</span>
-                    <span className="text-[8px] font-mono text-theme-muted uppercase">{user.displayName || user.email}</span>
+                    <span className="text-[8px] font-mono text-theme-muted uppercase mb-1">{user.displayName || user.email}</span>
+                    <div className="flex gap-2">
+                      {!isStudio && user.boxCode && (
+                        <Link href={`/epk/${user.boxCode}`}>
+                          <span className="text-[8px] font-bold text-theme-muted hover:text-accent cursor-pointer transition-colors uppercase tracking-widest">
+                            [VIEW_PROFILE]
+                          </span>
+                        </Link>
+                      )}
+                      <button
+                        onClick={() => logout()}
+                        className="text-[8px] font-bold text-red-500/70 hover:text-red-500 transition-colors uppercase tracking-widest"
+                      >
+                        [LOGOUT]
+                      </button>
+                    </div>
                   </div>
                   <button
                     onClick={() => setMenuOpen(!menuOpen)}

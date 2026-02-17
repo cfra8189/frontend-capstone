@@ -122,6 +122,12 @@ export default function EPKView() {
   }
 
   async function loadEPK() {
+    if (!boxCode || boxCode === "mock" || boxCode === "test" || boxCode === "MOCK") {
+      setData(MOCK_EPK);
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await fetch(`/api/epk/${boxCode}`);
       if (res.ok) {
