@@ -47,14 +47,6 @@ function App() {
     );
   }
 
-  if (location === "/docs") {
-    return (
-      <>
-        <GlobalEffects />
-        <Docs />
-      </>
-    );
-  }
 
   if (location === "/capstone") {
     return (
@@ -118,6 +110,7 @@ function App() {
             <Route path="/track-review" component={TrackReview} />
             <Route path="/generator" component={Generator} />
             <Route path="/documents" component={Documents} />
+            <Route path="/docs" component={Docs} />
             <Route path="/submissions" component={SubmissionGenerator} />
             <Route path="/epk" component={EPKEditor} />
             <Route path="/epk/editor" component={EPKEditor} />
