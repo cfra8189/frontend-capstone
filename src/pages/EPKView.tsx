@@ -22,6 +22,7 @@ interface EPKData {
     bookingEmail: string;
     technicalRider: string;
     stagePlot: string;
+    backgroundImageUrl: string;
     isPublished: boolean;
   };
   artist: {
@@ -73,6 +74,7 @@ const MOCK_EPK: EPKData = {
     bookingEmail: "booking@agency.com",
     technicalRider: "Standard Rider",
     stagePlot: "Standard Plot",
+    backgroundImageUrl: "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=2070&auto=format&fit=crop",
     isPublished: true
   },
   artist: {
@@ -197,7 +199,7 @@ export default function EPKView() {
 
       {/* Owner Preview Banner */}
       {isOwner && (
-        <div className="bg-accent text-black py-2 px-4 flex items-center justify-between sticky top-0 z-[100] font-mono text-[10px] uppercase tracking-[0.2em] font-bold shadow-xl">
+        <div className="bg-accent text-black py-2 px-4 flex items-center justify-between fixed top-0 left-0 right-0 z-[100] font-mono text-[10px] uppercase tracking-[0.2em] font-bold shadow-xl">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-black animate-pulse"></span>
@@ -214,7 +216,7 @@ export default function EPKView() {
       )}
 
       {/* ── Navigation ── */}
-      <nav className={`fixed left-0 right-0 z-50 transition-all duration-500 ${isOwner ? 'top-12' : 'top-0'} ${scrolled ? "bg-black/80 backdrop-blur-md py-4 border-b border-white/5" : "bg-transparent py-6"}`}>
+      <nav className={`fixed left-0 right-0 z-50 transition-all duration-500 ${isOwner ? 'top-[34px]' : 'top-0'} ${scrolled ? "bg-black/80 backdrop-blur-md py-4 border-b border-white/5" : "bg-transparent py-6"}`}>
         <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
           <a href="#" className="text-lg font-bold tracking-[0.2em] uppercase mix-blend-difference">{artist.displayName}</a>
 
@@ -246,8 +248,8 @@ export default function EPKView() {
       <section ref={sectionRefs.hero} className="relative h-screen flex items-center justify-center overflow-hidden">
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
-          {artist.profileImageUrl ? (
-            <img src={artist.profileImageUrl} alt="Hero" className="w-full h-full object-cover opacity-60 grayscale hover:grayscale-0 transition-all duration-[2s]" />
+          {(epk.backgroundImageUrl || artist.profileImageUrl) ? (
+            <img src={epk.backgroundImageUrl || artist.profileImageUrl || ""} alt="Hero" className="w-full h-full object-cover opacity-60 grayscale hover:grayscale-0 transition-all duration-[2s]" />
           ) : (
             <div className="w-full h-full bg-neutral-900" />
           )}

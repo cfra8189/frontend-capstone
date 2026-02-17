@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../hooks/use-auth";
+import { useUpload } from "../hooks/use-upload";
 import Header from "../components/Header";
+import { Upload, Plus, Image as ImageIcon, Loader2 } from "lucide-react";
 
 interface EPK {
   id?: number;
@@ -20,6 +22,7 @@ interface EPK {
   bookingEmail: string;
   technicalRider: string;
   stagePlot: string;
+  backgroundImageUrl: string;
   isPublished: boolean;
 }
 
@@ -40,6 +43,7 @@ const defaultEPK: EPK = {
   bookingEmail: "",
   technicalRider: "",
   stagePlot: "",
+  backgroundImageUrl: "",
   isPublished: false,
 };
 
@@ -47,6 +51,8 @@ export default function EPKEditor() {
   const { user } = useAuth();
   const [epk, setEpk] = useState<EPK>(defaultEPK);
   const [loading, setLoading] = useState(true);
+  const { uploadFile, isUploading } = useUpload();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [activeTab, setActiveTab] = useState<"bio" | "media" | "achievements" | "contact" | "technical">("bio");
@@ -74,7 +80,10 @@ export default function EPKEditor() {
             featuredTracks: data.epk.featuredTracks || [],
             achievements: data.epk.achievements || [],
             pressQuotes: data.epk.pressQuotes || [],
-            socialLinks: data.epk.socialLinks || {},
+            technicalRider: data.epk.technicalRider || "",
+            stagePlot: data.epk.stagePlot || "",
+            backgroundImageUrl: data.epk.backgroundImageUrl || "",
+            isPublished: data.epk.isPublished || false,
           });
         }
       }
@@ -126,9 +135,50 @@ export default function EPKEditor() {
     }
   }
 
-  function removePhoto(index: number) {
-    setEpk({ ...epk, photoUrls: epk.photoUrls.filter((_, i) => i !== index) });
-  }
+  const removePhoto = (index: number) => {
+    const photoUrls = [...epk.photoUrls];
+    const removedUrl = photoUrls[index];
+    photoUrls.splice(index, 1);
+
+    // Clear background image if it was the one removed
+    const newBackground = epk.backgroundImageUrl === removedUrl ? "" : epk.backgroundImageUrl;
+
+    setEpk({ ...epk, photoUrls, backgroundImageUrl: newBackground });
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const response = await uploadFile(file);
+      if (response) {
+        // Step 3: Finalize upload with public visibility
+        const finalizeRes = await fetch("/api/uploads/finalize", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            objectPath: response.objectPath,
+            visibility: "public"
+          })
+        });
+
+        if (finalizeRes.ok) {
+          const publicUrl = response.objectPath;
+          setEpk(prev => ({
+            ...prev,
+            photoUrls: [...prev.photoUrls, publicUrl]
+          }));
+        } else {
+          console.error("Failed to finalize upload visibility");
+        }
+      }
+    } catch (err) {
+      console.error("Upload failed", err);
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   function addVideo() {
     if (newVideoUrl.trim()) {
@@ -370,27 +420,74 @@ export default function EPKEditor() {
 
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
                 {epk.photoUrls.map((url, i) => (
-                  <div key={i} className="relative group">
-                    <img src={url} alt={`Photo ${i + 1}`} className="w-full h-32 object-cover rounded" />
-                    <button
-                      onClick={() => removePhoto(i)}
-                      className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      Remove
-                    </button>
+                  <div key={i} className={`relative group border-2 transition-all rounded overflow-hidden ${epk.backgroundImageUrl === url ? "border-accent shadow-[0_0_15px_rgba(var(--accent-rgb),0.3)]" : "border-transparent"}`}>
+                    <img src={url} alt={`Photo ${i + 1}`} className="w-full h-32 object-cover" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 p-2">
+                      <button
+                        onClick={() => setEpk({ ...epk, backgroundImageUrl: url })}
+                        className={`text-[9px] font-bold uppercase tracking-widest px-2 py-1.5 rounded w-full transition-all ${epk.backgroundImageUrl === url ? "bg-accent text-black" : "bg-white/10 text-white hover:bg-white/20"}`}
+                      >
+                        {epk.backgroundImageUrl === url ? "Main Background" : "Set as Background"}
+                      </button>
+                      <button
+                        onClick={() => removePhoto(i)}
+                        className="text-[9px] font-bold uppercase tracking-widest px-2 py-1.5 rounded bg-red-500/80 text-white hover:bg-red-500 w-full transition-all"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    {epk.backgroundImageUrl === url && (
+                      <div className="absolute top-1 left-1 bg-accent text-black text-[8px] px-1 rounded font-black uppercase tracking-tighter">BG</div>
+                    )}
                   </div>
                 ))}
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-4">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newPhotoUrl}
+                    onChange={(e) => setNewPhotoUrl(e.target.value)}
+                    className="input-field flex-1 p-2 rounded text-sm"
+                    placeholder="Photo URL (https://...)"
+                  />
+                  <button onClick={addPhoto} className="btn-primary px-4 py-2 rounded text-sm flex items-center gap-2 whitespace-nowrap">
+                    <Plus size={14} /> Add URL
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="h-px flex-1 bg-white/5" />
+                  <span className="text-[10px] font-bold text-theme-muted uppercase tracking-widest">or</span>
+                  <div className="h-px flex-1 bg-white/5" />
+                </div>
+
                 <input
-                  type="text"
-                  value={newPhotoUrl}
-                  onChange={(e) => setNewPhotoUrl(e.target.value)}
-                  className="input-field flex-1 p-2 rounded text-sm"
-                  placeholder="Photo URL (https://...)"
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  accept="image/*,.gif"
                 />
-                <button onClick={addPhoto} className="btn-primary px-4 py-2 rounded text-sm">Add Photo</button>
+
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  className="w-full py-4 border-2 border-dashed border-white/10 rounded-lg hover:border-accent/40 hover:bg-white/5 transition-all group flex flex-col items-center justify-center gap-2"
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 size={24} className="text-accent animate-spin" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-accent">Uploading...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload size={24} className="text-theme-muted group-hover:text-accent transition-colors" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-theme-muted group-hover:text-white transition-colors">Upload from Device (Gifs/Images)</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
 
