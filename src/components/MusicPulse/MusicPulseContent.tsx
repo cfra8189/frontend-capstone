@@ -33,8 +33,8 @@ interface HistoryPoint {
 
 // Colors for chart lines
 const TRACK_COLORS = [
-    '#f43f5e', '#3b82f6', '#10b981', '#a855f7', '#f97316',
-    '#06b6d4', '#eab308', '#ec4899', '#14b8a6', '#8b5cf6',
+    '#ffffff', '#e5e5e5', '#d4d4d4', '#a3a3a3', '#737373',
+    '#525252', '#404040', '#262626', '#171717', '#0a0a0a',
 ];
 
 // ---------- Main Component ----------
@@ -219,12 +219,15 @@ export default function MusicPulseContent() {
                             />
                             <Tooltip
                                 contentStyle={{
-                                    background: 'rgba(15, 15, 20, 0.95)',
+                                    background: '#0a0a0a',
                                     border: '1px solid rgba(255,255,255,0.1)',
-                                    borderRadius: '2px',
+                                    borderRadius: '4px',
                                     fontSize: '11px',
                                     color: '#fff',
+                                    boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
                                 }}
+                                itemStyle={{ color: '#e5e5e5' }}
+                                cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }}
                                 labelFormatter={(label) => {
                                     const d = new Date(label);
                                     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
@@ -271,18 +274,21 @@ export default function MusicPulseContent() {
                             <XAxis dataKey="name" tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.4)' }} stroke="rgba(255,255,255,0.1)" />
                             <YAxis tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.4)' }} stroke="rgba(255,255,255,0.1)" />
                             <Tooltip
+                                cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                                 contentStyle={{
-                                    background: 'rgba(15, 15, 20, 0.95)',
+                                    background: '#0a0a0a',
                                     border: '1px solid rgba(255,255,255,0.1)',
-                                    borderRadius: '2px',
+                                    borderRadius: '4px',
                                     fontSize: '11px',
                                     color: '#fff',
+                                    boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
                                 }}
+                                itemStyle={{ color: '#e5e5e5' }}
                             />
                             <Legend wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} iconSize={8} />
-                            <Bar dataKey="Views" fill="#3b82f6" radius={[2, 2, 0, 0]} />
-                            <Bar dataKey="Likes" fill="#f43f5e" radius={[2, 2, 0, 0]} />
-                            <Bar dataKey="Comments" fill="#10b981" radius={[2, 2, 0, 0]} />
+                            <Bar dataKey="Views" fill="#ffffff" radius={[2, 2, 0, 0]} />
+                            <Bar dataKey="Likes" fill="#a3a3a3" radius={[2, 2, 0, 0]} />
+                            <Bar dataKey="Comments" fill="#525252" radius={[2, 2, 0, 0]} />
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
